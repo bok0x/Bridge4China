@@ -15,17 +15,24 @@ interface GalleryUni {
 }
 
 async function getFeaturedUniversities(): Promise<GalleryUni[]> {
-  const supabase = createClient();
-  // Prefer ranked universities that have a real cover image
-  const { data } = await supabase
-    .from("University")
-    .select("id, name, slug, city, province, ranking, logoUrl, coverUrl")
-    .not("coverUrl", "is", null)
-    .not("coverUrl", "ilike", "%school_rank.png%")
-    .not("ranking", "is", null)
-    .order("ranking", { ascending: true })
-    .limit(12);
-  return (data ?? []) as GalleryUni[];
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return [];
+  }
+  try {
+    const supabase = createClient();
+    // Prefer ranked universities that have a real cover image
+    const { data } = await supabase
+      .from("University")
+      .select("id, name, slug, city, province, ranking, logoUrl, coverUrl")
+      .not("coverUrl", "is", null)
+      .not("coverUrl", "ilike", "%school_rank.png%")
+      .not("ranking", "is", null)
+      .order("ranking", { ascending: true })
+      .limit(12);
+    return (data ?? []) as GalleryUni[];
+  } catch {
+    return [];
+  }
 }
 
 export async function UniversityGallery() {
