@@ -11,6 +11,26 @@ import type { Program } from "@/types";
 
 export const revalidate = 3600;
 
+function normalizeJsonProgram(p: Record<string, unknown>): Program {
+  if (p.university && typeof p.university === "object") return p as unknown as Program;
+  const slug = (p.universitySlug as string) ?? "";
+  return {
+    ...(p as unknown as Program),
+    university: {
+      id: slug,
+      name: (p.universityName as string) ?? "",
+      slug,
+      city: (p.city as string) ?? "",
+      province: (p.province as string) ?? "",
+      ranking: null,
+      logoUrl: null,
+      coverUrl: null,
+      website: null,
+      description: null,
+    },
+  };
+}
+
 async function getProgramById(id: string): Promise<Program | null> {
   // Attempt 1: Supabase (production)
   try {
@@ -39,7 +59,20 @@ async function getProgramById(id: string): Promise<Program | null> {
     // Supabase not configured
   }
 
-  // Attempt 2: /data/ JSON files or mock data via internal API
+  // Attempt 2: /data/programs/all_programs.json (populated by pipeline)
+  try {
+    const { readFileSync } = await import("fs");
+    const { join } = await import("path");
+    const file = join(process.cwd(), "data", "programs", "all_programs.json");
+    const parsed = JSON.parse(readFileSync(file, "utf-8"));
+    const items: Record<string, unknown>[] = parsed.programs ?? parsed;
+    const found = items.find((p) => p.id === id);
+    if (found) return normalizeJsonProgram(found);
+  } catch {
+    // Data pipeline not run yet
+  }
+
+  // Attempt 3: mock data (dev fallback)
   try {
     const { MOCK_PROGRAMS } = await import("@/lib/mock-programs");
     const found = MOCK_PROGRAMS.find((p) => p.id === id);

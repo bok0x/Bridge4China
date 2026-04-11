@@ -3,23 +3,52 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, BookOpen } from "lucide-react";
+import { Menu, X, BookOpen, LogIn, LogOut, LayoutDashboard } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
-import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { SITE_NAME } from "@/lib/constants";
 import { useComparisonStore } from "@/stores/comparisonStore";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
+
+const NAV_KEYS = [
+  { key: "nav_discover" as const, href: "/discover" },
+  { key: "nav_compare"  as const, href: "/compare"  },
+  { key: "nav_scholarships" as const, href: "/scholarships" },
+  { key: "nav_apply"   as const, href: "/apply"    },
+] as const;
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const { programs: compared } = useComparisonStore();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    setOpen(false);
+  }
 
   return (
     <header
@@ -40,7 +69,6 @@ export function Navbar() {
               height={32}
               className="object-contain"
               onError={(e) => {
-                // fallback icon if logo not found
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
@@ -55,14 +83,14 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map((link) => (
+          {NAV_KEYS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </nav>
@@ -76,15 +104,37 @@ export function Navbar() {
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold font-heading badge-accent"
             >
               <BookOpen size={13} />
-              Compare ({compared.length}/3)
+              {t("nav_compare")} ({compared.length}/3)
             </Link>
           )}
 
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
           <ThemeToggle />
 
-          <Link href="/apply" className="hidden md:flex btn-accent text-sm py-2">
-            Apply Now
-          </Link>
+          {user ? (
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="/dashboard" className="btn-ghost text-sm py-2 flex items-center gap-1.5">
+                <LayoutDashboard size={14} />
+                Dashboard
+              </Link>
+              <button onClick={handleSignOut} className="btn-ghost text-sm py-2 flex items-center gap-1.5">
+                <LogOut size={14} />
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="/login" className="btn-ghost text-sm py-2 flex items-center gap-1.5">
+                <LogIn size={14} />
+                Sign in
+              </Link>
+              <Link href="/apply" className="btn-accent text-sm py-2">
+                {t("apply_now")}
+              </Link>
+            </div>
+          )}
 
           {/* Mobile menu toggle */}
           <button
@@ -101,7 +151,7 @@ export function Navbar() {
       {open && (
         <div className="md:hidden mt-2 mx-4 glass rounded-2xl overflow-hidden animate-slide-up">
           <div className="p-4 flex flex-col gap-1">
-            {NAV_LINKS.map((link) => (
+            {NAV_KEYS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -109,16 +159,43 @@ export function Navbar() {
                 className="px-4 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             ))}
-            <Link
-              href="/apply"
-              onClick={() => setOpen(false)}
-              className="mt-2 btn-accent text-center"
-            >
-              Apply Now
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 btn-ghost text-center flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard size={14} /> Dashboard
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="btn-ghost text-center flex items-center justify-center gap-2 w-full"
+                >
+                  <LogOut size={14} /> Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 btn-ghost text-center"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/apply"
+                  onClick={() => setOpen(false)}
+                  className="mt-1 btn-accent text-center"
+                >
+                  {t("apply_now")}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

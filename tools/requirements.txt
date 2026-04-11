@@ -5,3 +5,8 @@ pydantic==2.7.1
 httpx==0.27.0
 beautifulsoup4==4.12.3
 lxml==5.2.2
+requests==2.32.3
+
+# Optional: Firecrawl fallback for records where the direct API fails
+# Install if using --use-firecrawl flag in scrape_scholarship_china.py
+# firecrawl-py==1.4.0

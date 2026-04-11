@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -46,12 +47,14 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <ThemeProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppFloat />
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <WhatsAppFloat />
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

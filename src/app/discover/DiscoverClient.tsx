@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Search } from "lucide-react";
 import { FilterSidebar } from "@/components/discovery/FilterSidebar";
 import { UniversityCard } from "@/components/discovery/UniversityCard";
@@ -11,6 +11,69 @@ import type { Program } from "@/types";
 
 const LIMIT = 24;
 
+/** Compact index record shape (subset of Program, from /programs-index.json) */
+interface IndexProgram {
+  id: string;
+  universityName: string;
+  universitySlug: string;
+  city: string;
+  province: string;
+  programName: string;
+  field: string;
+  degree: string;
+  teachingLanguage: string;
+  intakeSeason: string;
+  applicationDeadline?: string | null;
+  programDuration: string;
+  originalTuition: number;
+  tuitionAfterScholarship?: number | null;
+  accommodationFee?: number | null;
+  acceptsMinors: boolean;
+  hasCscaScore: boolean;
+  scholarships: { type: string; name: string }[];
+}
+
+/** Convert a compact index record to the full Program shape components expect */
+function toProgram(p: IndexProgram): Program {
+  return {
+    ...(p as unknown as Program),
+    universityId: p.universitySlug,
+    programCode: "",
+    locationRestrictions: [],
+    recommendationLetterCount: 0,
+    requiresPassportPhoto: false,
+    requiresPassportId: false,
+    requiresTranscripts: false,
+    requiresHighestDegree: false,
+    requiresPhysicalExam: false,
+    requiresNonCriminalRecord: false,
+    requiresEnglishCert: false,
+    requiresApplicationForm: false,
+    requiresStudyPlan: false,
+    requiresRecommendations: false,
+    university: {
+      id: p.universitySlug,
+      name: p.universityName,
+      slug: p.universitySlug,
+      city: p.city,
+      province: p.province,
+      ranking: null,
+      logoUrl: null,
+      coverUrl: null,
+      website: null,
+      description: null,
+    },
+    scholarships: p.scholarships.map((s, i) => ({
+      id: `${p.id}-s${i}`,
+      programId: p.id,
+      category: "",
+      duration: "",
+      coversTuition: false,
+      ...s,
+    })) as import("@/types").Scholarship[],
+  };
+}
+
 export function DiscoverClient() {
   const router = useRouter();
   const pathname = usePathname();
@@ -19,6 +82,7 @@ export function DiscoverClient() {
   const view = searchParams.get("view") ?? "card";
   const page = parseInt(searchParams.get("page") ?? "1");
 
+  // ── Search input with debounce ──────────────────────────────────────────────
   const [searchInput, setSearchInput] = useState(() => searchParams.get("search") ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const prevSearchParam = useRef(searchParams.get("search") ?? "");
@@ -40,43 +104,94 @@ export function DiscoverClient() {
     }, 350);
   };
 
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [isMock, setIsMock] = useState(false);
+  // ── Load full index once on mount ──────────────────────────────────────────
+  const [allPrograms, setAllPrograms] = useState<IndexProgram[]>([]);
+  const [indexLoading, setIndexLoading] = useState(true);
+  const [indexError, setIndexError] = useState(false);
 
-  const fetchPrograms = useCallback(async () => {
-    setLoading(true);
+  useEffect(() => {
+    fetch("/programs-index.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        setAllPrograms(data.programs ?? []);
+        setIndexLoading(false);
+      })
+      .catch(() => {
+        setIndexError(true);
+        setIndexLoading(false);
+      });
+  }, []);
 
-    // Build query params — mirrors the URL search params
-    const params = new URLSearchParams();
-    params.set("page", String(page));
-    params.set("limit", String(LIMIT));
+  // ── Client-side filter — runs instantly on every searchParam change ────────
+  const filtered = useMemo(() => {
+    if (allPrograms.length === 0) return [];
 
-    const forward = ["search", "degree", "language", "field", "province", "city", "universityName", "hasScholarship", "intakeSeason"];
-    for (const key of forward) {
-      const val = searchParams.get(key);
-      if (val) params.set(key, val);
-    }
+    const search        = (searchParams.get("search") ?? "").toLowerCase();
+    const degree        = searchParams.get("degree") ?? "";
+    const language      = searchParams.get("language") ?? "";
+    const field         = (searchParams.get("field") ?? "").toLowerCase();
+    const province      = (searchParams.get("province") ?? "").toLowerCase();
+    const city          = (searchParams.get("city") ?? "").toLowerCase();
+    const universityName = (searchParams.get("universityName") ?? "").toLowerCase();
+    const intakeSeason  = (searchParams.get("intakeSeason") ?? "").toLowerCase();
+    const acceptsMinors = searchParams.get("acceptsMinors");
+    const hasCscaScore  = searchParams.get("hasCscaScore");
+    const hasScholarship = searchParams.get("hasScholarship") === "true";
 
-    try {
-      const res = await fetch(`/api/programs?${params.toString()}`);
-      const data = await res.json();
-      setPrograms(data.programs ?? []);
-      setTotal(data.total ?? 0);
-      // Detect if we're showing mock data (IDs start with "mock-")
-      setIsMock((data.programs?.[0]?.id ?? "").startsWith("mock-"));
-    } catch {
-      setPrograms([]);
-      setTotal(0);
-    }
+    return allPrograms.filter((p) => {
+      const uName = p.universityName.toLowerCase();
+      const uCity = p.city.toLowerCase();
+      const uProv = p.province.toLowerCase();
 
-    setLoading(false);
-  }, [searchParams, page]);
+      if (search && !p.programName.toLowerCase().includes(search) &&
+          !p.field.toLowerCase().includes(search) && !uName.includes(search) &&
+          !uCity.includes(search)) return false;
+      if (degree && p.degree !== degree) return false;
+      if (language && p.teachingLanguage !== language) return false;
+      if (field && !p.field.toLowerCase().includes(field)) return false;
+      if (province && !uProv.includes(province)) return false;
+      if (city && !uCity.includes(city)) return false;
+      if (universityName && !uName.includes(universityName)) return false;
+      if (intakeSeason && p.intakeSeason.toLowerCase() !== intakeSeason) return false;
+      if (acceptsMinors === "true" && !p.acceptsMinors) return false;
+      if (acceptsMinors === "false" && p.acceptsMinors) return false;
+      if (hasCscaScore === "true" && !p.hasCscaScore) return false;
+      if (hasCscaScore === "false" && p.hasCscaScore) return false;
+      if (hasScholarship && p.scholarships.length === 0) return false;
+      return true;
+    });
+  }, [allPrograms, searchParams]);
 
-  useEffect(() => { fetchPrograms(); }, [fetchPrograms]);
-
+  // ── Paginate ───────────────────────────────────────────────────────────────
+  const total = filtered.length;
   const totalPages = Math.ceil(total / LIMIT);
+  const paginated = useMemo(
+    () => filtered.slice((page - 1) * LIMIT, page * LIMIT).map(toProgram),
+    [filtered, page]
+  );
+
+  // ── Reset to page 1 when filters change ───────────────────────────────────
+  const prevFilters = useRef("");
+  useEffect(() => {
+    const filters = searchParams.toString().replace(/page=\d+/, "");
+    if (filters !== prevFilters.current) {
+      prevFilters.current = filters;
+    }
+  }, [searchParams]);
+
+  const updateFilter = useCallback(
+    (key: string, value: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value === null || value === "") { params.delete(key); } else { params.set(key, value); }
+      params.delete("page");
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
+  void updateFilter; // used by FilterSidebar via URL, not directly
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -88,29 +203,13 @@ export function DiscoverClient() {
             Find Your Program
           </h1>
           <p style={{ color: "var(--color-text-secondary)" }}>
-            {loading
+            {indexLoading
               ? "Loading programs…"
-              : `${total.toLocaleString()} programs across Chinese universities`}
+              : indexError
+              ? "Could not load program data."
+              : `${total.toLocaleString()} of ${allPrograms.length.toLocaleString()} programs`}
           </p>
         </div>
-
-        {/* Demo banner */}
-        {isMock && !loading && (
-          <div
-            className="mb-6 px-5 py-3 rounded-2xl text-sm flex items-center gap-3"
-            style={{
-              background: "rgba(72,197,156,0.10)",
-              border: "1px solid rgba(72,197,156,0.30)",
-              color: "var(--color-text-secondary)",
-            }}
-          >
-            <span style={{ color: "var(--color-accent)" }}>●</span>
-            <span>
-              <strong style={{ color: "var(--color-text-primary)" }}>Preview mode</strong> — showing sample programs.
-              Connect Supabase or run the data pipeline to load real data.
-            </span>
-          </div>
-        )}
 
         {/* Search + View Toggle */}
         <div className="flex items-center gap-4 mb-8">
@@ -138,13 +237,13 @@ export function DiscoverClient() {
           </aside>
 
           <div>
-            {loading ? (
+            {indexLoading ? (
               <LoadingSkeleton view={view} />
-            ) : programs.length === 0 ? (
+            ) : paginated.length === 0 ? (
               <EmptyState />
             ) : view === "list" ? (
               <>
-                <ProgramListTable programs={programs} />
+                <ProgramListTable programs={paginated} />
                 {totalPages > 1 && (
                   <PaginationBar page={page} totalPages={totalPages} searchParams={searchParams} />
                 )}
@@ -152,7 +251,7 @@ export function DiscoverClient() {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {programs.map((program) => (
+                  {paginated.map((program) => (
                     <UniversityCard key={program.id} program={program} />
                   ))}
                 </div>
@@ -173,11 +272,8 @@ function LoadingSkeleton({ view }: { view: string }) {
     return (
       <div className="rounded-2xl overflow-hidden animate-pulse" style={{ border: "1px solid var(--glass-border-subtle)" }}>
         {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex gap-4 px-4 py-3"
-            style={{ borderBottom: "1px solid var(--glass-border-subtle)", background: i % 2 === 0 ? "var(--color-bg-primary)" : "var(--color-bg-secondary)" }}
-          >
+          <div key={i} className="flex gap-4 px-4 py-3"
+            style={{ borderBottom: "1px solid var(--glass-border-subtle)", background: i % 2 === 0 ? "var(--color-bg-primary)" : "var(--color-bg-secondary)" }}>
             <div className="h-4 rounded w-20" style={{ background: "var(--color-bg-tertiary)" }} />
             <div className="h-4 rounded flex-1 max-w-[220px]" style={{ background: "var(--color-bg-tertiary)" }} />
             <div className="h-4 rounded w-24" style={{ background: "var(--color-bg-tertiary)" }} />
@@ -191,11 +287,8 @@ function LoadingSkeleton({ view }: { view: string }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-2xl overflow-hidden animate-pulse"
-          style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--glass-border-subtle)", height: 320 }}
-        >
+        <div key={i} className="rounded-2xl overflow-hidden animate-pulse"
+          style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--glass-border-subtle)", height: 320 }}>
           <div className="w-full h-44" style={{ background: "var(--color-bg-tertiary)" }} />
           <div className="p-4 space-y-3">
             <div className="h-4 rounded w-3/4" style={{ background: "var(--color-bg-tertiary)" }} />
@@ -209,9 +302,7 @@ function LoadingSkeleton({ view }: { view: string }) {
 }
 
 function PaginationBar({
-  page,
-  totalPages,
-  searchParams,
+  page, totalPages, searchParams,
 }: {
   page: number;
   totalPages: number;

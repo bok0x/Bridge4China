@@ -18,8 +18,22 @@ Usage:
 
 import json
 import argparse
+import hashlib
 from pathlib import Path
 from datetime import datetime
+
+
+def ensure_program_id(prog: dict) -> str:
+    """Return existing id or generate a stable one from key program fields."""
+    if prog.get("id"):
+        return prog["id"]
+    key = "|".join([
+        prog.get("universitySlug", ""),
+        prog.get("programName", ""),
+        prog.get("degree", ""),
+        prog.get("teachingLanguage", ""),
+    ])
+    return hashlib.md5(key.encode("utf-8")).hexdigest()[:16]
 
 
 INPUT_FILE = Path(".tmp/normalized_programs.json")
@@ -85,6 +99,18 @@ def main(input_file: Path = INPUT_FILE, data_dir: Path = DATA_DIR):
     # Load ranking enrichment data (if available)
     ranking_lookup = merge_rankings(programs, rankings_dir)
 
+    # ── Ensure every program has a stable id and deduplicate ─────────────────
+    seen_ids: set[str] = set()
+    deduped: list[dict] = []
+    for prog in programs:
+        prog["id"] = ensure_program_id(prog)
+        if prog["id"] not in seen_ids:
+            seen_ids.add(prog["id"])
+            deduped.append(prog)
+    if len(deduped) < len(programs):
+        log(f"  Deduplication: removed {len(programs) - len(deduped)} exact duplicate(s)")
+    programs = deduped
+
     # ── Group programs by university slug ─────────────────────────────────────
     by_university: dict[str, list[dict]] = {}
     for prog in programs:
@@ -138,6 +164,48 @@ def main(input_file: Path = INPUT_FILE, data_dir: Path = DATA_DIR):
         encoding="utf-8",
     )
     log(f"Wrote {len(programs)} programs → {all_prog_file}")
+
+    # ── Write compact search index for client-side filtering ──────────────────
+    # This file is served as a static asset from /public/ so the browser can
+    # download it once and do all filtering in-browser without API round-trips.
+    # Only includes the fields needed for cards, filters, and search.
+    public_dir = Path("public")
+    public_dir.mkdir(parents=True, exist_ok=True)
+    index_file = public_dir / "programs-index.json"
+
+    compact = []
+    for p in programs:
+        scholarships = p.get("scholarships") or []
+        compact.append({
+            "id":                      p.get("id", ""),
+            "universityName":          p.get("universityName", ""),
+            "universitySlug":          p.get("universitySlug", ""),
+            "city":                    p.get("city", ""),
+            "province":                p.get("province", ""),
+            "programName":             p.get("programName", ""),
+            "field":                   p.get("field", ""),
+            "degree":                  p.get("degree", ""),
+            "teachingLanguage":        p.get("teachingLanguage", ""),
+            "intakeSeason":            p.get("intakeSeason", ""),
+            "applicationDeadline":     p.get("applicationDeadline"),
+            "programDuration":         p.get("programDuration", ""),
+            "originalTuition":         p.get("originalTuition", 0),
+            "tuitionAfterScholarship": p.get("tuitionAfterScholarship"),
+            "accommodationFee":        p.get("accommodationFee"),
+            "acceptsMinors":           p.get("acceptsMinors", False),
+            "hasCscaScore":            p.get("hasCscaScore", False),
+            "scholarships": [
+                {"type": s.get("type", ""), "name": s.get("name", "")}
+                for s in scholarships
+            ],
+        })
+
+    index_file.write_text(
+        json.dumps({"generatedAt": datetime.utcnow().isoformat(), "total": len(compact), "programs": compact},
+                   ensure_ascii=False, separators=(",", ":")),  # minified
+        encoding="utf-8",
+    )
+    log(f"Wrote compact search index ({len(compact)} programs) → {index_file}")
 
     # ── Summary ───────────────────────────────────────────────────────────────
     complete = sum(1 for p in programs if p.get("status") == "complete")

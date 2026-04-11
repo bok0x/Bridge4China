@@ -35,3 +35,10 @@ app/.env
 .DS_Store
 Thumbs.db
 *.log
+tsconfig.tsbuildinfo
+
+# Claude Code local settings
+.claude/
+
+# Large pipeline outputs (Supabase is source of truth)
+data/programs/all_programs.json

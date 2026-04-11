@@ -42,25 +42,36 @@ def log(msg: str):
 # Column names match Prisma field names exactly (camelCase).
 
 def upsert_university(client: Client, program: dict, _cache: dict = {}) -> str | None:
-    """Get existing university ID by slug (cached), or insert a new record."""
+    """Upsert a university by slug and return its ID (cached after first lookup)."""
     slug = program["universitySlug"]
     if slug in _cache:
         return _cache[slug]
-    # Check if already exists — never overwrite the primary key
-    existing = client.table("University").select("id").eq("slug", slug).maybe_single().execute()
-    if existing.data:
-        _cache[slug] = existing.data["id"]
-        return _cache[slug]
-    # Insert new university
-    uni_id = str(uuid.uuid4())
-    result = client.table("University").insert({
-        "id": uni_id,
+
+    # Build the update payload — only overwrite non-null incoming values so
+    # manually curated fields (website, description, etc.) aren't blanked out.
+    payload: dict = {
         "name": program["universityName"],
         "slug": slug,
         "city": program.get("city") or "",
         "province": program.get("province") or "",
         "updatedAt": datetime.now(UTC).isoformat(),
-    }).execute()
+    }
+    for field in ("logoUrl", "coverUrl", "description", "website", "ranking"):
+        v = program.get(field)
+        if v not in (None, "", "--"):
+            payload[field] = v
+
+    existing = client.table("University").select("id").eq("slug", slug).maybe_single().execute()
+    if existing.data:
+        uni_id = existing.data["id"]
+        client.table("University").update(payload).eq("id", uni_id).execute()
+        _cache[slug] = uni_id
+        return uni_id
+
+    # New university — generate a fresh ID
+    uni_id = str(uuid.uuid4())
+    payload["id"] = uni_id
+    result = client.table("University").insert(payload).execute()
     if result.data:
         _cache[slug] = result.data[0]["id"]
         return _cache[slug]
