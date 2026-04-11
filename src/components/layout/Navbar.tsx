@@ -35,17 +35,25 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
+    try {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => setUser(data.user));
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+      return () => subscription.unsubscribe();
+    } catch {
+      // Supabase not configured — auth UI stays hidden
+    }
   }, []);
 
   async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch { /* ignore */ }
     setUser(null);
     setOpen(false);
   }
