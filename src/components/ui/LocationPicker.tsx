@@ -68,6 +68,8 @@ export function LocationPicker({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         className="input-glass text-xs py-2 w-full flex items-center justify-between gap-2 text-left"
         style={{
           color: displayLabel
