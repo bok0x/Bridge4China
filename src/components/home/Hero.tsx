@@ -9,7 +9,8 @@ import {
   Info,
 } from "lucide-react";
 import { ScrollScatterCards } from "@/components/home/ScrollScatterCards";
-import { FIELDS_OF_STUDY, CHINESE_CITIES, WHATSAPP_URL } from "@/lib/constants";
+import { FIELDS_OF_STUDY, WHATSAPP_URL } from "@/lib/constants";
+import { LocationPicker, type LocationValue } from "@/components/ui/LocationPicker";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 /* ── GPA format configs ──────────────────────────────────── */
@@ -140,12 +141,12 @@ export function Hero() {
   const [step, setStep] = useState<1 | 2>(1);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [gpaFmt, setGpaFmt] = useState(0);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const [form, setForm] = useState({
     lastDegree: "",
     gpa:        "",
     field:      "",
     degree:     "",
-    city:       "",
     language:   "",
     scholarship: false,
   });
@@ -169,9 +170,10 @@ export function Hero() {
     const p = new URLSearchParams();
     if (form.field)                                   p.set("field",          form.field);
     if (form.degree)                                  p.set("degree",         form.degree);
-    if (form.language && form.language !== "any")     p.set("language",       form.language);
-    if (form.city)                                    p.set("province",       form.city);
-    if (form.scholarship)                             p.set("hasScholarship", "true");
+    if (form.language && form.language !== "any")  p.set("language",       form.language);
+    if (location?.province)                        p.set("province",       location.province);
+    if (location?.city)                            p.set("city",           location.city);
+    if (form.scholarship)                          p.set("hasScholarship", "true");
     router.push(`/discover?${p.toString()}`);
   }
 
@@ -492,21 +494,15 @@ export function Hero() {
 
                     {/* Row: City + Language */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* City / Province */}
+                      {/* Location — province or city */}
                       <div>
                         <FieldLabel label={t("city")} />
-                        <select
-                          className="input-glass w-full"
-                          value={form.city}
-                          onChange={(e) => set("city", e.target.value)}
-                        >
-                          <option value="">{t("anywhere")}</option>
-                          {CHINESE_CITIES.map(({ city, count }) => (
-                            <option key={city} value={city}>
-                              {city} ({count})
-                            </option>
-                          ))}
-                        </select>
+                        <LocationPicker
+                          value={location}
+                          onChange={setLocation}
+                          placeholder={t("anywhere")}
+                          className="w-full"
+                        />
                       </div>
 
                       {/* Teaching Language */}
