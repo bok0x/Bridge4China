@@ -4,7 +4,8 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
 import { X, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FIELDS_OF_STUDY, CHINESE_PROVINCES, CHINESE_CITIES } from "@/lib/constants";
+import { FIELDS_OF_STUDY } from "@/lib/constants";
+import { LocationPicker, type LocationValue } from "@/components/ui/LocationPicker";
 
 const DEGREES = [
   { value: "NON_DEGREE", label: "Non-degree" },
@@ -211,32 +212,25 @@ export function FilterSidebar() {
           />
         </FilterGroup>
 
-        {/* City */}
-        <FilterGroup label="City">
-          <select
-            value={currentCity}
-            onChange={(e) => updateFilter("city", e.target.value || null)}
-            className="input-glass text-xs py-2"
-          >
-            <option value="">All Cities</option>
-            {CHINESE_CITIES.map(({ city, count }) => (
-              <option key={city} value={city}>{city} ({count})</option>
-            ))}
-          </select>
-        </FilterGroup>
-
-        {/* Province */}
-        <FilterGroup label="Province">
-          <select
-            value={currentProvince ?? ""}
-            onChange={(e) => updateFilter("province", e.target.value || null)}
-            className="input-glass text-xs py-2"
-          >
-            <option value="">All Provinces</option>
-            {CHINESE_PROVINCES.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
+        {/* Location — replaces separate City + Province dropdowns */}
+        <FilterGroup label="Location">
+          <LocationPicker
+            value={
+              currentProvince
+                ? { province: currentProvince, city: currentCity || undefined }
+                : null
+            }
+            onChange={(loc: LocationValue | null) => {
+              const params = new URLSearchParams(searchParams.toString());
+              params.delete("province");
+              params.delete("city");
+              params.delete("page");
+              if (loc?.province) params.set("province", loc.province);
+              if (loc?.city)     params.set("city",     loc.city);
+              router.push(`${pathname}?${params.toString()}`, { scroll: false });
+            }}
+            className="w-full"
+          />
         </FilterGroup>
 
         {/* Field of Study */}
