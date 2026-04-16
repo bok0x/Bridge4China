@@ -23,83 +23,69 @@ export const FIELDS_OF_STUDY = [
   "Media & Communication",
 ];
 
-export const CHINESE_PROVINCES = [
-  "Beijing",
-  "Shanghai",
-  "Tianjin",
-  "Chongqing",
-  "Guangdong",
-  "Zhejiang",
-  "Jiangsu",
-  "Shandong",
-  "Sichuan",
-  "Hubei",
-  "Hunan",
-  "Fujian",
-  "Liaoning",
-  "Shaanxi",
-  "Henan",
-  "Heilongjiang",
-  "Jilin",
-  "Hebei",
-  "Shanxi",
-  "Anhui",
-  "Jiangxi",
-  "Guangxi",
-  "Yunnan",
-  "Guizhou",
-  "Gansu",
-  "Hainan",
-  "Nei Mongol",
-  "Xinjiang",
-  "Ningxia",
-  "Qinghai",
-  "Tibet",
+// ── Location hierarchy: all 31 provinces + their university cities ──────────
+export const CHINESE_LOCATIONS: {
+  province: string;
+  isMunicipality: boolean;
+  cities: { city: string; count: number }[];
+}[] = [
+  // Municipalities (city name === province name)
+  { province: "Beijing",      isMunicipality: true,  cities: [{ city: "Beijing",      count: 92 }] },
+  { province: "Shanghai",     isMunicipality: true,  cities: [{ city: "Shanghai",     count: 68 }] },
+  { province: "Tianjin",      isMunicipality: true,  cities: [{ city: "Tianjin",      count: 57 }] },
+  { province: "Chongqing",    isMunicipality: true,  cities: [{ city: "Chongqing",    count: 65 }] },
+  // Provinces sorted by total program count
+  { province: "Hubei",        isMunicipality: false, cities: [{ city: "Wuhan",        count: 83 }] },
+  { province: "Guangdong",    isMunicipality: false, cities: [{ city: "Guangzhou",    count: 83 }, { city: "Shenzhen", count: 14 }] },
+  { province: "Henan",        isMunicipality: false, cities: [{ city: "Zhengzhou",    count: 67 }] },
+  { province: "Shaanxi",      isMunicipality: false, cities: [{ city: "Xi'an",        count: 63 }] },
+  { province: "Sichuan",      isMunicipality: false, cities: [{ city: "Chengdu",      count: 58 }] },
+  { province: "Anhui",        isMunicipality: false, cities: [{ city: "Hefei",        count: 54 }] },
+  { province: "Jiangxi",      isMunicipality: false, cities: [{ city: "Nanchang",     count: 54 }] },
+  { province: "Jiangsu",      isMunicipality: false, cities: [
+    { city: "Nanjing",     count: 53 },
+    { city: "Suzhou",      count: 26 },
+    { city: "Wuxi",        count: 12 },
+    { city: "Xuzhou",      count: 12 },
+    { city: "Changzhou",   count: 11 },
+  ]},
+  { province: "Hunan",        isMunicipality: false, cities: [{ city: "Changsha",     count: 52 }] },
+  { province: "Heilongjiang", isMunicipality: false, cities: [{ city: "Harbin",       count: 51 }] },
+  { province: "Zhejiang",     isMunicipality: false, cities: [
+    { city: "Hangzhou",    count: 47 },
+    { city: "Ningbo",      count: 15 },
+    { city: "Wenzhou",     count: 11 },
+  ]},
+  { province: "Liaoning",     isMunicipality: false, cities: [{ city: "Shenyang",     count: 45 }, { city: "Dalian", count: 30 }] },
+  { province: "Yunnan",       isMunicipality: false, cities: [{ city: "Kunming",      count: 45 }] },
+  { province: "Hebei",        isMunicipality: false, cities: [{ city: "Shijiazhuang", count: 44 }] },
+  { province: "Shandong",     isMunicipality: false, cities: [{ city: "Jinan",        count: 43 }, { city: "Qingdao", count: 25 }] },
+  { province: "Shanxi",       isMunicipality: false, cities: [{ city: "Taiyuan",      count: 41 }] },
+  { province: "Fujian",       isMunicipality: false, cities: [{ city: "Fuzhou",       count: 36 }, { city: "Xiamen", count: 16 }] },
+  { province: "Guizhou",      isMunicipality: false, cities: [{ city: "Guiyang",      count: 35 }] },
+  { province: "Guangxi",      isMunicipality: false, cities: [{ city: "Nanning",      count: 35 }] },
+  { province: "Gansu",        isMunicipality: false, cities: [{ city: "Lanzhou",      count: 30 }] },
+  { province: "Nei Mongol",   isMunicipality: false, cities: [{ city: "Hohhot",       count: 24 }] },
+  { province: "Xinjiang",     isMunicipality: false, cities: [{ city: "Urumqi",       count: 26 }] },
+  { province: "Ningxia",      isMunicipality: false, cities: [{ city: "Yinchuan",     count: 18 }] },
+  { province: "Hainan",       isMunicipality: false, cities: [{ city: "Haikou",       count: 13 }] },
+  { province: "Qinghai",      isMunicipality: false, cities: [{ city: "Xining",       count: 12 }] },
+  { province: "Jilin",        isMunicipality: false, cities: [] },
+  { province: "Tibet",        isMunicipality: false, cities: [{ city: "Lhasa",        count:  7 }] },
 ];
 
-/** All cities from the 2024-2025 Ministry of Education distribution, sorted by university count */
-export const CHINESE_CITIES: { city: string; count: number }[] = [
-  { city: "Beijing",      count: 92 },
-  { city: "Wuhan",        count: 83 },
-  { city: "Guangzhou",    count: 83 },
-  { city: "Shanghai",     count: 68 },
-  { city: "Zhengzhou",    count: 67 },
-  { city: "Chongqing",    count: 65 },
-  { city: "Xi'an",        count: 63 },
-  { city: "Chengdu",      count: 58 },
-  { city: "Tianjin",      count: 57 },
-  { city: "Hefei",        count: 54 },
-  { city: "Nanchang",     count: 54 },
-  { city: "Nanjing",      count: 53 },
-  { city: "Changsha",     count: 52 },
-  { city: "Harbin",       count: 51 },
-  { city: "Hangzhou",     count: 47 },
-  { city: "Shenyang",     count: 45 },
-  { city: "Kunming",      count: 45 },
-  { city: "Shijiazhuang", count: 44 },
-  { city: "Jinan",        count: 43 },
-  { city: "Taiyuan",      count: 41 },
-  { city: "Fuzhou",       count: 36 },
-  { city: "Guiyang",      count: 35 },
-  { city: "Nanning",      count: 35 },
-  { city: "Lanzhou",      count: 30 },
-  { city: "Dalian",       count: 30 },
-  { city: "Suzhou",       count: 26 },
-  { city: "Urumqi",       count: 26 },
-  { city: "Qingdao",      count: 25 },
-  { city: "Hohhot",       count: 24 },
-  { city: "Yinchuan",     count: 18 },
-  { city: "Xiamen",       count: 16 },
-  { city: "Ningbo",       count: 15 },
-  { city: "Shenzhen",     count: 14 },
-  { city: "Haikou",       count: 13 },
-  { city: "Xining",       count: 12 },
-  { city: "Wuxi",         count: 12 },
-  { city: "Xuzhou",       count: 12 },
-  { city: "Changzhou",    count: 11 },
-  { city: "Wenzhou",      count: 11 },
-  { city: "Lhasa",        count:  7 },
-];
+/** Derived: city name → province name. "Hangzhou" → "Zhejiang" */
+export const CITY_TO_PROVINCE: Record<string, string> = Object.fromEntries(
+  CHINESE_LOCATIONS.flatMap((loc) => loc.cities.map((c) => [c.city, loc.province]))
+);
+
+// ── Backwards-compatible aliases (existing imports keep working) ─────────────
+/** @deprecated Use CHINESE_LOCATIONS instead */
+export const CHINESE_PROVINCES = CHINESE_LOCATIONS.map((l) => l.province);
+
+/** @deprecated Use CHINESE_LOCATIONS instead */
+export const CHINESE_CITIES: { city: string; count: number }[] =
+  CHINESE_LOCATIONS.flatMap((l) => l.cities);
 
 export const NAV_LINKS = [
   { label: "Discover", href: "/discover" },
