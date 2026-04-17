@@ -183,7 +183,7 @@ export function LocationPicker({
                               : undefined,
                           }}
                         >
-                          {loc.province} ({c.city})
+                          {c.city}
                         </button>
                       );
                     })}
