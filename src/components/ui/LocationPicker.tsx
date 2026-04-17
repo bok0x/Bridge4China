@@ -102,7 +102,9 @@ export function LocationPicker({
       ref={dropdownRef}
       style={{
         ...dropdownStyle,
-        background: "var(--color-bg-secondary)",
+        background: "rgba(10, 20, 35, 0.75)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
         border: "1px solid var(--glass-border-subtle)",
         borderRadius: "0.75rem",
         overflow: "hidden",
