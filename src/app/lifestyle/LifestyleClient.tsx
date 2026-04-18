@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { FAQAccordion } from "@/components/ui/FAQAccordion";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -150,13 +153,19 @@ const LIFESTYLE_FAQS = [
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function LifestyleClient() {
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 300], [0, -40]);
+
   return (
     <div
       className="min-h-screen"
       style={{ background: "var(--color-bg-base)" }}
     >
       {/* ── Hero ──────────────────────────────────────────────── */}
-      <section className="container-app pt-28 pb-16 text-center">
+      <motion.section
+        className="container-app pt-28 pb-16 text-center"
+        style={{ y: heroY }}
+      >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6 glass">
           <span>🎓</span>
           <span style={{ color: "var(--color-accent)" }}>Student Life Guide</span>
@@ -176,7 +185,7 @@ export function LifestyleClient() {
           From street food to social life, health to staying connected — here is
           everything you need to know.
         </p>
-      </section>
+      </motion.section>
 
       {/* ── Food & Culture ────────────────────────────────────── */}
       <section className="container-app py-16">
@@ -192,8 +201,16 @@ export function LifestyleClient() {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FOOD_CARDS.map((card) => (
-            <div key={card.title} className="glass rounded-2xl p-6">
+          {FOOD_CARDS.map((card, index) => (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
+              className="liquid-card glass rounded-2xl p-6"
+              style={{ position: "relative", overflow: "hidden" }}
+            >
               <div className="text-4xl mb-4">{card.emoji}</div>
               <h3
                 className="font-heading font-semibold text-lg mb-2"
@@ -207,7 +224,7 @@ export function LifestyleClient() {
               >
                 {card.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -231,8 +248,16 @@ export function LifestyleClient() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {SOCIAL_CARDS.map((card) => (
-              <div key={card.title} className="glass rounded-2xl p-6 flex gap-4">
+            {SOCIAL_CARDS.map((card, index) => (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                className="liquid-card glass rounded-2xl p-6 flex gap-4"
+                style={{ position: "relative", overflow: "hidden" }}
+              >
                 <div className="text-3xl flex-shrink-0">{card.emoji}</div>
                 <div>
                   <h3
@@ -248,7 +273,7 @@ export function LifestyleClient() {
                     {card.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -269,8 +294,16 @@ export function LifestyleClient() {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {HEALTH_ITEMS.map((item) => (
-            <div key={item.title} className="glass rounded-2xl p-6">
+          {HEALTH_ITEMS.map((item, index) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
+              className="liquid-card glass rounded-2xl p-6"
+              style={{ position: "relative", overflow: "hidden" }}
+            >
               <div className="text-3xl mb-3">{item.emoji}</div>
               <h3
                 className="font-heading font-semibold text-lg mb-2"
@@ -284,7 +317,7 @@ export function LifestyleClient() {
               >
                 {item.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -308,8 +341,16 @@ export function LifestyleClient() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {CONNECT_ITEMS.map((item) => (
-              <div key={item.title} className="glass rounded-2xl p-6">
+            {CONNECT_ITEMS.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                className="liquid-card glass rounded-2xl p-6"
+                style={{ position: "relative", overflow: "hidden" }}
+              >
                 <div className="text-3xl mb-3">{item.emoji}</div>
                 <h3
                   className="font-heading font-semibold text-lg mb-2"
@@ -323,7 +364,7 @@ export function LifestyleClient() {
                 >
                   {item.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

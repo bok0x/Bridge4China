@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FAQAccordion } from "@/components/ui/FAQAccordion";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 // ── City data ─────────────────────────────────────────────────────────────────
 
@@ -17,11 +18,21 @@ const CITIES = [
   { name: "Wuhan",      tier: 2, housing: { dorm: "50–100",  apartment: "250–600" },   food: { canteen: "60–100",  restaurants: "120–220" }, transport: "15–25",  lifestyle: "70–160",  monthly: "400–850" },
   { name: "Xi'an",      tier: 2, housing: { dorm: "50–100",  apartment: "250–580" },   food: { canteen: "60–100",  restaurants: "120–210" }, transport: "15–20",  lifestyle: "70–150",  monthly: "380–800" },
   { name: "Nanjing",    tier: 2, housing: { dorm: "60–120",  apartment: "300–700" },   food: { canteen: "70–110",  restaurants: "130–240" }, transport: "15–25",  lifestyle: "80–180",  monthly: "450–900" },
+  { name: "Hangzhou",   tier: 2, housing: { dorm: "70–130",  apartment: "350–800" },   food: { canteen: "75–120",  restaurants: "140–260" }, transport: "20–30",  lifestyle: "90–200",  monthly: "500–1,000" },
+  { name: "Shenzhen",   tier: 2, housing: { dorm: "90–170",  apartment: "500–1,100" }, food: { canteen: "90–140",  restaurants: "180–320" }, transport: "25–35",  lifestyle: "110–240", monthly: "650–1,300" },
+  { name: "Tianjin",    tier: 2, housing: { dorm: "55–110",  apartment: "280–650" },   food: { canteen: "65–105",  restaurants: "120–230" }, transport: "15–25",  lifestyle: "75–170",  monthly: "420–880" },
+  { name: "Qingdao",    tier: 2, housing: { dorm: "50–100",  apartment: "260–600" },   food: { canteen: "60–95",   restaurants: "115–210" }, transport: "15–22",  lifestyle: "70–155",  monthly: "390–820" },
+  { name: "Dalian",     tier: 2, housing: { dorm: "50–100",  apartment: "260–580" },   food: { canteen: "60–95",   restaurants: "110–200" }, transport: "14–22",  lifestyle: "65–150",  monthly: "380–800" },
 
   // Tier 3
   { name: "Changsha",   tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–170" },  transport: "10–20",  lifestyle: "50–120",  monthly: "280–600" },
   { name: "Lanzhou",    tier: 3, housing: { dorm: "30–70",   apartment: "150–350" },   food: { canteen: "40–70",   restaurants: "80–150" },  transport: "10–15",  lifestyle: "40–100",  monthly: "220–500" },
   { name: "Kunming",    tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–160" },  transport: "10–18",  lifestyle: "50–110",  monthly: "260–550" },
+  { name: "Hefei",      tier: 3, housing: { dorm: "35–70",   apartment: "170–380" },   food: { canteen: "45–75",   restaurants: "85–155" },  transport: "10–16",  lifestyle: "45–105",  monthly: "240–520" },
+  { name: "Nanchang",   tier: 3, housing: { dorm: "35–70",   apartment: "160–360" },   food: { canteen: "42–70",   restaurants: "80–148" },  transport: "10–15",  lifestyle: "42–98",   monthly: "230–500" },
+  { name: "Guiyang",    tier: 3, housing: { dorm: "30–65",   apartment: "150–340" },   food: { canteen: "40–68",   restaurants: "78–144" },  transport: "9–15",   lifestyle: "40–95",   monthly: "220–480" },
+  { name: "Urumqi",     tier: 3, housing: { dorm: "35–70",   apartment: "165–370" },   food: { canteen: "42–70",   restaurants: "82–148" },  transport: "10–16",  lifestyle: "43–100",  monthly: "230–500" },
+  { name: "Harbin",     tier: 3, housing: { dorm: "35–72",   apartment: "170–385" },   food: { canteen: "43–72",   restaurants: "83–150" },  transport: "10–16",  lifestyle: "44–102",  monthly: "235–510" },
 ];
 
 // ── FAQ data ─────────────────────────────────────────────────────────────────
@@ -53,24 +64,23 @@ const FAQS = [
   },
 ];
 
-const TIERS = [1, 2, 3] as const;
-type Tier = (typeof TIERS)[number];
+type TierFilter = "all" | 1 | 2 | 3;
 
-const TIER_LABELS: Record<Tier, string> = {
-  1: "Tier 1",
-  2: "Tier 2",
-  3: "Tier 3",
+const TIER_CONFIG: Record<1 | 2 | 3, { label: string; color: string }> = {
+  1: { label: "Tier 1 — Major Cities",      color: "#F5C518" },
+  2: { label: "Tier 2 — Large Cities",      color: "#3B9EE8" },
+  3: { label: "Tier 3 — Affordable Cities", color: "#48C59C" },
 };
 
 // ── CityCard ──────────────────────────────────────────────────────────────────
 
-function CityCard({ city }: { city: (typeof CITIES)[number] }) {
-  const tierColors: Record<Tier, { bg: string; color: string; border: string }> = {
-    1: { bg: "rgba(231, 76, 60, 0.12)",  color: "#e74c3c", border: "rgba(231, 76, 60, 0.30)" },
-    2: { bg: "rgba(139, 92, 246, 0.12)", color: "#8b5cf6", border: "rgba(139, 92, 246, 0.30)" },
-    3: { bg: "rgba(72, 197, 156, 0.12)", color: "var(--color-accent)", border: "rgba(72, 197, 156, 0.30)" },
+function CityCard({ city, fmt }: { city: (typeof CITIES)[number]; fmt: (range: string) => string }) {
+  const tierColors: Record<1 | 2 | 3, { bg: string; color: string; border: string }> = {
+    1: { bg: "rgba(245, 197, 24, 0.12)",  color: "#F5C518", border: "rgba(245, 197, 24, 0.30)" },
+    2: { bg: "rgba(59, 158, 232, 0.12)",  color: "#3B9EE8", border: "rgba(59, 158, 232, 0.30)" },
+    3: { bg: "rgba(72, 197, 156, 0.12)",  color: "#48C59C", border: "rgba(72, 197, 156, 0.30)" },
   };
-  const tc = tierColors[city.tier as Tier];
+  const tc = tierColors[city.tier as 1 | 2 | 3];
 
   const rows = [
     { emoji: "🏠", label: "Housing (Dorm)",       value: city.housing.dorm },
@@ -82,7 +92,7 @@ function CityCard({ city }: { city: (typeof CITIES)[number] }) {
   ];
 
   return (
-    <div className="glass glass-hover flex flex-col p-6 gap-5">
+    <div className="glass glass-hover liquid-card flex flex-col p-6 gap-5">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-heading font-black text-2xl" style={{ color: "var(--color-text-primary)" }}>
@@ -92,7 +102,7 @@ function CityCard({ city }: { city: (typeof CITIES)[number] }) {
           className="text-xs font-heading font-bold px-3 py-1 rounded-full flex-shrink-0"
           style={{ background: tc.bg, color: tc.color, border: `1px solid ${tc.border}` }}
         >
-          {TIER_LABELS[city.tier as Tier]}
+          {TIER_CONFIG[city.tier as 1 | 2 | 3].label.split(" — ")[0]}
         </span>
       </div>
 
@@ -109,7 +119,7 @@ function CityCard({ city }: { city: (typeof CITIES)[number] }) {
               {row.label}
             </span>
             <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>
-              ${row.value}/mo
+              {fmt(row.value)}/mo
             </span>
           </div>
         ))}
@@ -124,7 +134,7 @@ function CityCard({ city }: { city: (typeof CITIES)[number] }) {
           Monthly Total
         </span>
         <span className="font-heading font-black text-lg" style={{ color: "var(--color-accent)" }}>
-          ${city.monthly}
+          {fmt(city.monthly)}
         </span>
       </div>
     </div>
@@ -134,9 +144,23 @@ function CityCard({ city }: { city: (typeof CITIES)[number] }) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function CostOfLivingClient() {
-  const [activeTier, setActiveTier] = useState<Tier>(1);
+  const [activeTier, setActiveTier] = useState<TierFilter>("all");
+  const { rate, symbol } = useCurrency();
 
-  const filtered = CITIES.filter((c) => c.tier === activeTier);
+  function fmt(range: string) {
+    const [lo, hi] = range.split("–").map(Number);
+    return `${symbol}${Math.round(lo * rate).toLocaleString()}–${Math.round(hi * rate).toLocaleString()}`;
+  }
+
+  const tabs: Array<{ value: TierFilter; label: string }> = [
+    { value: "all", label: "All" },
+    { value: 1,     label: "Tier 1" },
+    { value: 2,     label: "Tier 2" },
+    { value: 3,     label: "Tier 3" },
+  ];
+
+  const tiersToShow: Array<1 | 2 | 3> =
+    activeTier === "all" ? [1, 2, 3] : [activeTier as 1 | 2 | 3];
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-bg-primary)" }}>
@@ -174,12 +198,12 @@ export function CostOfLivingClient() {
               className="inline-flex gap-2 p-1.5 rounded-2xl"
               style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
             >
-              {TIERS.map((tier) => {
-                const isActive = tier === activeTier;
+              {tabs.map((tab) => {
+                const isActive = tab.value === activeTier;
                 return (
                   <button
-                    key={tier}
-                    onClick={() => setActiveTier(tier)}
+                    key={String(tab.value)}
+                    onClick={() => setActiveTier(tab.value)}
                     className="px-5 py-2.5 rounded-xl font-heading font-bold text-sm transition-all duration-200"
                     style={
                       isActive
@@ -194,7 +218,7 @@ export function CostOfLivingClient() {
                           }
                     }
                   >
-                    {TIER_LABELS[tier]}
+                    {tab.label}
                   </button>
                 );
               })}
@@ -205,12 +229,28 @@ export function CostOfLivingClient() {
 
       {/* ── Section 3: City cards ─────────────────────────────────────────────── */}
       <section className="section">
-        <div className="container-app">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((city) => (
-              <CityCard key={city.name} city={city} />
-            ))}
-          </div>
+        <div className="container-app flex flex-col gap-12">
+          {tiersToShow.map((tier) => {
+            const cities = CITIES.filter((c) => c.tier === tier);
+            const config = TIER_CONFIG[tier];
+            return (
+              <div key={tier}>
+                {activeTier === "all" && (
+                  <h2
+                    className="font-heading font-black text-2xl md:text-3xl mb-6"
+                    style={{ color: config.color }}
+                  >
+                    {config.label}
+                  </h2>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {cities.map((city) => (
+                    <CityCard key={city.name} city={city} fmt={fmt} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
