@@ -6,6 +6,7 @@ import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
 import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -49,13 +50,15 @@ export default function RootLayout({
       </head>
       <body>
         <LanguageProvider>
-          <ThemeProvider>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-            <WhatsAppFloat />
-            <ExitIntentPopup />
-          </ThemeProvider>
+          <CurrencyProvider>
+            <ThemeProvider>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+              <WhatsAppFloat />
+              <ExitIntentPopup />
+            </ThemeProvider>
+          </CurrencyProvider>
         </LanguageProvider>
       </body>
     </html>

@@ -231,10 +231,10 @@ export function HeroPremium() {
             variants={itemVariants}
             className="flex flex-col sm:flex-row items-center gap-3 mt-2"
           >
-            <Link href="/quiz" className="btn-accent px-7 py-3.5 text-base">
+            <Link href="/quiz" className="btn-accent btn-liquid px-7 py-3.5 text-base">
               Help Me Find My Major
             </Link>
-            <Link href="/how-to-apply" className="btn-ghost px-7 py-3.5 text-base">
+            <Link href="/how-to-apply" className="btn-ghost btn-liquid px-7 py-3.5 text-base">
               I Need Help Applying
             </Link>
           </motion.div>

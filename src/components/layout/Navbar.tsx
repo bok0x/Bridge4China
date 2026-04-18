@@ -4,23 +4,67 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, BookOpen, LogIn, LogOut, LayoutDashboard } from "lucide-react";
-import { useTheme } from "./ThemeProvider";
-import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { SITE_NAME } from "@/lib/constants";
 import { useComparisonStore } from "@/stores/comparisonStore";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { useCurrency, Currency } from "@/contexts/CurrencyContext";
 
 const NAV_LINKS = [
-  { label: "Home",                   href: "/" },
   { label: "How It Works",           href: "/#how-it-works" },
   { label: "Before Coming to China", href: "/before-china" },
   { label: "Cost of Living",         href: "/cost-of-living" },
   { label: "Universities",           href: "/discover" },
   { label: "Lifestyle",              href: "/lifestyle" },
 ] as const;
+
+// CurrencyPicker (inline)
+function CurrencyPicker() {
+  const { currency, setCurrency } = useCurrency()
+  const options: Currency[] = ["USD", "MAD", "RMB"]
+  return (
+    <div className="hidden md:flex items-center rounded-lg overflow-hidden" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
+      {options.map((c) => (
+        <button
+          key={c}
+          onClick={() => setCurrency(c)}
+          className="px-2.5 py-1 text-xs font-semibold font-heading transition-all"
+          style={{
+            background: currency === c ? "var(--color-accent)" : "transparent",
+            color: currency === c ? "#fff" : "var(--color-text-secondary)",
+          }}
+        >
+          {c}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// Mobile CurrencyPicker
+function MobileCurrencyPicker() {
+  const { currency, setCurrency } = useCurrency()
+  const options: Currency[] = ["USD", "MAD", "RMB"]
+  return (
+    <div className="flex items-center rounded-lg overflow-hidden mb-2" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
+      {options.map((c) => (
+        <button
+          key={c}
+          onClick={() => setCurrency(c)}
+          className="flex-1 px-2.5 py-2 text-xs font-semibold font-heading transition-all"
+          style={{
+            background: currency === c ? "var(--color-accent)" : "transparent",
+            color: currency === c ? "#fff" : "var(--color-text-secondary)",
+          }}
+        >
+          {c}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -87,7 +131,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-0.5">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -113,10 +157,11 @@ export function Navbar() {
             </Link>
           )}
 
+          {/* Currency Picker */}
+          <CurrencyPicker />
+
           {/* Language Switcher */}
           <LanguageSwitcher />
-
-          <ThemeToggle />
 
           {user ? (
             <div className="hidden md:flex items-center gap-2">
@@ -135,7 +180,7 @@ export function Navbar() {
                 <LogIn size={14} />
                 Sign in
               </Link>
-              <Link href="/apply" className="btn-accent text-sm py-2">
+              <Link href="/apply" className="btn-accent btn-liquid text-sm py-2">
                 Apply Now
               </Link>
             </div>
@@ -156,6 +201,9 @@ export function Navbar() {
       {open && (
         <div className="md:hidden mt-2 mx-4 glass rounded-2xl overflow-hidden animate-slide-up">
           <div className="p-4 flex flex-col gap-1">
+            {/* Mobile currency picker at top */}
+            <MobileCurrencyPicker />
+
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -195,7 +243,7 @@ export function Navbar() {
                 <Link
                   href="/apply"
                   onClick={() => setOpen(false)}
-                  className="mt-1 btn-accent text-center"
+                  className="mt-1 btn-accent btn-liquid text-center"
                 >
                   Apply Now
                 </Link>
