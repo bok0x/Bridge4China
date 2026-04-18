@@ -13,32 +13,47 @@ import type { User } from "@supabase/supabase-js";
 import { useCurrency, Currency } from "@/contexts/CurrencyContext";
 
 const NAV_LINKS = [
-  { label: "How It Works",           href: "/#how-it-works" },
-  { label: "Before Coming to China", href: "/before-china" },
-  { label: "Cost of Living",         href: "/cost-of-living" },
-  { label: "Universities",           href: "/discover" },
-  { label: "Lifestyle",              href: "/lifestyle" },
+  { label: "Cost of Living",  href: "/cost-of-living" },
+  { label: "Universities",    href: "/discover" },
+  { label: "Lifestyle",       href: "/lifestyle" },
 ] as const;
+
+const CURRENCY_OPTIONS: Record<Currency, { flag: string; symbol: string; title: string; activeGradient: string; activeBorder: string }> = {
+  USD: { flag: "🇺🇸", symbol: "$",    title: "US Dollar",        activeGradient: "linear-gradient(135deg,#1C3F8A 0%,#BF0A30 100%)", activeBorder: "#BF0A30" },
+  MAD: { flag: "🇲🇦", symbol: "د.م.", title: "Moroccan Dirham",   activeGradient: "linear-gradient(135deg,#C1272D 0%,#006233 100%)", activeBorder: "#006233" },
+  RMB: { flag: "🇨🇳", symbol: "¥",    title: "Chinese Yuan",      activeGradient: "linear-gradient(135deg,#DE2910 0%,#FFDE00 100%)", activeBorder: "#DE2910" },
+}
 
 // CurrencyPicker (inline)
 function CurrencyPicker() {
   const { currency, setCurrency } = useCurrency()
   const options: Currency[] = ["USD", "MAD", "RMB"]
   return (
-    <div className="hidden md:flex items-center rounded-lg overflow-hidden" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
-      {options.map((c) => (
-        <button
-          key={c}
-          onClick={() => setCurrency(c)}
-          className="px-2.5 py-1 text-xs font-semibold font-heading transition-all"
-          style={{
-            background: currency === c ? "var(--color-accent)" : "transparent",
-            color: currency === c ? "#fff" : "var(--color-text-secondary)",
-          }}
-        >
-          {c}
-        </button>
-      ))}
+    <div className="hidden md:flex items-center gap-1 rounded-xl p-1" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
+      {options.map((c) => {
+        const opt = CURRENCY_OPTIONS[c]
+        const active = currency === c
+        return (
+          <button
+            key={c}
+            onClick={() => setCurrency(c)}
+            title={opt.title}
+            className="flex flex-col items-center justify-center rounded-lg transition-all duration-200"
+            style={{
+              padding: "3px 7px",
+              minWidth: 36,
+              background: active ? opt.activeGradient : "transparent",
+              border: active ? `1px solid ${opt.activeBorder}` : "1px solid transparent",
+              boxShadow: active ? `0 0 8px ${opt.activeBorder}55` : "none",
+            }}
+          >
+            <span className="text-sm leading-none">{opt.flag}</span>
+            <span className="text-[9px] font-bold leading-none mt-0.5" style={{ color: active ? "#fff" : "var(--color-text-secondary)", fontFamily: "Montserrat,sans-serif" }}>
+              {opt.symbol}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -48,20 +63,28 @@ function MobileCurrencyPicker() {
   const { currency, setCurrency } = useCurrency()
   const options: Currency[] = ["USD", "MAD", "RMB"]
   return (
-    <div className="flex items-center rounded-lg overflow-hidden mb-2" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
-      {options.map((c) => (
-        <button
-          key={c}
-          onClick={() => setCurrency(c)}
-          className="flex-1 px-2.5 py-2 text-xs font-semibold font-heading transition-all"
-          style={{
-            background: currency === c ? "var(--color-accent)" : "transparent",
-            color: currency === c ? "#fff" : "var(--color-text-secondary)",
-          }}
-        >
-          {c}
-        </button>
-      ))}
+    <div className="flex items-center gap-1 rounded-xl p-1 mb-2" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
+      {options.map((c) => {
+        const opt = CURRENCY_OPTIONS[c]
+        const active = currency === c
+        return (
+          <button
+            key={c}
+            onClick={() => setCurrency(c)}
+            title={opt.title}
+            className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 transition-all duration-200"
+            style={{
+              background: active ? opt.activeGradient : "transparent",
+              border: active ? `1px solid ${opt.activeBorder}` : "1px solid transparent",
+            }}
+          >
+            <span className="text-base leading-none">{opt.flag}</span>
+            <span className="text-[10px] font-bold leading-none mt-0.5" style={{ color: active ? "#fff" : "var(--color-text-secondary)", fontFamily: "Montserrat,sans-serif" }}>
+              {opt.symbol}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -105,7 +128,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-[37px] left-0 right-0 z-40 transition-all duration-300",
         scrolled ? "glass py-3" : "py-5 bg-transparent"
       )}
       style={scrolled ? { borderRadius: 0, borderLeft: "none", borderRight: "none", borderTop: "none" } : {}}
@@ -136,7 +159,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
               style={{ color: "var(--color-text-secondary)" }}
             >
               {link.label}

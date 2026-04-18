@@ -5,6 +5,8 @@ import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
 import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 import { ServicesSidebar } from "@/components/ui/ServicesSidebar";
+import { BeforeChinaBanner } from "@/components/ui/BeforeChinaBanner";
+import { IQTestBanner } from "@/components/ui/IQTestBanner";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
@@ -53,12 +55,14 @@ export default function RootLayout({
         <LanguageProvider>
           <CurrencyProvider>
             <ThemeProvider>
+              <IQTestBanner />
               <Navbar />
               <main>{children}</main>
               <Footer />
               <WhatsAppFloat />
               <ExitIntentPopup />
               <ServicesSidebar />
+              <BeforeChinaBanner />
             </ThemeProvider>
           </CurrencyProvider>
         </LanguageProvider>
