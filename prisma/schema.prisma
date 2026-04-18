@@ -148,12 +148,63 @@ model SavedProgram {
   @@unique([userId, programId])
 }
 
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  eventType String
+  payload   Json
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  userId      String
+  amount      Float
+  currency    String    @default("MAD")
+  method      String
+  status      String    @default("pending")
+  receiptNote String?
+  verifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+model QuizLead {
+  id                      String   @id @default(cuid())
+  fullName                String
+  email                   String
+  whatsapp                String
+  country                 String?
+  quizAnswers             Json
+  recommendedMajors       String[]
+  recommendedUniversities String[]
+  leadSource              String   @default("quiz")
+  status                  String   @default("new")
+  createdAt               DateTime @default(now())
+}
+
+model InterviewLead {
+  id          String   @id @default(cuid())
+  fullName    String
+  email       String
+  whatsapp    String
+  serviceType String
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+}
+
 enum Degree {
   NON_DEGREE
   ASSOCIATE
   DIPLOMA
   BACHELOR
   MASTER
+  PHD
   DOCTORAL
   STUDY_TOUR
   JUNIOR_COLLEGE_UPGRADE
