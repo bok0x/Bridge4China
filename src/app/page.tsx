@@ -4,6 +4,7 @@ import { FeatureGrid } from "@/components/home/FeatureGrid";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { UniversityMarquee } from "@/components/home/UniversityMarquee";
 import { UniversityGallery } from "@/components/home/UniversityGallery";
+import { HomeFAQ } from "@/components/home/HomeFAQ";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 
@@ -20,6 +21,7 @@ export default function HomePage() {
       <UniversityMarquee />
       <HowItWorks />
       <FeatureGrid />
+      <HomeFAQ />
     </>
   );
 }

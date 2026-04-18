@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { ServiceLeadModal } from "@/components/ui/ServiceLeadModal";
+import { FAQAccordion } from "@/components/ui/FAQAccordion";
 
 // ── Checklist items ───────────────────────────────────────────────────────────
 
@@ -32,6 +33,35 @@ const PACK_TABLE = [
   { category: "Clothing", items: "4-season appropriate if going north" },
   { category: "Money", items: "USD/EUR cash for first week, notify your bank" },
   { category: "Comfort", items: "Food from home, familiar items" },
+];
+
+// ── FAQ data ─────────────────────────────────────────────────────────────────
+
+const FAQS = [
+  {
+    q: "How early should I arrive before my semester starts?",
+    a: "Aim to arrive 1–2 weeks early. You need time for university registration, medical check, bank account, SIM card, and settling in.",
+  },
+  {
+    q: "Do I need a VPN in China?",
+    a: "Many popular international apps and websites are restricted in China. Research your options before departure.",
+  },
+  {
+    q: "What is the JW202 form?",
+    a: "The JW202 is a visa application form issued by your Chinese university, required to apply for your student visa at the Chinese embassy in your country.",
+  },
+  {
+    q: "Can I bring my phone from home?",
+    a: "Yes, as long as it supports the frequency bands used in China (most modern phones do). You'll need a local SIM or international plan.",
+  },
+  {
+    q: "What should I do if I need medical care in China?",
+    a: "University health centers handle most common issues. For serious cases, international-friendly hospitals in major cities have English-speaking staff.",
+  },
+  {
+    q: "Is homesickness common?",
+    a: "Very common, especially in the first few months. Joining student clubs, staying in touch with family via WeChat, and exploring your city helps enormously.",
+  },
 ];
 
 // ── CSC tips ─────────────────────────────────────────────────────────────────
@@ -463,6 +493,34 @@ export function BeforeChinaClient() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ─────────────────────────────────────────────────────── */}
+      <section
+        className="section"
+        style={{ background: "var(--color-bg-secondary)" }}
+      >
+        <div className="container-app" style={{ maxWidth: "700px" }}>
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            <span
+              className="badge badge-accent"
+              style={{ marginBottom: "1rem" }}
+            >
+              FAQ
+            </span>
+            <h2
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+                fontWeight: 800,
+                fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <FAQAccordion items={FAQS} />
         </div>
       </section>
 

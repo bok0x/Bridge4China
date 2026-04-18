@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FAQAccordion } from "@/components/ui/FAQAccordion";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -118,6 +119,31 @@ const CONNECT_ITEMS = [
     title: "Calling Home",
     description:
       "WeChat Video Calls are free and high-quality. WhatsApp works over VPN. International calling cards are another affordable option.",
+  },
+];
+
+// ── FAQ data ─────────────────────────────────────────────────────────────────
+
+const LIFESTYLE_FAQS = [
+  {
+    q: "Is the food in China suitable for different dietary needs?",
+    a: "China has incredible variety. Vegetarian options are widely available. Halal restaurants are common in many cities. Communicate dietary restrictions to canteen staff.",
+  },
+  {
+    q: "How easy is it to make friends in China?",
+    a: "Very easy. Universities organize welcome events and international student clubs. Chinese students are generally curious and welcoming toward international peers.",
+  },
+  {
+    q: "Is public transport reliable in China?",
+    a: "China has world-class public transport — metro systems, high-speed rail, and buses. Getting around is cheap, safe, and efficient.",
+  },
+  {
+    q: "Can I travel within China during holidays?",
+    a: "Absolutely. China's high-speed rail network connects most cities affordably. Holiday travel is a highlight for most international students.",
+  },
+  {
+    q: "Is English widely spoken in Chinese cities?",
+    a: "In major cities and university areas, you'll find English speakers. Outside these areas, translation apps (like WeChat) make communication easy.",
   },
 ];
 
@@ -300,6 +326,37 @@ export function LifestyleClient() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────── */}
+      <section className="container-app py-16">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2
+              className="font-heading font-bold text-3xl md:text-4xl mb-3"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              Frequently Asked{" "}
+              <span
+                className="relative inline-block"
+                style={{ color: "var(--color-accent)" }}
+              >
+                Questions
+                <span
+                  className="absolute left-0 -bottom-1 w-full h-0.5 rounded-full"
+                  style={{ background: "var(--color-accent)" }}
+                />
+              </span>
+            </h2>
+            <p
+              className="text-base md:text-lg"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Common questions about student life in China.
+            </p>
+          </div>
+          <FAQAccordion items={LIFESTYLE_FAQS} />
         </div>
       </section>
 

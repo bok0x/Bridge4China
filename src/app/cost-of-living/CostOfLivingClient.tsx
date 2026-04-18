@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { FAQAccordion } from "@/components/ui/FAQAccordion";
 
 // ── City data ─────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,35 @@ const CITIES = [
   { name: "Changsha",   tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–170" },  transport: "10–20",  lifestyle: "50–120",  monthly: "280–600" },
   { name: "Lanzhou",    tier: 3, housing: { dorm: "30–70",   apartment: "150–350" },   food: { canteen: "40–70",   restaurants: "80–150" },  transport: "10–15",  lifestyle: "40–100",  monthly: "220–500" },
   { name: "Kunming",    tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–160" },  transport: "10–18",  lifestyle: "50–110",  monthly: "260–550" },
+];
+
+// ── FAQ data ─────────────────────────────────────────────────────────────────
+
+const FAQS = [
+  {
+    q: "Are these cost estimates accurate?",
+    a: "These are realistic averages based on 2024-2025 community data from students studying in China. Individual costs vary based on lifestyle choices.",
+  },
+  {
+    q: "Is university accommodation mandatory?",
+    a: "Many universities require first-year international students to live on campus. After that, you can choose to rent privately.",
+  },
+  {
+    q: "How much is a typical meal in China?",
+    a: "$1.50–$4 at university canteens, $5–$12 at local restaurants. Street food is even cheaper and delicious.",
+  },
+  {
+    q: "Can I open a Chinese bank account as a student?",
+    a: "Yes. Most students open accounts at Bank of China or ICBC. You'll need your passport and student ID. This enables Alipay and WeChat Pay.",
+  },
+  {
+    q: "Is China cheaper than my home country?",
+    a: "For most international students, especially from Europe, North America, or Gulf countries, China offers significantly lower living costs with high quality of life.",
+  },
+  {
+    q: "Do Chinese universities provide health insurance?",
+    a: "Most universities offer affordable health insurance for international students. Some scholarships include it. Check with your specific university.",
+  },
 ];
 
 const TIERS = [1, 2, 3] as const;
@@ -196,7 +226,20 @@ export function CostOfLivingClient() {
         </div>
       </section>
 
-      {/* ── Section 5: CTA ───────────────────────────────────────────────────── */}
+      {/* ── Section 5: FAQ ───────────────────────────────────────────────────── */}
+      <section className="section" style={{ background: "var(--color-bg-secondary)" }}>
+        <div className="container-app max-w-3xl">
+          <div className="text-center mb-12">
+            <span className="badge badge-accent mb-4 inline-flex">FAQ</span>
+            <h2 className="text-3xl md:text-4xl font-black">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <FAQAccordion items={FAQS} />
+        </div>
+      </section>
+
+      {/* ── Section 6: CTA ───────────────────────────────────────────────────── */}
       <section className="section">
         <div className="container-app max-w-xl">
           <div className="glass-elevated p-8 md:p-12 text-center">

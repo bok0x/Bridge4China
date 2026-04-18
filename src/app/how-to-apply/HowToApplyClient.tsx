@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Search,
   ClipboardCheck,
@@ -10,9 +9,9 @@ import {
   Mail,
   Globe,
   MapPin,
-  ChevronDown,
   MessageCircle,
 } from "lucide-react";
+import { FAQAccordion } from "@/components/ui/FAQAccordion";
 
 // ── Step data ────────────────────────────────────────────────────────────────
 
@@ -79,39 +78,42 @@ const STEPS = [
 
 const FAQS = [
   {
-    question: "How long does the application process take?",
-    answer:
-      "Typically 2–4 months from research to receiving your admission letter. Scholarship applications add time, so starting 5–6 months before your intended intake is strongly recommended.",
+    q: "How long does the application process take?",
+    a: "Typically 2–4 months from research to receiving your admission letter. Scholarship applications add time, so starting 5–6 months before your intended intake is strongly recommended.",
   },
   {
-    question: "Do I need to speak Chinese?",
-    answer:
-      "Not necessarily. Many programs are taught entirely in English, especially at the master's and doctoral level. You can filter by instruction language directly on Bridge4China to find English-taught programs.",
+    q: "Do I need to speak Chinese?",
+    a: "Not necessarily. Many programs are taught entirely in English, especially at the master's and doctoral level. You can filter by instruction language directly on Bridge4China to find English-taught programs.",
   },
   {
-    question: "What GPA do I need?",
-    answer:
-      "Requirements vary by university and program. Most universities require a GPA equivalent of 2.5–3.5 out of 4.0. Scholarship programs are more competitive and typically require 3.0 or above.",
+    q: "What GPA do I need?",
+    a: "Requirements vary by university and program. Most universities require a GPA equivalent of 2.5–3.5 out of 4.0. Scholarship programs are more competitive and typically require 3.0 or above.",
   },
   {
-    question: "Can I apply for multiple universities at once?",
-    answer:
-      "Yes, and we recommend it. Applying to 3–5 programs gives you options and improves your chances. Bridge4China helps you manage multiple applications from a single dashboard.",
+    q: "Can I apply for multiple universities at once?",
+    a: "Yes, and we recommend it. Applying to 3–5 programs gives you options and improves your chances. Bridge4China helps you manage multiple applications from a single dashboard.",
   },
   {
-    question: "Is the CSC scholarship hard to get?",
-    answer:
-      "It's competitive but absolutely achievable with the right preparation. A strong study plan, good academic record, and a clear research proposal make a big difference. Our advisors help you build the strongest application possible.",
+    q: "Is the CSC scholarship hard to get?",
+    a: "It's competitive but absolutely achievable with the right preparation. A strong study plan, good academic record, and a clear research proposal make a big difference. Our advisors help you build the strongest application possible.",
+  },
+  {
+    q: "What happens if my application is rejected?",
+    a: "Don't be discouraged. You can apply to other universities or reapply next cycle. Our advisors can help you strengthen your application for better results.",
+  },
+  {
+    q: "Can I apply without an agent?",
+    a: "Yes, but using a trusted advisor increases your success rate. Bridge4China guides you through every step for free.",
+  },
+  {
+    q: "When should I start applying?",
+    a: "Start at least 4–6 months before your intended intake. For September intake, begin in January. For February intake, begin in August.",
   },
 ];
 
 // ── Main page component ───────────────────────────────────────────────────────
 
 export function HowToApplyClient() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggle = (index: number) =>
-    setOpenIndex((prev) => (prev === index ? null : index));
 
   return (
     <div
@@ -221,58 +223,10 @@ export function HowToApplyClient() {
           <div className="text-center mb-12">
             <span className="badge badge-accent mb-4 inline-flex">FAQ</span>
             <h2 className="text-3xl md:text-4xl font-black">
-              Common Questions
+              Frequently Asked Questions
             </h2>
           </div>
-
-          <div className="space-y-3">
-            {FAQS.map((faq, idx) => {
-              const isOpen = openIndex === idx;
-              return (
-                <div key={idx} className="glass overflow-hidden">
-                  <button
-                    onClick={() => toggle(idx)}
-                    className="w-full flex items-center justify-between gap-4 p-5 text-left transition-colors duration-200"
-                    style={{
-                      background: isOpen
-                        ? "var(--color-accent-muted)"
-                        : "transparent",
-                    }}
-                    aria-expanded={isOpen}
-                  >
-                    <span
-                      className="font-heading font-semibold text-sm md:text-base"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {faq.question}
-                    </span>
-                    <ChevronDown
-                      size={18}
-                      className="flex-shrink-0 transition-transform duration-300"
-                      style={{
-                        color: "var(--color-accent)",
-                        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      }}
-                    />
-                  </button>
-
-                  <div
-                    className="overflow-hidden transition-all duration-300"
-                    style={{
-                      maxHeight: isOpen ? "300px" : "0px",
-                    }}
-                  >
-                    <p
-                      className="px-5 pb-5 text-sm leading-relaxed"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      {faq.answer}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <FAQAccordion items={FAQS} />
         </div>
       </section>
 
