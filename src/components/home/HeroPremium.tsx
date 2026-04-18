@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 
@@ -36,6 +36,7 @@ const badgeVariants = {
 /* ── Orb definitions ─────────────────────────────────────────── */
 const orbs = [
   {
+    id: "orb-large-top-left",
     // Large orb — top-left
     size: 680,
     x: [-10, 6, -4, -10],
@@ -47,6 +48,7 @@ const orbs = [
     left: "-12%",
   },
   {
+    id: "orb-medium-bottom-right",
     // Medium orb — bottom-right
     size: 520,
     x: [8, -6, 4, 8],
@@ -58,6 +60,7 @@ const orbs = [
     right: "-8%",
   },
   {
+    id: "orb-small-center-top",
     // Small orb — center-top
     size: 360,
     x: [-4, 8, -2, -4],
@@ -69,6 +72,7 @@ const orbs = [
     left: "45%",
   },
   {
+    id: "orb-accent-bottom-left",
     // Accent orb — bottom-left
     size: 280,
     x: [6, -4, 2, 6],
@@ -90,15 +94,17 @@ const stats = [
 
 /* ── Component ───────────────────────────────────────────────── */
 export function HeroPremium() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
       style={{ background: "var(--color-bg-base)" }}
     >
       {/* ── Animated gradient orbs ────────────────────────────── */}
-      {orbs.map((orb, i) => (
+      {orbs.map((orb) => (
         <motion.div
-          key={i}
+          key={orb.id}
           aria-hidden="true"
           className="pointer-events-none absolute rounded-full"
           style={{
@@ -112,15 +118,12 @@ export function HeroPremium() {
             left: "left" in orb ? orb.left : undefined,
             right: "right" in orb ? orb.right : undefined,
           }}
-          animate={{
-            x: orb.x,
-            y: orb.y,
-          }}
-          transition={{
-            duration: orb.duration,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={shouldReduceMotion ? {} : { x: orb.x, y: orb.y }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : { duration: orb.duration, repeat: Infinity, ease: "easeInOut" }
+          }
         />
       ))}
 
@@ -158,7 +161,7 @@ export function HeroPremium() {
                 backdropFilter: "blur(12px)",
               }}
             >
-              🎓 #1 Platform for Studying in China
+              <span aria-hidden="true">🎓</span> #1 Platform for Studying in China
             </span>
           </motion.div>
 
@@ -173,15 +176,8 @@ export function HeroPremium() {
               }}
             >
               Your Future in China
-            </h1>
-            <h1
-              className="font-heading font-black tracking-tight leading-none"
-              style={{
-                fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              <span style={{ color: "var(--color-text-primary)" }}>Starts </span>
+              <br />
+              Starts{" "}
               <span style={{ color: "var(--color-accent)" }}>Here</span>
             </h1>
           </motion.div>
@@ -213,9 +209,6 @@ export function HeroPremium() {
               <div
                 key={stat.label}
                 className="flex flex-col items-center px-6 py-4 gap-0.5"
-                style={{
-                  borderRight: "1px solid var(--glass-border)",
-                }}
               >
                 <span
                   className="font-heading font-black text-2xl md:text-3xl leading-none"
@@ -257,8 +250,12 @@ export function HeroPremium() {
         aria-hidden="true"
       >
         <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          animate={shouldReduceMotion ? {} : { y: [0, 6, 0] }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+          }
         >
           <ChevronDown
             size={22}
