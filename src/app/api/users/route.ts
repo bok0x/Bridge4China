@@ -13,8 +13,10 @@ export async function GET() {
     id: user.id,
     email: user.email,
     name: user.user_metadata?.name ?? "",
-    country: user.user_metadata?.country ?? "",
+    birthday: user.user_metadata?.birthday ?? "",
     phone: user.user_metadata?.phone ?? "",
+    nationality_code: user.user_metadata?.nationality_code ?? "",
+    country: user.user_metadata?.country ?? "",
   });
 }
 
@@ -27,13 +29,18 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, country, phone } = body as { name?: string; country?: string; phone?: string };
+  // name and birthday are intentionally excluded — they cannot be changed after registration
+  const { phone, nationality_code, country } = body as {
+    phone?: string;
+    nationality_code?: string;
+    country?: string;
+  };
 
   const { error } = await supabase.auth.updateUser({
     data: {
-      ...(name !== undefined && { name }),
-      ...(country !== undefined && { country }),
       ...(phone !== undefined && { phone }),
+      ...(nationality_code !== undefined && { nationality_code }),
+      ...(country !== undefined && { country }),
     },
   });
 

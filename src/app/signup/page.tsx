@@ -1,22 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { PhoneInput } from "@/components/ui/PhoneInput";
+import { OTPInput } from "@/components/ui/OTPInput";
 import { SITE_NAME } from "@/lib/constants";
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 71 }, (_, i) => CURRENT_YEAR - 10 - i); // 10 to 80 years ago
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
+
+type Step = "details" | "otp";
 
 export default function SignupPage() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Step state
+  const [step, setStep] = useState<Step>("details");
+
+  // Form fields
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneCode, setPhoneCode] = useState("+212");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // UI state
   const [loading, setLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Countdown timer for resend
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   async function handleSocialLogin(provider: "google" | "facebook") {
     setSocialLoading(provider);
@@ -32,17 +62,35 @@ export default function SignupPage() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function validateDetails(): string | null {
+    if (!name.trim()) return "Full name is required.";
+    if (!email.trim()) return "Email is required.";
+    if (!birthDay || !birthMonth || !birthYear) return "Please enter your complete birthday.";
+    if (!phoneNumber.trim()) return "Phone number is required.";
+    if (password.length < 8) return "Password must be at least 8 characters.";
+    if (password !== confirmPassword) return "Passwords do not match.";
+    return null;
+  }
+
+  async function handleDetailsSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const validationError = validateDetails();
+    if (validationError) { setError(validationError); return; }
+
     setLoading(true);
     setError("");
+
+    const birthday = `${birthYear}-${String(MONTHS.indexOf(birthMonth) + 1).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`;
+    const phone = `${phoneCode} ${phoneNumber}`;
 
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { name },
+        data: { name, birthday, phone, nationality_code: phoneCode },
+        // Supabase will send a 6-digit OTP if your email template uses {{ .Token }}
+        // Dashboard → Auth → Email Templates → Confirm signup → add {{ .Token }} to body
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
@@ -53,34 +101,108 @@ export default function SignupPage() {
       return;
     }
 
-    setSuccess(true);
     setLoading(false);
+    setStep("otp");
+    setResendCooldown(60);
   }
 
-  if (success) {
+  async function handleOTPComplete(code: string) {
+    setOtpLoading(true);
+    setOtpError("");
+    const supabase = createClient();
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: "signup",
+    });
+
+    if (verifyError) {
+      setOtpError("Invalid or expired code. Please check your email and try again.");
+      setOtpLoading(false);
+      return;
+    }
+
+    router.push("/dashboard");
+  }
+
+  async function handleResend() {
+    if (resendCooldown > 0) return;
+    setOtpError("");
+    const supabase = createClient();
+    await supabase.auth.resend({ type: "signup", email });
+    setResendCooldown(60);
+  }
+
+  // ── OTP Step ─────────────────────────────────────────────────────────────────
+  if (step === "otp") {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20 pb-16 px-4">
         <div className="w-full max-w-md">
-          <GlassCard className="text-center">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: "var(--color-accent-muted)" }}
-            >
-              <span className="text-2xl">✓</span>
-            </div>
-            <h2 className="font-heading font-black text-xl mb-2">Check your email</h2>
-            <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
-              We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
-            </p>
-            <Link href="/login" className="btn-accent text-sm">
-              Go to Login
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-block mb-6">
+              <span className="font-heading font-black text-xl" style={{ color: "var(--color-accent)" }}>
+                {SITE_NAME}
+              </span>
             </Link>
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+              style={{ background: "rgba(72,197,156,0.12)", border: "1px solid rgba(72,197,156,0.3)" }}
+            >
+              <span style={{ fontSize: 28 }}>📧</span>
+            </div>
+            <h1 className="text-2xl font-heading font-black mb-2">Check your email</h1>
+            <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+              We sent a 6-digit code to <strong style={{ color: "var(--color-text-primary)" }}>{email}</strong>
+            </p>
+          </div>
+
+          <GlassCard>
+            <div className="space-y-6">
+              <OTPInput onComplete={handleOTPComplete} disabled={otpLoading} />
+
+              {otpError && (
+                <p className="text-sm rounded-xl px-4 py-3 text-center" style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}>
+                  {otpError}
+                </p>
+              )}
+
+              {otpLoading && (
+                <p className="text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                  Verifying…
+                </p>
+              )}
+
+              <div className="text-center">
+                <p className="text-sm mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                  Didn&apos;t receive the code?
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendCooldown > 0}
+                  className="text-sm font-medium"
+                  style={{ color: resendCooldown > 0 ? "var(--color-text-tertiary)" : "var(--color-accent)", cursor: resendCooldown > 0 ? "not-allowed" : "pointer", background: "none", border: "none" }}
+                >
+                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => { setStep("details"); setOtpError(""); }}
+                className="w-full text-sm"
+                style={{ color: "var(--color-text-secondary)", background: "none", border: "none", cursor: "pointer" }}
+              >
+                ← Back to registration
+              </button>
+            </div>
           </GlassCard>
         </div>
       </div>
     );
   }
 
+  // ── Details Step ─────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex items-center justify-center pt-20 pb-16 px-4">
       <div className="w-full max-w-md">
@@ -127,7 +249,8 @@ export default function SignupPage() {
             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleDetailsSubmit} className="space-y-4">
+            {/* Full name */}
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
                 Full name
@@ -135,14 +258,15 @@ export default function SignupPage() {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 required
                 autoComplete="name"
-                placeholder="Your name"
+                placeholder="Your full name"
                 className="input-glass w-full"
               />
             </div>
 
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
                 Email
@@ -150,7 +274,7 @@ export default function SignupPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
@@ -158,6 +282,45 @@ export default function SignupPage() {
               />
             </div>
 
+            {/* Birthday */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                Date of birth
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 8 }}>
+                <select value={birthDay} onChange={e => setBirthDay(e.target.value)} required className="input-glass w-full" style={{ fontSize: 14 }}>
+                  <option value="">Day</option>
+                  {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <select value={birthMonth} onChange={e => setBirthMonth(e.target.value)} required className="input-glass w-full" style={{ fontSize: 14 }}>
+                  <option value="">Month</option>
+                  {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <select value={birthYear} onChange={e => setBirthYear(e.target.value)} required className="input-glass w-full" style={{ fontSize: 14 }}>
+                  <option value="">Year</option>
+                  {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                Phone number
+              </label>
+              <PhoneInput
+                code={phoneCode}
+                number={phoneNumber}
+                onCodeChange={setPhoneCode}
+                onNumberChange={setPhoneNumber}
+                required
+              />
+              <p className="text-xs mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+                ⚡ WhatsApp number recommended
+              </p>
+            </div>
+
+            {/* Password */}
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
                 Password
@@ -165,13 +328,33 @@ export default function SignupPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Min 8 characters"
                 className="input-glass w-full"
               />
+            </div>
+
+            {/* Confirm password */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                Confirm password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                placeholder="Repeat your password"
+                className="input-glass w-full"
+                style={{ borderColor: confirmPassword && confirmPassword !== password ? "rgba(239,68,68,0.6)" : undefined }}
+              />
+              {confirmPassword && confirmPassword !== password && (
+                <p className="text-xs mt-1" style={{ color: "#f87171" }}>Passwords do not match</p>
+              )}
             </div>
 
             {error && (
@@ -185,7 +368,7 @@ export default function SignupPage() {
               disabled={loading}
               className="btn-accent w-full justify-center"
             >
-              {loading ? "Creating account…" : "Create account"}
+              {loading ? "Creating account…" : "Continue →"}
             </button>
           </form>
 
