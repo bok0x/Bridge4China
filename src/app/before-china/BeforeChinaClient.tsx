@@ -191,7 +191,7 @@ export function BeforeChinaClient() {
               }}
             >
               <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                src="https://www.youtube.com/embed/zchQDcqfWaM"
                 title="What to Expect as a Student in China"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
