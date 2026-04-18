@@ -241,6 +241,78 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-accent);
   }
 
+  /* ── Liquid Glass Button (top-right glow + shimmer sweep) ── */
+  .btn-liquid {
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  /* Top-right specular glow dot */
+  .btn-liquid::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 28px;
+    height: 28px;
+    background: radial-gradient(circle, rgba(255,255,255,0.90) 0%, rgba(72,197,156,0.55) 38%, transparent 68%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* Shimmer sweep on hover */
+  .btn-liquid::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -110%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transform: skewX(-18deg);
+    transition: left 0.55s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .btn-liquid:hover::before { left: 160%; }
+
+  /* Add liquid treatment to existing buttons */
+  .btn-accent { box-shadow: 0 0 22px rgba(72,197,156,0.30), inset 0 1px 0 rgba(255,255,255,0.28); }
+  .btn-accent:hover { box-shadow: 0 0 36px rgba(72,197,156,0.50), 0 6px 28px var(--color-accent-glow), inset 0 1px 0 rgba(255,255,255,0.28); }
+  .btn-ghost { box-shadow: 0 0 14px rgba(72,197,156,0.12), inset 0 1px 0 rgba(255,255,255,0.14); }
+  .btn-ghost:hover { box-shadow: 0 0 26px rgba(72,197,156,0.28), inset 0 1px 0 rgba(255,255,255,0.20); }
+
+  /* ── Liquid Card (glass card with top-right glow) ─────────── */
+  .liquid-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 32px rgba(72,197,156,0.12), var(--glass-shadow);
+    border-radius: 1.25rem;
+    transition: box-shadow 0.25s ease, transform 0.2s ease, border-color 0.25s ease;
+  }
+  .liquid-card::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(72,197,156,0.25) 35%, transparent 68%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .liquid-card:hover {
+    box-shadow: 0 0 48px rgba(72,197,156,0.22), var(--glass-shadow-lg);
+    border-color: rgba(72,197,156,0.30);
+    transform: translateY(-2px);
+  }
+
   /* ── Text Utilities ─────────────────────────────────────── */
   .text-accent    { color: var(--color-accent); }
   .text-gradient  {
@@ -374,3 +446,17 @@ h1, h2, h3, h4, h5, h6 {
   0%   { transform: scale(1);    opacity: 0.6; }
   100% { transform: scale(1.6);  opacity: 0;   }
 }
+
+/* ── IQ TEST BACKGROUND ANIMATIONS ────────────────────────── */
+@keyframes iqDrift1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(45px,28px)} 66%{transform:translate(-22px,42px)} }
+@keyframes iqDrift2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-38px,-22px)} 66%{transform:translate(28px,-45px)} }
+@keyframes iqDrift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-32px,38px)} }
+@keyframes iqDrift4 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-25px)} }
+@keyframes iqBall1  { 0%{top:10%;left:75%} 18%{top:48%;left:55%} 35%{top:72%;left:20%} 55%{top:35%;left:8%}  75%{top:8%;left:40%}  100%{top:10%;left:75%} }
+@keyframes iqBall2  { 0%{top:75%;left:15%} 22%{top:42%;left:50%} 45%{top:15%;left:72%} 68%{top:55%;left:88%} 100%{top:75%;left:15%} }
+@keyframes iqBall3  { 0%{top:28%;left:2%}  28%{top:8%;left:65%}  55%{top:55%;left:80%} 80%{top:78%;left:35%} 100%{top:28%;left:2%} }
+@keyframes iqBall4  { 0%{top:88%;left:82%} 30%{top:45%;left:48%} 60%{top:12%;left:20%} 100%{top:88%;left:82%} }
+@keyframes iqBall5  { 0%{top:50%;left:90%} 25%{top:20%;left:52%} 50%{top:65%;left:10%} 75%{top:38%;left:48%} 100%{top:50%;left:90%} }
+@keyframes iqTwinkle { 0%,100%{opacity:var(--a,0.4);transform:scale(1)} 50%{opacity:calc(var(--a,0.4)*0.25);transform:scale(0.65)} }
+@keyframes iqShimmer { 0%,100%{transform:translateX(-100%) skewX(-15deg);opacity:0} 40%{opacity:1} 60%{transform:translateX(200%) skewX(-15deg);opacity:0} }
+@keyframes iqPulseQ { 0%,100%{box-shadow:0 0 0 0 rgba(72,197,156,0.3)} 50%{box-shadow:0 0 0 7px rgba(72,197,156,0)} }
