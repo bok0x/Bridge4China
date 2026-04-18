@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { NAV_LINKS, SITE_NAME, SITE_TAGLINE, WHATSAPP_URL } from "@/lib/constants";
 
 export function Footer() {
@@ -11,8 +12,17 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="font-heading font-bold text-xl mb-2">
-              China<span style={{ color: "var(--color-accent)" }}>Uni</span>Match
+            <div className="flex items-center gap-2.5 mb-2">
+              <Image
+                src="/Green-Logo.png"
+                alt={SITE_NAME}
+                width={120}
+                height={48}
+                className="object-contain"
+              />
+              <div className="font-heading font-bold text-xl">
+                Bridge<span style={{ color: "var(--color-accent)" }}>4</span>China
+              </div>
             </div>
             <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
               {SITE_TAGLINE}. Helping international students discover, compare, and apply to

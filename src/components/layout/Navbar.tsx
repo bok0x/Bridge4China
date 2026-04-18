@@ -9,16 +9,17 @@ import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { SITE_NAME } from "@/lib/constants";
 import { useComparisonStore } from "@/stores/comparisonStore";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
-const NAV_KEYS = [
-  { key: "nav_discover" as const, href: "/discover" },
-  { key: "nav_compare"  as const, href: "/compare"  },
-  { key: "nav_scholarships" as const, href: "/scholarships" },
-  { key: "nav_apply"   as const, href: "/apply"    },
+const NAV_LINKS = [
+  { label: "Home",                   href: "/" },
+  { label: "How It Works",           href: "/#how-it-works" },
+  { label: "Before Coming to China", href: "/before-china" },
+  { label: "Cost of Living",         href: "/cost-of-living" },
+  { label: "Universities",           href: "/discover" },
+  { label: "Lifestyle",              href: "/lifestyle" },
 ] as const;
 
 export function Navbar() {
@@ -26,7 +27,6 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { programs: compared } = useComparisonStore();
-  const { t } = useLanguage();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -69,36 +69,33 @@ export function Navbar() {
       <div className="container-app flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 relative">
+          <div className="w-10 h-10 relative">
             <Image
-              src="/logo-icon.svg"
+              src="/Green-Logo.png"
               alt={SITE_NAME}
-              width={32}
-              height={32}
+              width={40}
+              height={40}
               className="object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
             />
           </div>
           <span
             className="font-heading font-800 text-lg tracking-tight"
             style={{ color: "var(--color-text-primary)" }}
           >
-            China<span style={{ color: "var(--color-accent)" }}>Uni</span>Match
+            Bridge<span style={{ color: "var(--color-accent)" }}>4</span>China
           </span>
         </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {NAV_KEYS.map((link) => (
+          {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              {t(link.key)}
+              {link.label}
             </Link>
           ))}
         </nav>
@@ -112,7 +109,7 @@ export function Navbar() {
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold font-heading badge-accent"
             >
               <BookOpen size={13} />
-              {t("nav_compare")} ({compared.length}/3)
+              Compare ({compared.length}/3)
             </Link>
           )}
 
@@ -139,7 +136,7 @@ export function Navbar() {
                 Sign in
               </Link>
               <Link href="/apply" className="btn-accent text-sm py-2">
-                {t("apply_now")}
+                Apply Now
               </Link>
             </div>
           )}
@@ -159,7 +156,7 @@ export function Navbar() {
       {open && (
         <div className="md:hidden mt-2 mx-4 glass rounded-2xl overflow-hidden animate-slide-up">
           <div className="p-4 flex flex-col gap-1">
-            {NAV_KEYS.map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -167,7 +164,7 @@ export function Navbar() {
                 className="px-4 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {t(link.key)}
+                {link.label}
               </Link>
             ))}
             {user ? (
@@ -200,7 +197,7 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="mt-1 btn-accent text-center"
                 >
-                  {t("apply_now")}
+                  Apply Now
                 </Link>
               </>
             )}
