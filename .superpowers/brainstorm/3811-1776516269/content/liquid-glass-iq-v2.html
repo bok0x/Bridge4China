@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Test — Liquid Glass v2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #030806;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, 'Inter', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* === CANVAS UNIVERSE BACKGROUND === */
+  #universe { position: fixed; inset: 0; z-index: 0; }
+
+  /* === SCENE === */
+  .scene {
+    position: relative;
+    z-index: 10;
+    width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* === BANNER === */
+  .top-banner {
+    background: rgba(72,197,156,0.10);
+    border: 1px solid rgba(72,197,156,0.32);
+    border-radius: 999px;
+    padding: 10px 24px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #48C59C;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 20px rgba(72,197,156,0.1);
+  }
+  .top-banner:hover { background: rgba(72,197,156,0.18); transform: scale(1.01); }
+
+  /* === LIQUID GLASS CARD === */
+  .glass-card {
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.17);
+    border-radius: 28px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(48px) saturate(200%) brightness(1.05);
+    -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(1.05);
+    transition: box-shadow 0.08s ease, transform 0.08s ease;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255,255,255,0.28),
+      inset 0 -1px 0 rgba(0,0,0,0.25),
+      0 24px 64px rgba(0,0,0,0.55),
+      0 0 0 0.5px rgba(255,255,255,0.09);
+  }
+  /* top-edge shimmer */
+  .glass-card::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:28px;
+    background: linear-gradient(145deg,rgba(255,255,255,0.14) 0%,transparent 45%,rgba(72,197,156,0.04) 100%);
+    pointer-events:none;
+  }
+  /* Chromatic inner rim — behind content */
+  .glass-card::after {
+    content:'';
+    position:absolute;
+    inset:0;
+    z-index:0;
+    border-radius:28px;
+    border: 1px solid transparent;
+    background: linear-gradient(#030806,#030806) padding-box,
+                linear-gradient(135deg,rgba(72,197,156,0.4),rgba(255,255,255,0.05),rgba(72,197,156,0.15)) border-box;
+    pointer-events:none;
+  }
+  /* All direct children of card sit above pseudo-elements */
+  .glass-card > * { position: relative; z-index: 1; }
+
+  /* === PROGRESS === */
+  .progress-row { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px; }
+  .progress-label { font-size:11px;font-weight:700;color:#48C59C;letter-spacing:1px;text-transform:uppercase; }
+  .progress-count  { font-size:11px;color:rgba(232,245,240,0.38);font-weight:500; }
+  .progress-bar-bg { width:100%;height:3px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden; }
+  .progress-bar-fill {
+    height:100%;width:33%;
+    background:linear-gradient(90deg,#48C59C,#5DD4AE);
+    border-radius:99px;
+    box-shadow:0 0 10px rgba(72,197,156,0.7);
+    transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* === QUESTION === */
+  .question-type { font-size:11px;font-weight:600;color:rgba(232,245,240,0.38);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px; }
+  .question-text  { font-size:18px;font-weight:700;color:#E8F5F0;line-height:1.4;margin-bottom:22px;letter-spacing:-0.2px; }
+
+  /* === MATRIX === */
+  .matrix-grid {
+    display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);
+    gap:6px;margin:0 auto 22px;width:fit-content;
+  }
+  .matrix-cell {
+    width:54px;height:54px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+  }
+  .matrix-cell.f1 { background:rgba(72,197,156,0.88); border-color:#48C59C; box-shadow:inset 0 1px 0 rgba(255,255,255,0.3),0 0 14px rgba(72,197,156,0.45); }
+  .matrix-cell.f2 { background:rgba(72,197,156,0.42); border-color:rgba(72,197,156,0.55); }
+  .matrix-cell.f3 { background:rgba(72,197,156,0.14); border-color:rgba(72,197,156,0.22); }
+  .matrix-cell.qm {
+    border:1.5px dashed rgba(72,197,156,0.55);
+    background:rgba(72,197,156,0.05);
+    font-size:22px;color:rgba(72,197,156,0.75);font-weight:700;
+    animation:pulse-q 2s ease-in-out infinite;
+  }
+  @keyframes pulse-q{0%,100%{box-shadow:0 0 0 0 rgba(72,197,156,0.3)}50%{box-shadow:0 0 0 7px rgba(72,197,156,0)}}
+
+  /* === OPTIONS === */
+  .options-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+  .option-btn {
+    background:rgba(255,255,255,0.045);
+    border:1px solid rgba(255,255,255,0.11);
+    border-radius:16px;padding:14px 16px;
+    cursor:pointer;display:flex;align-items:center;gap:10px;
+    transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    position:relative;overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .option-btn::after { content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,0.07),transparent);pointer-events:none; }
+  .option-btn:hover  { background:rgba(72,197,156,0.11);border-color:rgba(72,197,156,0.38);transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 8px 22px rgba(72,197,156,0.14); }
+  .option-btn.selected { background:rgba(72,197,156,0.17);border-color:#48C59C;transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 8px 28px rgba(72,197,156,0.28),0 0 0 1px rgba(72,197,156,0.28); }
+  .option-letter { width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(232,245,240,0.55);flex-shrink:0;transition:all 0.2s; }
+  .option-btn.selected .option-letter { background:#48C59C;border-color:#48C59C;color:#030806; }
+  .opt-matrix { display:grid;grid-template-columns:repeat(3,10px);gap:2px; }
+  .opt-cell { width:10px;height:10px;border-radius:2px; }
+
+  /* === NEXT BTN === */
+  .next-btn {
+    width:100%;padding:15px;border-radius:16px;border:none;
+    background:linear-gradient(135deg,#48C59C,#1a7a5a);
+    color:#030806;font-weight:800;font-size:14px;
+    cursor:pointer;margin-top:14px;letter-spacing:0.3px;
+    transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow:0 4px 22px rgba(72,197,156,0.38),inset 0 1px 0 rgba(255,255,255,0.32);
+  }
+  .next-btn:hover  { transform:translateY(-2px) scale(1.01);box-shadow:0 10px 36px rgba(72,197,156,0.52),inset 0 1px 0 rgba(255,255,255,0.4); }
+  .next-btn:active { transform:scale(0.98); }
+
+  /* === LOCKED RESULT === */
+  .result-teaser { position:relative;text-align:center; }
+  .result-blur-card { background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:22px;padding:20px;backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);filter:blur(7px);pointer-events:none;opacity:0.45; }
+  .result-lock-overlay { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:rgba(3,8,6,0.48);border-radius:22px;backdrop-filter:blur(2px); }
+  .lock-icon { font-size:26px; }
+  .lock-text { font-size:13px;font-weight:700;color:#E8F5F0; }
+  .lock-sub  { font-size:11px;color:rgba(232,245,240,0.45); }
+
+  /* === SOUND BADGE === */
+  .sound-badge { position:fixed;top:20px;right:20px;background:rgba(255,255,255,0.065);border:1px solid rgba(255,255,255,0.14);border-radius:99px;padding:7px 16px;font-size:11px;color:rgba(232,245,240,0.6);backdrop-filter:blur(20px);z-index:100;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all 0.2s; }
+  .sound-badge:hover { background:rgba(255,255,255,0.11); }
+  .sound-wave { display:flex;align-items:flex-end;gap:2px;height:14px; }
+  .sound-bar  { width:3px;background:#48C59C;border-radius:2px;animation:wave 1s ease-in-out infinite; }
+  .sound-bar:nth-child(1){height:4px;animation-delay:0s}
+  .sound-bar:nth-child(2){height:10px;animation-delay:.1s}
+  .sound-bar:nth-child(3){height:7px;animation-delay:.2s}
+  .sound-bar:nth-child(4){height:12px;animation-delay:.3s}
+  .sound-bar:nth-child(5){height:5px;animation-delay:.4s}
+  @keyframes wave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.4)}}
+
+  .ripple { position:absolute;border-radius:50%;background:rgba(72,197,156,0.22);transform:scale(0);animation:rpl 0.55s linear;pointer-events:none; }
+  @keyframes rpl{to{transform:scale(4);opacity:0}}
+
+  .preview-label { text-align:center;font-size:11px;color:rgba(232,245,240,0.25);letter-spacing:0.5px;margin-top:-8px; }
+</style>
+</head>
+<body>
+
+<canvas id="universe"></canvas>
+
+<div class="sound-badge" id="soundBadge" onclick="toggleSound()">
+  <div class="sound-wave">
+    <div class="sound-bar"></div><div class="sound-bar"></div>
+    <div class="sound-bar"></div><div class="sound-bar"></div>
+    <div class="sound-bar"></div>
+  </div>
+  <span id="soundLabel">Sound ON</span>
+</div>
+
+<div class="scene">
+  <div class="top-banner" onclick="playClick()">🧠 TEST YOUR IQ — Free 15-min cognitive assessment →</div>
+  <p class="preview-label">↑ banner lives on every page of the site</p>
+
+  <div class="glass-card" id="mainCard">
+    <div class="progress-row">
+      <span class="progress-label">Fluid Reasoning</span>
+      <span class="progress-count" id="qCount">5 / 15</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:33%"></div></div>
+    <div style="height:18px"></div>
+    <div class="question-type">Matrix Reasoning</div>
+    <div class="question-text">Which pattern completes the sequence?</div>
+    <div class="matrix-grid">
+      <div class="matrix-cell f1"></div><div class="matrix-cell f2"></div><div class="matrix-cell f3"></div>
+      <div class="matrix-cell f2"></div><div class="matrix-cell f3"></div><div class="matrix-cell f1"></div>
+      <div class="matrix-cell f3"></div><div class="matrix-cell f1"></div><div class="matrix-cell qm">?</div>
+    </div>
+    <div class="options-grid">
+      <div class="option-btn" onclick="selectOption(this,'a')">
+        <div class="option-letter">A</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'b')">
+        <div class="option-letter">B</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'c')">
+        <div class="option-letter">C</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'d')">
+        <div class="option-letter">D</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+        </div>
+      </div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <div class="result-teaser">
+    <div class="result-blur-card">
+      <div style="font-size:32px;font-weight:900;color:#48C59C;">IQ 127</div>
+      <div style="font-size:14px;color:#E8F5F0;">98th Percentile · Superior Range</div>
+    </div>
+    <div class="result-lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Your results are ready</div>
+      <div class="lock-sub">Create a free account to unlock</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// UNIVERSE CANVAS — stars + floating orbs
+// ==========================================
+const canvas = document.getElementById('universe');
+const ctx2d  = canvas.getContext('2d');
+let W, H, mouse = { x: 0.5, y: 0.5 };
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// --- Stars ---
+const STAR_COUNT = 220;
+const stars = Array.from({ length: STAR_COUNT }, () => ({
+  x: Math.random(), y: Math.random(),
+  r: Math.random() * 1.4 + 0.2,
+  alpha: Math.random() * 0.6 + 0.2,
+  twinkleSpeed: Math.random() * 0.012 + 0.004,
+  twinkleOffset: Math.random() * Math.PI * 2,
+  drift: (Math.random() - 0.5) * 0.00008,  // slow horizontal drift
+}));
+
+// --- Floating Orbs (the "random balls") ---
+const ORBS = [
+  // big slow green nebula
+  { x: 0.15, y: 0.2,  vx: 0.00012, vy: 0.00008,  r: 320, color: '72,197,156', alpha: 0.18, blur: 90 },
+  { x: 0.82, y: 0.75, vx:-0.00010, vy:-0.00006,  r: 260, color: '26,122,90',  alpha: 0.22, blur: 80 },
+  // medium accent blobs
+  { x: 0.55, y: 0.15, vx: 0.00018, vy: 0.00014,  r: 140, color: '72,197,156', alpha: 0.14, blur: 60 },
+  { x: 0.25, y: 0.80, vx:-0.00015, vy: 0.00012,  r: 120, color: '93,212,174', alpha: 0.12, blur: 55 },
+  // small bright "red balls" — psychological contrast pops
+  { x: 0.70, y: 0.40, vx: 0.00030, vy:-0.00025,  r:  28, color: '255,80,60',  alpha: 0.55, blur: 14, glow: true },
+  { x: 0.30, y: 0.60, vx:-0.00028, vy: 0.00022,  r:  18, color: '255,100,50', alpha: 0.50, blur: 10, glow: true },
+  { x: 0.85, y: 0.20, vx:-0.00022, vy: 0.00030,  r:  22, color: '255,60,80',  alpha: 0.48, blur: 12, glow: true },
+  { x: 0.10, y: 0.45, vx: 0.00025, vy:-0.00018,  r:  14, color: '255,120,40', alpha: 0.45, blur:  8, glow: true },
+  // tiny sparkling white orbs
+  { x: 0.60, y: 0.85, vx: 0.00020, vy:-0.00015,  r:   8, color: '200,240,220',alpha: 0.60, blur:  6, glow: true },
+  { x: 0.45, y: 0.12, vx:-0.00018, vy: 0.00020,  r:   6, color: '180,255,220',alpha: 0.55, blur:  4, glow: true },
+];
+
+// --- Neural connection lines between nearby stars (subtle) ---
+function drawConnections() {
+  const threshold = 0.08; // fraction of screen width
+  ctx2d.save();
+  for (let i = 0; i < stars.length; i++) {
+    for (let j = i + 1; j < stars.length; j++) {
+      const dx = (stars[i].x - stars[j].x);
+      const dy = (stars[i].y - stars[j].y);
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < threshold) {
+        const alpha = (1 - dist / threshold) * 0.07;
+        ctx2d.beginPath();
+        ctx2d.moveTo(stars[i].x * W, stars[i].y * H);
+        ctx2d.lineTo(stars[j].x * W, stars[j].y * H);
+        ctx2d.strokeStyle = `rgba(72,197,156,${alpha})`;
+        ctx2d.lineWidth = 0.4;
+        ctx2d.stroke();
+      }
+    }
+  }
+  ctx2d.restore();
+}
+
+let t = 0;
+function draw() {
+  t++;
+  ctx2d.clearRect(0, 0, W, H);
+
+  // Solid dark bg
+  ctx2d.fillStyle = '#030806';
+  ctx2d.fillRect(0, 0, W, H);
+
+  // Mouse parallax offset
+  const mx = (mouse.x - 0.5) * 0.06;
+  const my = (mouse.y - 0.5) * 0.06;
+
+  // --- Draw orbs ---
+  for (const o of ORBS) {
+    // bounce off edges
+    o.x += o.vx; o.y += o.vy;
+    if (o.x < 0 || o.x > 1) o.vx *= -1;
+    if (o.y < 0 || o.y > 1) o.vy *= -1;
+    o.x = Math.max(0, Math.min(1, o.x));
+    o.y = Math.max(0, Math.min(1, o.y));
+
+    const px = (o.x + mx * (o.r > 80 ? 0.4 : 1.2)) * W;
+    const py = (o.y + my * (o.r > 80 ? 0.4 : 1.2)) * H;
+
+    // Glow for small balls
+    if (o.glow) {
+      ctx2d.save();
+      ctx2d.shadowBlur  = o.blur * 3;
+      ctx2d.shadowColor = `rgba(${o.color},${o.alpha})`;
+    }
+
+    const g = ctx2d.createRadialGradient(px, py, 0, px, py, o.r);
+    g.addColorStop(0, `rgba(${o.color},${o.alpha})`);
+    g.addColorStop(0.5, `rgba(${o.color},${o.alpha * 0.4})`);
+    g.addColorStop(1, `rgba(${o.color},0)`);
+    ctx2d.beginPath();
+    ctx2d.arc(px, py, o.r, 0, Math.PI * 2);
+    ctx2d.fillStyle = g;
+    ctx2d.fill();
+
+    if (o.glow) ctx2d.restore();
+  }
+
+  // --- Neural lines ---
+  drawConnections();
+
+  // --- Stars ---
+  for (const s of stars) {
+    s.x += s.drift;
+    if (s.x > 1) s.x = 0;
+    if (s.x < 0) s.x = 1;
+
+    const px = (s.x + mx) * W;
+    const py = (s.y + my) * H;
+    const tw = Math.sin(t * s.twinkleSpeed + s.twinkleOffset);
+    const a  = s.alpha * (0.6 + 0.4 * tw);
+    const r  = s.r * (0.85 + 0.15 * tw);
+
+    ctx2d.beginPath();
+    ctx2d.arc(px, py, r, 0, Math.PI * 2);
+    ctx2d.fillStyle = `rgba(200,240,220,${a})`;
+    ctx2d.fill();
+  }
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Mouse tracking
+document.addEventListener('mousemove', e => {
+  mouse.x = e.clientX / window.innerWidth;
+  mouse.y = e.clientY / window.innerHeight;
+
+  // Card 3D tilt + shadow
+  const card = document.getElementById('mainCard');
+  const rect = card.getBoundingClientRect();
+  const cx = rect.left + rect.width  / 2;
+  const cy = rect.top  + rect.height / 2;
+  const dx = (e.clientX - cx) / rect.width;
+  const dy = (e.clientY - cy) / rect.height;
+  const tX = dy * 9, tY = -dx * 9;
+  card.style.transform = `perspective(1000px) rotateX(${tX}deg) rotateY(${tY}deg)`;
+  const sx = dx * 22, sy = dy * 22;
+  card.style.boxShadow = `
+    inset 0 1.5px 0 rgba(255,255,255,0.28),
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    ${sx}px ${sy+24}px 64px rgba(0,0,0,0.6),
+    0 0 0 0.5px rgba(255,255,255,0.09),
+    ${sx*.3}px ${sy*.3+6}px 28px rgba(72,197,156,0.12)
+  `;
+});
+document.getElementById('mainCard').addEventListener('mouseleave', () => {
+  const card = document.getElementById('mainCard');
+  card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+});
+
+// ==========================================
+// SOUND ENGINE
+// ==========================================
+let soundEnabled = true;
+const ac = new (window.AudioContext || window.webkitAudioContext)();
+
+function tone(freq, type, dur, vol=0.12) {
+  if (!soundEnabled) return;
+  if (ac.state === 'suspended') ac.resume();
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.connect(g); g.connect(ac.destination);
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+  o.start(); o.stop(ac.currentTime + dur);
+}
+const playClick  = () => { tone(880,'sine',.08,.10); setTimeout(()=>tone(1100,'sine',.06,.08),40); };
+const playHover  = () =>   tone(660,'sine',.04,.04);
+const playSelect = () => { tone(523,'sine',.06,.12); setTimeout(()=>tone(659,'sine',.06,.10),60); setTimeout(()=>tone(784,'sine',.12,.15),120); };
+const playNext   = () => { tone(400,'triangle',.08,.10); setTimeout(()=>tone(600,'sine',.10,.12),80); setTimeout(()=>tone(800,'sine',.08,.18),160); };
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundLabel').textContent = soundEnabled ? 'Sound ON' : 'Sound OFF';
+  document.querySelectorAll('.sound-bar').forEach(b => b.style.animationPlayState = soundEnabled ? 'running' : 'paused');
+}
+
+// ==========================================
+// QUIZ LOGIC
+// ==========================================
+let currentQ = 5;
+function selectOption(el, choice) {
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  playSelect();
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  r.style.cssText = 'width:60px;height:60px;left:20px;top:10px';
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
+
+function nextQuestion() {
+  if (ac.state === 'suspended') ac.resume();
+  playNext();
+  if (currentQ < 15) {
+    currentQ++;
+    document.getElementById('qCount').textContent = currentQ + ' / 15';
+    document.getElementById('progressFill').style.width = (currentQ / 15 * 100) + '%';
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    const card = document.getElementById('mainCard');
+    card.style.transition = 'transform .28s ease,opacity .28s ease';
+    card.style.transform  = 'translateX(70px) rotateY(9deg)';
+    card.style.opacity    = '0';
+    setTimeout(() => {
+      card.style.transition = 'none';
+      card.style.transform  = 'translateX(-70px) rotateY(-9deg)';
+      setTimeout(() => {
+        card.style.transition = 'transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease';
+        card.style.transform  = 'translateX(0) rotateY(0)';
+        card.style.opacity    = '1';
+      }, 40);
+    }, 280);
+  }
+}
+
+document.querySelectorAll('.option-btn').forEach(b => b.addEventListener('mouseenter', playHover));
+document.addEventListener('click', () => { if (ac.state === 'suspended') ac.resume(); }, { once: true });
+</script>
+</body>
+</html>

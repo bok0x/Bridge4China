@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Test — Liquid Glass v3</title>
+<style>
+* { margin:0;padding:0;box-sizing:border-box; }
+
+body {
+  min-height:100vh;
+  background:#030806;
+  display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,'Inter',sans-serif;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ── HTML-BASED BACKGROUND (backdrop-filter blurs these, not canvas) ── */
+.bg-layer {
+  position:fixed;inset:0;z-index:0;overflow:hidden;
+}
+/* Deep space gradient */
+.bg-layer::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 15% 25%, rgba(26,90,60,0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 85% 75%, rgba(18,70,48,0.50) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 35% at 60% 15%, rgba(40,120,80,0.30) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 40% at 20% 80%, rgba(15,55,38,0.45) 0%, transparent 55%),
+    #030806;
+}
+/* Floating orbs as HTML divs — backdrop-filter CAN blur these */
+.orb { position:absolute;border-radius:50%;filter:blur(70px);will-change:transform; }
+.orb-1 { width:500px;height:500px;background:radial-gradient(circle,rgba(72,197,156,0.45),transparent 70%);top:-80px;left:-60px;animation:drift1 18s ease-in-out infinite; }
+.orb-2 { width:420px;height:420px;background:radial-gradient(circle,rgba(26,122,80,0.50),transparent 70%);bottom:-60px;right:-40px;animation:drift2 22s ease-in-out infinite; }
+.orb-3 { width:280px;height:280px;background:radial-gradient(circle,rgba(72,197,156,0.28),transparent 70%);top:45%;left:65%;animation:drift3 15s ease-in-out infinite; }
+.orb-4 { width:180px;height:180px;background:radial-gradient(circle,rgba(93,212,174,0.22),transparent 70%);top:25%;left:30%;animation:drift4 20s ease-in-out infinite; }
+
+/* Red balls — HTML elements, no filter so they appear sharp through glass */
+.ball { position:absolute;border-radius:50%;will-change:transform; }
+.ball-1 { width:18px;height:18px;background:radial-gradient(circle at 35% 30%,rgba(255,140,100,1),rgba(200,40,20,0.9));box-shadow:0 0 18px rgba(255,80,40,0.8),0 0 40px rgba(255,60,20,0.4);animation:ball1 11s linear infinite; }
+.ball-2 { width:12px;height:12px;background:radial-gradient(circle at 35% 30%,rgba(255,160,80,1),rgba(220,60,20,0.9));box-shadow:0 0 14px rgba(255,100,30,0.9),0 0 30px rgba(255,70,20,0.4);animation:ball2 14s linear infinite; }
+.ball-3 { width:22px;height:22px;background:radial-gradient(circle at 35% 30%,rgba(255,120,80,1),rgba(190,30,30,0.9));box-shadow:0 0 22px rgba(255,60,40,0.8),0 0 50px rgba(200,30,10,0.4);animation:ball3 9s linear infinite; }
+.ball-4 { width:9px;height:9px;background:radial-gradient(circle at 35% 30%,rgba(255,200,100,1),rgba(230,80,10,0.9));box-shadow:0 0 10px rgba(255,140,40,0.9),0 0 22px rgba(255,100,20,0.4);animation:ball4 17s linear infinite; }
+
+/* Stars via CSS */
+.stars { position:absolute;inset:0; }
+.star { position:absolute;border-radius:50%;background:rgba(200,240,220,0.8);animation:twinkle var(--td) ease-in-out infinite; }
+@keyframes twinkle{0%,100%{opacity:var(--a);transform:scale(1)}50%{opacity:calc(var(--a)*0.3);transform:scale(0.7)}}
+
+@keyframes drift1{0%,100%{transform:translate(0,0)}33%{transform:translate(40px,25px)}66%{transform:translate(-20px,40px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}33%{transform:translate(-35px,-20px)}66%{transform:translate(25px,-40px)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,35px)}}
+@keyframes drift4{0%,100%{transform:translate(0,0)}50%{transform:translate(28px,-22px)}}
+@keyframes ball1{0%{top:15%;left:70%}20%{top:55%;left:85%}45%{top:80%;left:40%}70%{top:30%;left:10%}85%{top:5%;left:50%}100%{top:15%;left:70%}}
+@keyframes ball2{0%{top:70%;left:20%}25%{top:10%;left:60%}50%{top:40%;left:90%}75%{top:85%;left:55%}100%{top:70%;left:20%}}
+@keyframes ball3{0%{top:35%;left:5%}30%{top:5%;left:75%}60%{top:70%;left:65%}100%{top:35%;left:5%}}
+@keyframes ball4{0%{top:90%;left:80%}35%{top:20%;left:35%}65%{top:60%;left:5%}100%{top:90%;left:80%}}
+
+/* ── SCENE ── */
+.scene {
+  position:relative;z-index:10;
+  width:480px;display:flex;flex-direction:column;gap:20px;padding:20px;
+}
+
+/* ── BANNER ── */
+.top-banner {
+  background:rgba(72,197,156,0.10);
+  border:1px solid rgba(72,197,156,0.35);
+  border-radius:999px;padding:10px 24px;
+  text-align:center;font-size:13px;font-weight:600;color:#48C59C;
+  letter-spacing:0.3px;cursor:pointer;
+  backdrop-filter:blur(32px) saturate(180%);
+  -webkit-backdrop-filter:blur(32px) saturate(180%);
+  transition:all 0.3s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 4px 20px rgba(72,197,156,0.12);
+}
+.top-banner:hover{background:rgba(72,197,156,0.18);transform:scale(1.01);}
+
+/* ── TRUE LIQUID GLASS CARD ── */
+.glass-card {
+  position:relative;
+  border-radius:28px;
+  padding:28px;
+  overflow:hidden;
+  /* The actual frosted glass material */
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(50px) saturate(220%) brightness(1.08);
+  -webkit-backdrop-filter:blur(50px) saturate(220%) brightness(1.08);
+  /* Border: bright top, fading sides */
+  border:1px solid rgba(255,255,255,0.22);
+  border-top-color:rgba(255,255,255,0.45);
+  transition:box-shadow 0.1s ease,transform 0.1s ease;
+  box-shadow:
+    /* Inner top light — the key liquid glass look */
+    inset 0 2px 0 rgba(255,255,255,0.35),
+    inset 0 1px 20px rgba(255,255,255,0.04),
+    /* Bottom inner shadow for depth */
+    inset 0 -2px 8px rgba(0,0,0,0.3),
+    /* Outer drop shadow */
+    0 28px 70px rgba(0,0,0,0.55),
+    0 8px 24px rgba(0,0,0,0.35),
+    /* Faint green glow */
+    0 0 60px rgba(72,197,156,0.06);
+}
+/* Top specular highlight — the liquid glass "lens flare" */
+.glass-card::before {
+  content:'';position:absolute;
+  top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.7) 40%,rgba(255,255,255,0.9) 50%,rgba(255,255,255,0.7) 60%,transparent);
+  border-radius:50%;
+  z-index:2;pointer-events:none;
+}
+/* Inner light gradient — glass refraction illusion */
+.glass-card::after {
+  content:'';position:absolute;
+  inset:0;border-radius:28px;
+  background:linear-gradient(160deg,
+    rgba(255,255,255,0.13) 0%,
+    rgba(255,255,255,0.05) 30%,
+    transparent 55%,
+    rgba(72,197,156,0.04) 80%,
+    rgba(0,0,0,0.06) 100%
+  );
+  z-index:1;pointer-events:none;
+}
+/* All content above pseudo-elements */
+.glass-card > * { position:relative;z-index:3; }
+
+/* ── PROGRESS ── */
+.progress-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.progress-label{font-size:11px;font-weight:700;color:#48C59C;letter-spacing:1px;text-transform:uppercase;}
+.progress-count{font-size:11px;color:rgba(232,245,240,0.40);font-weight:500;}
+.progress-bar-bg{width:100%;height:3px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.progress-bar-fill{height:100%;width:33%;background:linear-gradient(90deg,#48C59C,#5DD4AE);border-radius:99px;box-shadow:0 0 10px rgba(72,197,156,0.7);transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
+
+/* ── QUESTION ── */
+.question-type{font-size:11px;font-weight:600;color:rgba(232,245,240,0.40);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.question-text{font-size:18px;font-weight:700;color:#E8F5F0;line-height:1.4;margin-bottom:22px;letter-spacing:-0.2px;}
+
+/* ── MATRIX ── */
+.matrix-grid{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:6px;margin:0 auto 22px;width:fit-content;}
+.mc{width:54px;height:54px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.mc.f1{background:rgba(72,197,156,0.85);border-color:rgba(72,197,156,0.9);box-shadow:inset 0 1px 0 rgba(255,255,255,0.35),0 0 14px rgba(72,197,156,0.4);}
+.mc.f2{background:rgba(72,197,156,0.40);border-color:rgba(72,197,156,0.55);}
+.mc.f3{background:rgba(72,197,156,0.13);border-color:rgba(72,197,156,0.22);}
+.mc.qm{border:1.5px dashed rgba(72,197,156,0.55);background:rgba(72,197,156,0.05);font-size:22px;color:rgba(72,197,156,0.8);font-weight:700;animation:pulseQ 2s ease-in-out infinite;}
+@keyframes pulseQ{0%,100%{box-shadow:0 0 0 0 rgba(72,197,156,0.3)}50%{box-shadow:0 0 0 7px rgba(72,197,156,0)}}
+
+/* ── OPTIONS ── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.option-btn{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.14);
+  border-top-color:rgba(255,255,255,0.25);
+  border-radius:16px;padding:14px 16px;
+  cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+.option-btn::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);pointer-events:none;}
+.option-btn:hover{background:rgba(72,197,156,0.12);border-color:rgba(72,197,156,0.4);transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1px 0 rgba(255,255,255,0.22),0 8px 24px rgba(72,197,156,0.16);}
+.option-btn.selected{background:rgba(72,197,156,0.18);border-color:#48C59C;border-top-color:rgba(93,212,174,0.8);transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 8px 28px rgba(72,197,156,0.3),0 0 0 1px rgba(72,197,156,0.3);}
+.option-letter{width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(232,245,240,0.6);flex-shrink:0;transition:all 0.2s;box-shadow:inset 0 1px 0 rgba(255,255,255,0.2);}
+.option-btn.selected .option-letter{background:#48C59C;border-color:#48C59C;color:#030806;}
+.opt-matrix{display:grid;grid-template-columns:repeat(3,10px);gap:2px;}
+.opt-cell{width:10px;height:10px;border-radius:2px;}
+
+/* ── NEXT BTN ── */
+.next-btn{width:100%;padding:15px;border-radius:16px;border:none;background:linear-gradient(135deg,#48C59C,#1a7a5a);color:#030806;font-weight:800;font-size:14px;cursor:pointer;margin-top:14px;letter-spacing:0.3px;transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 22px rgba(72,197,156,0.38),inset 0 1px 0 rgba(255,255,255,0.35);}
+.next-btn:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 10px 36px rgba(72,197,156,0.52),inset 0 1px 0 rgba(255,255,255,0.4);}
+.next-btn:active{transform:scale(0.98);}
+
+/* ── LOCKED RESULT ── */
+.result-teaser{position:relative;text-align:center;}
+.result-blur-card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.18);border-top-color:rgba(255,255,255,0.38);
+  border-radius:22px;padding:20px;
+  backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);
+  filter:blur(7px);pointer-events:none;opacity:0.5;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.30);
+}
+.result-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:rgba(3,8,6,0.45);border-radius:22px;backdrop-filter:blur(3px);}
+.lock-icon{font-size:26px;}.lock-text{font-size:13px;font-weight:700;color:#E8F5F0;}.lock-sub{font-size:11px;color:rgba(232,245,240,0.45);}
+
+/* ── SOUND ── */
+.sound-badge{position:fixed;top:20px;right:20px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-top-color:rgba(255,255,255,0.3);border-radius:99px;padding:7px 16px;font-size:11px;color:rgba(232,245,240,0.6);backdrop-filter:blur(20px);z-index:100;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all 0.2s;box-shadow:inset 0 1px 0 rgba(255,255,255,0.15);}
+.sound-badge:hover{background:rgba(255,255,255,0.12);}
+.sound-wave{display:flex;align-items:flex-end;gap:2px;height:14px;}
+.sound-bar{width:3px;background:#48C59C;border-radius:2px;animation:wave 1s ease-in-out infinite;}
+.sound-bar:nth-child(1){height:4px;animation-delay:0s}.sound-bar:nth-child(2){height:10px;animation-delay:.1s}.sound-bar:nth-child(3){height:7px;animation-delay:.2s}.sound-bar:nth-child(4){height:12px;animation-delay:.3s}.sound-bar:nth-child(5){height:5px;animation-delay:.4s}
+@keyframes wave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.4)}}
+
+.ripple{position:absolute;border-radius:50%;background:rgba(72,197,156,0.22);transform:scale(0);animation:rpl 0.55s linear;pointer-events:none;}
+@keyframes rpl{to{transform:scale(4);opacity:0}}
+.preview-label{text-align:center;font-size:11px;color:rgba(232,245,240,0.22);letter-spacing:0.5px;margin-top:-8px;}
+</style>
+</head>
+<body>
+
+<!-- HTML background so backdrop-filter actually works -->
+<div class="bg-layer">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="ball ball-1" id="b1"></div>
+  <div class="ball ball-2" id="b2"></div>
+  <div class="ball ball-3" id="b3"></div>
+  <div class="ball ball-4" id="b4"></div>
+  <!-- Stars injected by JS -->
+  <div class="stars" id="stars"></div>
+</div>
+
+<div class="sound-badge" id="soundBadge" onclick="toggleSound()">
+  <div class="sound-wave"><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div></div>
+  <span id="soundLabel">Sound ON</span>
+</div>
+
+<div class="scene">
+  <div class="top-banner" onclick="playClick()">🧠 TEST YOUR IQ — Free 15-min cognitive assessment →</div>
+  <p class="preview-label">↑ banner lives at the top of every page</p>
+
+  <div class="glass-card" id="mainCard">
+    <div class="progress-row">
+      <span class="progress-label">Fluid Reasoning</span>
+      <span class="progress-count" id="qCount">5 / 15</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:33%"></div></div>
+    <div style="height:18px"></div>
+    <div class="question-type">Matrix Reasoning</div>
+    <div class="question-text">Which pattern completes the sequence?</div>
+    <div class="matrix-grid">
+      <div class="mc f1"></div><div class="mc f2"></div><div class="mc f3"></div>
+      <div class="mc f2"></div><div class="mc f3"></div><div class="mc f1"></div>
+      <div class="mc f3"></div><div class="mc f1"></div><div class="mc qm">?</div>
+    </div>
+    <div class="options-grid">
+      <div class="option-btn" onclick="selectOption(this,'a')">
+        <div class="option-letter">A</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'b')">
+        <div class="option-letter">B</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'c')">
+        <div class="option-letter">C</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'d')">
+        <div class="option-letter">D</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+        </div>
+      </div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <div class="result-teaser">
+    <div class="result-blur-card">
+      <div style="font-size:32px;font-weight:900;color:#48C59C;">IQ 127</div>
+      <div style="font-size:14px;color:#E8F5F0;">98th Percentile · Superior Range</div>
+    </div>
+    <div class="result-lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Your results are ready</div>
+      <div class="lock-sub">Create a free account to unlock</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STARS ──
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 180; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.2 + 0.5;
+  const alpha = Math.random() * 0.55 + 0.2;
+  s.style.cssText = `
+    width:${size}px;height:${size}px;
+    left:${Math.random()*100}%;top:${Math.random()*100}%;
+    --a:${alpha};--td:${(Math.random()*3+1.5).toFixed(1)}s;
+    animation-delay:${(Math.random()*4).toFixed(1)}s;
+  `;
+  starsEl.appendChild(s);
+}
+
+// ── MOUSE PARALLAX for orbs/stars ──
+let mx = 0.5, my = 0.5;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX / window.innerWidth;
+  my = e.clientY / window.innerHeight;
+
+  // Orb parallax
+  const ox = (mx - 0.5) * 50;
+  const oy = (my - 0.5) * 50;
+  document.querySelector('.orb-1').style.transform = `translate(${ox*0.6}px,${oy*0.6}px)`;
+  document.querySelector('.orb-2').style.transform = `translate(${-ox*0.5}px,${-oy*0.5}px)`;
+  document.querySelector('.orb-3').style.transform = `translate(${ox*1.1}px,${oy*1.1}px)`;
+  document.querySelector('.orb-4').style.transform = `translate(${-ox*0.8}px,${oy*0.8}px)`;
+  document.getElementById('stars').style.transform = `translate(${ox*0.3}px,${oy*0.3}px)`;
+
+  // Card 3D tilt
+  const card = document.getElementById('mainCard');
+  const r = card.getBoundingClientRect();
+  const dx = (e.clientX - (r.left + r.width/2)) / r.width;
+  const dy = (e.clientY - (r.top + r.height/2)) / r.height;
+  card.style.transform = `perspective(1100px) rotateX(${dy*9}deg) rotateY(${-dx*9}deg)`;
+  card.style.boxShadow = `
+    inset 0 2px 0 rgba(255,255,255,0.35),
+    inset 0 1px 20px rgba(255,255,255,0.04),
+    inset 0 -2px 8px rgba(0,0,0,0.3),
+    ${dx*24}px ${dy*24+28}px 70px rgba(0,0,0,0.58),
+    ${dx*8}px ${dy*8+8}px 24px rgba(0,0,0,0.35),
+    ${dx*6}px ${dy*6+4}px 40px rgba(72,197,156,0.10)
+  `;
+});
+document.getElementById('mainCard').addEventListener('mouseleave', () => {
+  const c = document.getElementById('mainCard');
+  c.style.transform = 'perspective(1100px) rotateX(0) rotateY(0)';
+});
+
+// ── SOUND ──
+let soundEnabled = true;
+const ac = new (window.AudioContext || window.webkitAudioContext)();
+function tone(f,t,d,v=0.12){if(!soundEnabled)return;if(ac.state==='suspended')ac.resume();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+d);o.start();o.stop(ac.currentTime+d);}
+const playClick=()=>{tone(880,'sine',.08,.10);setTimeout(()=>tone(1100,'sine',.06,.08),40);};
+const playHover=()=>tone(660,'sine',.04,.04);
+const playSelect=()=>{tone(523,'sine',.06,.12);setTimeout(()=>tone(659,'sine',.06,.10),60);setTimeout(()=>tone(784,'sine',.12,.15),120);};
+const playNext=()=>{tone(400,'triangle',.08,.10);setTimeout(()=>tone(600,'sine',.10,.12),80);setTimeout(()=>tone(800,'sine',.08,.18),160);};
+function toggleSound(){soundEnabled=!soundEnabled;document.getElementById('soundLabel').textContent=soundEnabled?'Sound ON':'Sound OFF';document.querySelectorAll('.sound-bar').forEach(b=>b.style.animationPlayState=soundEnabled?'running':'paused');}
+
+// ── QUIZ ──
+let currentQ=5;
+function selectOption(el,choice){
+  document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');playSelect();
+  const r=document.createElement('span');r.className='ripple';r.style.cssText='width:60px;height:60px;left:20px;top:10px';el.appendChild(r);setTimeout(()=>r.remove(),600);
+}
+function nextQuestion(){
+  if(ac.state==='suspended')ac.resume();playNext();
+  if(currentQ<15){
+    currentQ++;document.getElementById('qCount').textContent=currentQ+' / 15';
+    document.getElementById('progressFill').style.width=(currentQ/15*100)+'%';
+    document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
+    const card=document.getElementById('mainCard');
+    card.style.transition='transform .28s ease,opacity .28s ease';
+    card.style.transform='translateX(70px) rotateY(9deg)';card.style.opacity='0';
+    setTimeout(()=>{card.style.transition='none';card.style.transform='translateX(-70px) rotateY(-9deg)';
+      setTimeout(()=>{card.style.transition='transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease';card.style.transform='translateX(0) rotateY(0)';card.style.opacity='1';},40);},280);
+  }
+}
+document.querySelectorAll('.option-btn').forEach(b=>b.addEventListener('mouseenter',playHover));
+document.addEventListener('click',()=>{if(ac.state==='suspended')ac.resume();},{once:true});
+</script>
+</body>
+</html>

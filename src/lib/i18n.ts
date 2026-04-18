@@ -62,6 +62,16 @@ export const translations = {
     scholarship:      "SCHOLARSHIP",
     need_scholarship: "Need Scholarship",
 
+    // HeroPremium
+    hero_badge:       "#1 Platform for Studying in China",
+    hero_headline:    "Your Future in China Starts Here",
+    hero_sub:         "Match with the perfect university and scholarship in minutes. 500+ programs, 100+ universities, trusted by students from 80+ countries.",
+    hero_cta1:        "Help Me Find My Major",
+    hero_cta2:        "I Need Help Applying",
+    hero_stat_programs:     "Programs",
+    hero_stat_universities: "Universities",
+    hero_stat_countries:    "Countries",
+
     // Buttons
     next_step:        "Next Step",
     back:             "Back",
@@ -126,6 +136,16 @@ export const translations = {
     scholarship:      "المنحة الدراسية",
     need_scholarship: "أحتاج منحة دراسية",
 
+    // HeroPremium
+    hero_badge:       "المنصة الأولى للدراسة في الصين",
+    hero_headline:    "مستقبلك في الصين يبدأ هنا",
+    hero_sub:         "اعثر على الجامعة والمنحة المثالية في دقائق. أكثر من 500 برنامج، 100+ جامعة، يثق بها طلاب من 80+ دولة.",
+    hero_cta1:        "ساعدني في اختيار تخصصي",
+    hero_cta2:        "أحتاج مساعدة في التقديم",
+    hero_stat_programs:     "برنامج",
+    hero_stat_universities: "جامعة",
+    hero_stat_countries:    "دولة",
+
     next_step:        "الخطوة التالية",
     back:             "رجوع",
     find_matches:     "ابحث عن تطابقاتي",
@@ -187,6 +207,16 @@ export const translations = {
     scholarship:      "BOURSE",
     need_scholarship: "J'ai besoin d'une bourse",
 
+    // HeroPremium
+    hero_badge:       "Plateforme N°1 pour Étudier en Chine",
+    hero_headline:    "Votre Avenir en Chine Commence Ici",
+    hero_sub:         "Trouvez l'université et la bourse idéales en quelques minutes. 500+ programmes, 100+ universités, choisis par des étudiants de 80+ pays.",
+    hero_cta1:        "Aidez-moi à Choisir ma Filière",
+    hero_cta2:        "J'ai Besoin d'Aide pour Postuler",
+    hero_stat_programs:     "Programmes",
+    hero_stat_universities: "Universités",
+    hero_stat_countries:    "Pays",
+
     next_step:        "Étape Suivante",
     back:             "Retour",
     find_matches:     "Trouver Mes Correspondances",
@@ -247,6 +277,16 @@ export const translations = {
     lang_any:         "Любой",
     scholarship:      "СТИПЕНДИЯ",
     need_scholarship: "Нужна стипендия",
+
+    // HeroPremium
+    hero_badge:       "Платформа №1 для Учёбы в Китае",
+    hero_headline:    "Ваше Будущее в Китае Начинается Здесь",
+    hero_sub:         "Найдите идеальный университет и стипендию за несколько минут. 500+ программ, 100+ университетов, доверяют студенты из 80+ стран.",
+    hero_cta1:        "Помогите выбрать специальность",
+    hero_cta2:        "Нужна помощь с поступлением",
+    hero_stat_programs:     "Программ",
+    hero_stat_universities: "Университетов",
+    hero_stat_countries:    "Стран",
 
     next_step:        "Следующий шаг",
     back:             "Назад",

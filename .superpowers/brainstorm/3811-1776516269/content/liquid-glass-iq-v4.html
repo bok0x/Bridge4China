@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Test — Liquid Glass v4</title>
+<style>
+* { margin:0;padding:0;box-sizing:border-box; }
+body {
+  min-height:100vh;
+  background:#030806;
+  display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,'Inter',sans-serif;
+  overflow:hidden;position:relative;
+}
+
+/* ── BACKGROUND: HTML divs so backdrop-filter refracts them ── */
+.bg-layer { position:fixed;inset:0;z-index:0;overflow:hidden; }
+.bg-layer::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 65% 55% at 12% 22%, rgba(26,90,60,0.60) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 45% at 88% 78%, rgba(18,70,48,0.55) 0%,transparent 65%),
+    radial-gradient(ellipse 38% 32% at 58% 12%, rgba(40,120,80,0.35) 0%,transparent 60%),
+    radial-gradient(ellipse 32% 38% at 18% 82%, rgba(15,55,38,0.50) 0%,transparent 55%),
+    #030806;
+}
+
+/* Large ambient orbs */
+.orb { position:absolute;border-radius:50%;filter:blur(65px);will-change:transform; }
+.orb-1 { width:520px;height:520px;background:radial-gradient(circle,rgba(72,197,156,0.50),transparent 70%);top:-90px;left:-70px;animation:drift1 18s ease-in-out infinite; }
+.orb-2 { width:440px;height:440px;background:radial-gradient(circle,rgba(26,122,80,0.55),transparent 70%);bottom:-70px;right:-50px;animation:drift2 22s ease-in-out infinite; }
+.orb-3 { width:300px;height:300px;background:radial-gradient(circle,rgba(72,197,156,0.32),transparent 70%);top:42%;left:62%;animation:drift3 15s ease-in-out infinite; }
+.orb-4 { width:200px;height:200px;background:radial-gradient(circle,rgba(93,212,174,0.28),transparent 70%);top:22%;left:28%;animation:drift4 20s ease-in-out infinite; }
+
+/* Red/orange balls — vivid so they're visible as they distort through glass */
+.ball { position:absolute;border-radius:50%;will-change:transform; }
+.ball-1 { width:28px;height:28px;
+  background:radial-gradient(circle at 35% 30%,#ff9060,#cc2810);
+  box-shadow:0 0 22px rgba(255,80,30,0.9),0 0 50px rgba(255,50,10,0.5),0 0 90px rgba(200,30,0,0.25);
+  animation:ball1 11s ease-in-out infinite; }
+.ball-2 { width:18px;height:18px;
+  background:radial-gradient(circle at 35% 30%,#ffb050,#dd3a10);
+  box-shadow:0 0 18px rgba(255,110,20,0.9),0 0 38px rgba(255,70,10,0.5);
+  animation:ball2 14s ease-in-out infinite; }
+.ball-3 { width:34px;height:34px;
+  background:radial-gradient(circle at 35% 30%,#ff7850,#bb1818);
+  box-shadow:0 0 28px rgba(255,50,30,0.85),0 0 60px rgba(200,20,10,0.4),0 0 100px rgba(180,10,0,0.2);
+  animation:ball3 9s ease-in-out infinite; }
+.ball-4 { width:14px;height:14px;
+  background:radial-gradient(circle at 35% 30%,#ffd060,#e05008);
+  box-shadow:0 0 14px rgba(255,160,30,0.9),0 0 28px rgba(255,100,10,0.5);
+  animation:ball4 17s ease-in-out infinite; }
+.ball-5 { width:22px;height:22px;
+  background:radial-gradient(circle at 35% 30%,#40e0a0,#0a8050);
+  box-shadow:0 0 20px rgba(40,200,130,0.8),0 0 45px rgba(20,160,100,0.4);
+  animation:ball5 13s ease-in-out infinite; }
+
+.stars { position:absolute;inset:0;pointer-events:none; }
+.star { position:absolute;border-radius:50%;background:rgba(200,240,220,0.85);animation:twinkle var(--td) ease-in-out infinite var(--delay); }
+@keyframes twinkle{0%,100%{opacity:var(--a);transform:scale(1)}50%{opacity:calc(var(--a)*0.25);transform:scale(0.65)}}
+
+@keyframes drift1{0%,100%{transform:translate(0,0)}33%{transform:translate(45px,28px)}66%{transform:translate(-22px,42px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}33%{transform:translate(-38px,-22px)}66%{transform:translate(28px,-45px)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-32px,38px)}}
+@keyframes drift4{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-25px)}}
+/* Balls cross the center (where the card is) so the liquid effect is visible */
+@keyframes ball1{0%{top:10%;left:75%}18%{top:48%;left:55%}35%{top:72%;left:20%}55%{top:35%;left:8%}75%{top:8%;left:40%}100%{top:10%;left:75%}}
+@keyframes ball2{0%{top:75%;left:15%}22%{top:42%;left:50%}45%{top:15%;left:72%}68%{top:55%;left:88%}100%{top:75%;left:15%}}
+@keyframes ball3{0%{top:28%;left:2%}28%{top:8%;left:65%}55%{top:55%;left:80%}80%{top:78%;left:35%}100%{top:28%;left:2%}}
+@keyframes ball4{0%{top:88%;left:82%}30%{top:45%;left:48%}60%{top:12%;left:20%}100%{top:88%;left:82%}}
+@keyframes ball5{0%{top:50%;left:90%}25%{top:20%;left:52%}50%{top:65%;left:10%}75%{top:38%;left:48%}100%{top:50%;left:90%}}
+
+/* ── SCENE ── */
+.scene { position:relative;z-index:10;width:480px;display:flex;flex-direction:column;gap:20px;padding:20px; }
+
+/* ── BANNER ── */
+.top-banner {
+  background:rgba(72,197,156,0.10);
+  border:1px solid rgba(72,197,156,0.35);
+  border-radius:999px;padding:10px 24px;text-align:center;
+  font-size:13px;font-weight:600;color:#48C59C;letter-spacing:0.3px;cursor:pointer;
+  /* Liquid glass on banner too */
+  backdrop-filter:url(#water-lens) blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  transition:all 0.3s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),0 4px 20px rgba(72,197,156,0.12);
+}
+.top-banner:hover{background:rgba(72,197,156,0.18);transform:scale(1.01);}
+
+/* ── LIQUID GLASS CARD ──
+   backdrop-filter: url(#water-lens) applies SVG turbulence displacement
+   so objects BEHIND the card appear warped/refracted like real glass/water
+*/
+.glass-card {
+  position:relative;border-radius:28px;padding:28px;overflow:hidden;
+  background:rgba(255,255,255,0.07);
+  /* THE LIQUID GLASS MAGIC: SVG distort + blur + saturation */
+  backdrop-filter: url(#water-lens) blur(32px) saturate(210%) brightness(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(210%) brightness(1.08);
+  border:1px solid rgba(255,255,255,0.20);
+  border-top-color:rgba(255,255,255,0.42);
+  transition:box-shadow 0.08s ease,transform 0.08s ease;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.38),
+    inset 0 1px 24px rgba(255,255,255,0.04),
+    inset 0 -2px 10px rgba(0,0,0,0.28),
+    0 30px 72px rgba(0,0,0,0.55),
+    0 8px 26px rgba(0,0,0,0.32),
+    0 0 80px rgba(72,197,156,0.06);
+}
+/* Top specular line — key iOS glass look */
+.glass-card::before {
+  content:'';position:absolute;
+  top:0;left:8%;right:8%;height:1px;z-index:4;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.65) 35%,rgba(255,255,255,0.95) 50%,rgba(255,255,255,0.65) 65%,transparent);
+}
+/* Animated shimmer — simulates light moving across water surface */
+.glass-card .water-shimmer {
+  position:absolute;inset:0;border-radius:28px;z-index:2;pointer-events:none;
+  background:linear-gradient(115deg,
+    transparent 30%,
+    rgba(255,255,255,0.04) 45%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 55%,
+    transparent 70%
+  );
+  animation:shimmer 6s ease-in-out infinite;
+}
+@keyframes shimmer{
+  0%,100%{transform:translateX(-100%) skewX(-15deg);opacity:0}
+  40%{opacity:1}
+  60%{transform:translateX(200%) skewX(-15deg);opacity:0}
+}
+/* Inner gradient: top-left brighter, bottom-right darker (lens curvature illusion) */
+.glass-card::after {
+  content:'';position:absolute;inset:0;border-radius:28px;z-index:1;pointer-events:none;
+  background:linear-gradient(148deg,
+    rgba(255,255,255,0.14) 0%,
+    rgba(255,255,255,0.05) 28%,
+    transparent 52%,
+    rgba(72,197,156,0.04) 78%,
+    rgba(0,0,0,0.07) 100%
+  );
+}
+/* All content above overlays */
+.glass-card > * { position:relative;z-index:5; }
+.glass-card > .water-shimmer { z-index:2; }
+
+/* ── PROGRESS ── */
+.progress-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.progress-label{font-size:11px;font-weight:700;color:#48C59C;letter-spacing:1px;text-transform:uppercase;}
+.progress-count{font-size:11px;color:rgba(232,245,240,0.40);font-weight:500;}
+.progress-bar-bg{width:100%;height:3px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.progress-bar-fill{height:100%;width:33%;background:linear-gradient(90deg,#48C59C,#5DD4AE);border-radius:99px;box-shadow:0 0 10px rgba(72,197,156,0.7);transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
+
+/* ── QUESTION ── */
+.question-type{font-size:11px;font-weight:600;color:rgba(232,245,240,0.38);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.question-text{font-size:18px;font-weight:700;color:#E8F5F0;line-height:1.4;margin-bottom:22px;letter-spacing:-0.2px;}
+
+/* ── MATRIX ── */
+.matrix-grid{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:6px;margin:0 auto 22px;width:fit-content;}
+.mc{width:54px;height:54px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.mc.f1{background:rgba(72,197,156,0.85);border-color:rgba(72,197,156,0.9);box-shadow:inset 0 1px 0 rgba(255,255,255,0.35),0 0 14px rgba(72,197,156,0.4);}
+.mc.f2{background:rgba(72,197,156,0.40);border-color:rgba(72,197,156,0.55);}
+.mc.f3{background:rgba(72,197,156,0.13);border-color:rgba(72,197,156,0.22);}
+.mc.qm{border:1.5px dashed rgba(72,197,156,0.55);background:rgba(72,197,156,0.05);font-size:22px;color:rgba(72,197,156,0.8);font-weight:700;animation:pulseQ 2s ease-in-out infinite;}
+@keyframes pulseQ{0%,100%{box-shadow:0 0 0 0 rgba(72,197,156,0.3)}50%{box-shadow:0 0 0 7px rgba(72,197,156,0)}}
+
+/* ── OPTIONS (liquid glass buttons) ── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.option-btn{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.16);
+  border-top-color:rgba(255,255,255,0.28);
+  border-radius:16px;padding:14px 16px;
+  cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  backdrop-filter:url(#water-lens-sm) blur(18px) saturate(180%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.22),inset 0 -1px 0 rgba(0,0,0,0.18);
+}
+/* specular on each option */
+.option-btn::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);pointer-events:none;z-index:1;}
+.option-btn:hover{background:rgba(72,197,156,0.13);border-color:rgba(72,197,156,0.42);transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.25),0 8px 24px rgba(72,197,156,0.18);}
+.option-btn.selected{background:rgba(72,197,156,0.19);border-color:#48C59C;border-top-color:rgba(93,212,174,0.75);transform:translateY(-2px) scale(1.025);box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.30),0 8px 28px rgba(72,197,156,0.30),0 0 0 1px rgba(72,197,156,0.28);}
+.option-letter{width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(232,245,240,0.58);flex-shrink:0;transition:all 0.2s;box-shadow:inset 0 1px 0 rgba(255,255,255,0.22);position:relative;z-index:2;}
+.option-btn.selected .option-letter{background:#48C59C;border-color:#48C59C;color:#030806;}
+.opt-matrix{display:grid;grid-template-columns:repeat(3,10px);gap:2px;position:relative;z-index:2;}
+.opt-cell{width:10px;height:10px;border-radius:2px;}
+
+/* ── NEXT BTN ── */
+.next-btn{width:100%;padding:15px;border-radius:16px;border:none;background:linear-gradient(135deg,#48C59C,#1a7a5a);color:#030806;font-weight:800;font-size:14px;cursor:pointer;margin-top:14px;letter-spacing:0.3px;transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 22px rgba(72,197,156,0.38),inset 0 1px 0 rgba(255,255,255,0.38);}
+.next-btn:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 10px 36px rgba(72,197,156,0.54),inset 0 1px 0 rgba(255,255,255,0.42);}
+.next-btn:active{transform:scale(0.98);}
+
+/* ── LOCKED RESULT ── */
+.result-teaser{position:relative;text-align:center;}
+.result-blur-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-top-color:rgba(255,255,255,0.36);border-radius:22px;padding:20px;backdrop-filter:url(#water-lens) blur(38px) saturate(200%);-webkit-backdrop-filter:blur(38px) saturate(200%);filter:blur(7px);pointer-events:none;opacity:0.48;box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.28);}
+.result-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:rgba(3,8,6,0.42);border-radius:22px;backdrop-filter:blur(3px);}
+.lock-icon{font-size:26px;}.lock-text{font-size:13px;font-weight:700;color:#E8F5F0;}.lock-sub{font-size:11px;color:rgba(232,245,240,0.44);}
+
+/* ── SOUND ── */
+.sound-badge{position:fixed;top:20px;right:20px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.16);border-top-color:rgba(255,255,255,0.30);border-radius:99px;padding:7px 16px;font-size:11px;color:rgba(232,245,240,0.6);backdrop-filter:blur(20px);z-index:100;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all 0.2s;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);}
+.sound-badge:hover{background:rgba(255,255,255,0.12);}
+.sound-wave{display:flex;align-items:flex-end;gap:2px;height:14px;}
+.sound-bar{width:3px;background:#48C59C;border-radius:2px;animation:wave 1s ease-in-out infinite;}
+.sound-bar:nth-child(1){height:4px;animation-delay:0s}.sound-bar:nth-child(2){height:10px;animation-delay:.1s}.sound-bar:nth-child(3){height:7px;animation-delay:.2s}.sound-bar:nth-child(4){height:12px;animation-delay:.3s}.sound-bar:nth-child(5){height:5px;animation-delay:.4s}
+@keyframes wave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.4)}}
+.ripple{position:absolute;border-radius:50%;background:rgba(72,197,156,0.22);transform:scale(0);animation:rpl 0.55s linear;pointer-events:none;}
+@keyframes rpl{to{transform:scale(4);opacity:0}}
+.preview-label{text-align:center;font-size:11px;color:rgba(232,245,240,0.22);letter-spacing:0.5px;margin-top:-8px;}
+</style>
+</head>
+<body>
+
+<!-- ── SVG FILTER: Water / Liquid Glass Distortion ── -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Main card water lens -->
+    <filter id="water-lens" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.018 0.032"
+        numOctaves="3"
+        seed="4"
+        result="warpNoise">
+        <!-- Slowly animate frequency — makes the liquid "breathe" -->
+        <animate attributeName="baseFrequency"
+          values="0.018 0.032;0.026 0.040;0.020 0.028;0.018 0.032"
+          dur="14s" repeatCount="indefinite"/>
+        <animate attributeName="seed"
+          values="4;7;11;4"
+          dur="30s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <!-- Displacement: R channel → horizontal warp, G → vertical warp -->
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="warpNoise"
+        scale="22"
+        xChannelSelector="R"
+        yChannelSelector="G"/>
+    </filter>
+    <!-- Lighter version for small buttons -->
+    <filter id="water-lens-sm" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.038" numOctaves="2" seed="8" result="n">
+        <animate attributeName="baseFrequency" values="0.022 0.038;0.030 0.044;0.022 0.038" dur="10s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ── BACKGROUND ── -->
+<div class="bg-layer">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="ball ball-1"></div>
+  <div class="ball ball-2"></div>
+  <div class="ball ball-3"></div>
+  <div class="ball ball-4"></div>
+  <div class="ball ball-5"></div>
+  <div class="stars" id="stars"></div>
+</div>
+
+<div class="sound-badge" onclick="toggleSound()">
+  <div class="sound-wave"><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div></div>
+  <span id="soundLabel">Sound ON</span>
+</div>
+
+<div class="scene">
+  <div class="top-banner" onclick="playClick()">🧠 TEST YOUR IQ — Free 15-min cognitive assessment →</div>
+  <p class="preview-label">↑ banner lives at the top of every page</p>
+
+  <div class="glass-card" id="mainCard">
+    <!-- Animated water shimmer surface -->
+    <div class="water-shimmer"></div>
+
+    <div class="progress-row">
+      <span class="progress-label">Fluid Reasoning</span>
+      <span class="progress-count" id="qCount">5 / 15</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:33%"></div></div>
+    <div style="height:18px"></div>
+
+    <div class="question-type">Matrix Reasoning</div>
+    <div class="question-text">Which pattern completes the sequence?</div>
+
+    <div class="matrix-grid">
+      <div class="mc f1"></div><div class="mc f2"></div><div class="mc f3"></div>
+      <div class="mc f2"></div><div class="mc f3"></div><div class="mc f1"></div>
+      <div class="mc f3"></div><div class="mc f1"></div><div class="mc qm">?</div>
+    </div>
+
+    <div class="options-grid">
+      <div class="option-btn" onclick="selectOption(this,'a')">
+        <div class="option-letter">A</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'b')">
+        <div class="option-letter">B</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'c')">
+        <div class="option-letter">C</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'d')">
+        <div class="option-letter">D</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.88)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.42)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,.42)"></div><div class="opt-cell" style="background:rgba(72,197,156,.14)"></div><div class="opt-cell" style="background:rgba(72,197,156,.88)"></div>
+        </div>
+      </div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <div class="result-teaser">
+    <div class="result-blur-card">
+      <div style="font-size:32px;font-weight:900;color:#48C59C;">IQ 127</div>
+      <div style="font-size:14px;color:#E8F5F0;">98th Percentile · Superior Range</div>
+    </div>
+    <div class="result-lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Your results are ready</div>
+      <div class="lock-sub">Create a free account to unlock</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STARS ──
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 180; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.2 + 0.5;
+  s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--a:${(Math.random()*0.55+0.2).toFixed(2)};--td:${(Math.random()*3+1.5).toFixed(1)}s;--delay:-${(Math.random()*4).toFixed(1)}s;`;
+  starsEl.appendChild(s);
+}
+
+// ── MOUSE PARALLAX ──
+document.addEventListener('mousemove', e => {
+  const mx = e.clientX / window.innerWidth;
+  const my = e.clientY / window.innerHeight;
+  const ox = (mx - 0.5) * 55, oy = (my - 0.5) * 55;
+  document.querySelector('.orb-1').style.transform = `translate(${ox*0.55}px,${oy*0.55}px)`;
+  document.querySelector('.orb-2').style.transform = `translate(${-ox*0.45}px,${-oy*0.45}px)`;
+  document.querySelector('.orb-3').style.transform = `translate(${ox*1.0}px,${oy*1.0}px)`;
+  document.querySelector('.orb-4').style.transform = `translate(${-ox*0.75}px,${oy*0.75}px)`;
+  starsEl.style.transform = `translate(${ox*0.25}px,${oy*0.25}px)`;
+
+  // Card 3D tilt + dynamic shadow
+  const card = document.getElementById('mainCard');
+  const r = card.getBoundingClientRect();
+  const dx = (e.clientX - (r.left + r.width/2)) / r.width;
+  const dy = (e.clientY - (r.top + r.height/2)) / r.height;
+  card.style.transform = `perspective(1100px) rotateX(${dy*9}deg) rotateY(${-dx*9}deg)`;
+  card.style.boxShadow = `
+    inset 0 2px 0 rgba(255,255,255,0.38),
+    inset 0 1px 24px rgba(255,255,255,0.04),
+    inset 0 -2px 10px rgba(0,0,0,0.28),
+    ${dx*26}px ${dy*26+30}px 72px rgba(0,0,0,0.58),
+    ${dx*8}px ${dy*8+8}px 26px rgba(0,0,0,0.32),
+    ${dx*5}px ${dy*5+4}px 50px rgba(72,197,156,0.09)
+  `;
+});
+document.getElementById('mainCard').addEventListener('mouseleave', () => {
+  const c = document.getElementById('mainCard');
+  c.style.transform = 'perspective(1100px) rotateX(0) rotateY(0)';
+});
+
+// ── SOUND ENGINE ──
+let soundEnabled = true;
+const ac = new (window.AudioContext || window.webkitAudioContext)();
+document.addEventListener('click', () => { if (ac.state === 'suspended') ac.resume(); }, { once: true });
+
+function tone(f,t,d,v=0.12){if(!soundEnabled)return;if(ac.state==='suspended')ac.resume();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+d);o.start();o.stop(ac.currentTime+d);}
+const playClick  = () => { tone(880,'sine',.08,.10); setTimeout(()=>tone(1100,'sine',.06,.08),40); };
+const playHover  = () => tone(660,'sine',.04,.04);
+const playSelect = () => { tone(523,'sine',.06,.12); setTimeout(()=>tone(659,'sine',.06,.10),60); setTimeout(()=>tone(784,'sine',.12,.15),120); };
+const playNext   = () => { tone(400,'triangle',.08,.10); setTimeout(()=>tone(600,'sine',.10,.12),80); setTimeout(()=>tone(800,'sine',.08,.18),160); };
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundLabel').textContent = soundEnabled ? 'Sound ON' : 'Sound OFF';
+  document.querySelectorAll('.sound-bar').forEach(b => b.style.animationPlayState = soundEnabled ? 'running' : 'paused');
+}
+
+// ── QUIZ ──
+let currentQ = 5;
+function selectOption(el,choice){
+  document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');playSelect();
+  const r=document.createElement('span');r.className='ripple';r.style.cssText='width:60px;height:60px;left:20px;top:10px';el.appendChild(r);setTimeout(()=>r.remove(),600);
+}
+function nextQuestion(){
+  if(ac.state==='suspended')ac.resume();playNext();
+  if(currentQ<15){
+    currentQ++;document.getElementById('qCount').textContent=currentQ+' / 15';
+    document.getElementById('progressFill').style.width=(currentQ/15*100)+'%';
+    document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
+    const card=document.getElementById('mainCard');
+    card.style.transition='transform .28s ease,opacity .28s ease';
+    card.style.transform='translateX(72px) rotateY(10deg)';card.style.opacity='0';
+    setTimeout(()=>{card.style.transition='none';card.style.transform='translateX(-72px) rotateY(-10deg)';
+      setTimeout(()=>{card.style.transition='transform .42s cubic-bezier(.34,1.56,.64,1),opacity .3s ease';card.style.transform='translateX(0) rotateY(0)';card.style.opacity='1';},40);},280);
+  }
+}
+document.querySelectorAll('.option-btn').forEach(b=>b.addEventListener('mouseenter',playHover));
+document.addEventListener('click',()=>{if(ac.state==='suspended')ac.resume();},{once:true});
+</script>
+</body>
+</html>

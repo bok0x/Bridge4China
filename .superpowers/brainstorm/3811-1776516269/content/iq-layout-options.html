@@ -1,0 +1,117 @@
+<h2>IQ Test Landing Page — Pick Your Vibe</h2>
+<p class="subtitle">3 design directions for the IQ test experience. Click one to select.</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0f0d;padding:16px;border-radius:8px;min-height:220px;display:flex;flex-direction:column;gap:10px;">
+      <!-- Navbar with banner -->
+      <div style="background:rgba(72,197,156,0.15);border:1px solid rgba(72,197,156,0.4);border-radius:6px;padding:6px 12px;text-align:center;font-size:11px;color:#48C59C;font-weight:600;">
+        🧠 TEST YOUR IQ — Free 15-min cognitive assessment →
+      </div>
+      <!-- Hero -->
+      <div style="text-align:center;padding:12px 0 6px;">
+        <div style="font-size:13px;font-weight:800;color:#E8F5F0;letter-spacing:-0.3px;">What's Your Real IQ?</div>
+        <div style="font-size:9px;color:rgba(232,245,240,0.5);margin-top:3px;">Scientific • 15 Questions • Free Results Preview</div>
+      </div>
+      <!-- Flashcard question preview -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px;flex:1;">
+        <div style="font-size:9px;color:#48C59C;font-weight:600;margin-bottom:6px;">QUESTION 3 / 15 — PATTERN RECOGNITION</div>
+        <!-- Mini matrix puzzle -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:60px;margin:0 auto 8px;">
+          <div style="width:18px;height:18px;background:#48C59C;border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:rgba(72,197,156,0.4);border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:rgba(72,197,156,0.15);border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:rgba(72,197,156,0.4);border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:rgba(72,197,156,0.15);border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:#48C59C;border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:rgba(72,197,156,0.15);border-radius:2px;"></div>
+          <div style="width:18px;height:18px;background:#48C59C;border-radius:2px;"></div>
+          <div style="width:18px;height:18px;border:1px dashed #48C59C;border-radius:2px;font-size:10px;color:#48C59C;display:flex;align-items:center;justify-content:center;">?</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">
+          <div style="background:rgba(255,255,255,0.08);border-radius:4px;padding:3px 8px;font-size:8px;color:#E8F5F0;">A</div>
+          <div style="background:rgba(72,197,156,0.25);border:1px solid #48C59C;border-radius:4px;padding:3px 8px;font-size:8px;color:#48C59C;">B ✓</div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:4px;padding:3px 8px;font-size:8px;color:#E8F5F0;">C</div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:4px;padding:3px 8px;font-size:8px;color:#E8F5F0;">D</div>
+        </div>
+      </div>
+      <!-- Progress bar -->
+      <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:3px;">
+        <div style="background:#48C59C;width:20%;height:3px;border-radius:99px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Dark Science Lab</h3>
+      <p>Deep space black + green glow. Matches the existing site perfectly. Flashcard with visual matrix puzzles center stage. Feels like a legit cognitive test.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(135deg,#0d1117 0%,#0a1628 50%,#0d1117 100%);padding:16px;border-radius:8px;min-height:220px;display:flex;flex-direction:column;gap:10px;">
+      <!-- Banner -->
+      <div style="background:linear-gradient(90deg,rgba(88,130,255,0.2),rgba(72,197,156,0.2));border:1px solid rgba(88,130,255,0.4);border-radius:6px;padding:6px 12px;text-align:center;font-size:11px;color:#8b9fff;font-weight:600;">
+        ⚡ TAKE THE IQ CHALLENGE — See where you rank →
+      </div>
+      <!-- Hero -->
+      <div style="text-align:center;padding:8px 0 4px;">
+        <div style="font-size:13px;font-weight:800;background:linear-gradient(90deg,#8b9fff,#48C59C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Challenge Your Mind</div>
+        <div style="font-size:9px;color:rgba(232,245,240,0.5);margin-top:3px;">Adaptive AI Test · IQ + 5 Cognitive Indices</div>
+      </div>
+      <!-- Flashcard with timer -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(88,130,255,0.25);border-radius:10px;padding:12px;flex:1;position:relative;">
+        <div style="position:absolute;top:8px;right:8px;width:22px;height:22px;border:2px solid #8b9fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#8b9fff;">45</div>
+        <div style="font-size:9px;color:#8b9fff;font-weight:600;margin-bottom:8px;">VERBAL ANALOGY</div>
+        <div style="font-size:10px;color:#E8F5F0;text-align:center;margin-bottom:8px;">Book is to Library<br/>as Painting is to ___</div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;font-size:8px;color:#E8F5F0;">A. Artist</div>
+          <div style="background:rgba(88,130,255,0.2);border:1px solid #8b9fff;border-radius:5px;padding:4px 8px;font-size:8px;color:#8b9fff;">B. Museum ✓</div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;font-size:8px;color:#E8F5F0;">C. Canvas</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:3px;">
+        <div style="background:linear-gradient(90deg,#8b9fff,#48C59C);width:40%;height:3px;border-radius:99px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Midnight Blue + Green</h3>
+      <p>Deep navy with blue-purple gradient accents. More "tech / AI" feel. Includes countdown timer per question. Good for a competitive challenge vibe.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:16px;border-radius:8px;min-height:220px;display:flex;flex-direction:column;gap:10px;">
+      <!-- Banner -->
+      <div style="background:linear-gradient(90deg,#1a7a5a,#48C59C);border-radius:6px;padding:6px 12px;text-align:center;font-size:11px;color:white;font-weight:700;letter-spacing:0.3px;">
+        🧠 FREE IQ TEST — Trusted by 50,000+ students
+      </div>
+      <!-- Hero -->
+      <div style="text-align:center;padding:8px 0 4px;">
+        <div style="font-size:13px;font-weight:800;color:#1a1a2e;">Discover Your Cognitive Profile</div>
+        <div style="font-size:9px;color:#666;margin-top:3px;">Professional · CHC Theory · 15 minutes</div>
+      </div>
+      <!-- Clean card -->
+      <div style="background:white;border-radius:10px;padding:12px;flex:1;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <div style="font-size:9px;color:#48C59C;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Number Series</div>
+        <div style="font-size:11px;color:#1a1a2e;text-align:center;margin-bottom:10px;font-weight:600;">2 → 6 → 18 → 54 → ?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+          <div style="background:#f0faf5;border:1px solid #48C59C;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#1a7a5a;font-weight:600;">162 ✓</div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#666;">108</div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#666;">144</div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#666;">216</div>
+        </div>
+      </div>
+      <div style="background:#e8e8e8;border-radius:99px;height:3px;">
+        <div style="background:#48C59C;width:60%;height:3px;border-radius:99px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Clean Light Mode</h3>
+      <p>White cards, clean minimal. More "serious academic test" credibility. Contrasts with the dark site — could feel premium. Works well for sharing/screenshots.</p>
+    </div>
+  </div>
+
+</div>

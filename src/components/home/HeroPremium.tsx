@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /* ── Animation variants ──────────────────────────────────────── */
 const containerVariants = {
@@ -85,16 +86,16 @@ const orbs = [
   },
 ];
 
-/* ── Stats data ──────────────────────────────────────────────── */
-const stats = [
-  { value: "500+", label: "Programs" },
-  { value: "100+", label: "Universities" },
-  { value: "80+", label: "Countries" },
-];
-
 /* ── Component ───────────────────────────────────────────────── */
 export function HeroPremium() {
   const shouldReduceMotion = useReducedMotion();
+  const { t } = useLanguage();
+
+  const stats = [
+    { value: "500+", label: t("hero_stat_programs") },
+    { value: "100+", label: t("hero_stat_universities") },
+    { value: "80+",  label: t("hero_stat_countries") },
+  ];
 
   return (
     <section
@@ -161,7 +162,7 @@ export function HeroPremium() {
                 backdropFilter: "blur(12px)",
               }}
             >
-              <span aria-hidden="true">🎓</span> #1 Platform for Studying in China
+              <span aria-hidden="true">🎓</span> {t("hero_badge")}
             </span>
           </motion.div>
 
@@ -175,10 +176,7 @@ export function HeroPremium() {
                 letterSpacing: "-0.03em",
               }}
             >
-              Your Future in China
-              <br />
-              Starts{" "}
-              <span style={{ color: "var(--color-accent)" }}>Here</span>
+              {t("hero_headline")}
             </h1>
           </motion.div>
 
@@ -188,8 +186,7 @@ export function HeroPremium() {
             className="max-w-2xl text-base md:text-lg leading-relaxed"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            Match with the perfect university and scholarship in minutes. 500+
-            programs, 100+ universities, trusted by students from 80+ countries.
+            {t("hero_sub")}
           </motion.p>
 
           {/* Trust stats bar */}
@@ -232,10 +229,10 @@ export function HeroPremium() {
             className="flex flex-col sm:flex-row items-center gap-3 mt-2"
           >
             <Link href="/quiz" className="btn-accent btn-liquid px-7 py-3.5 text-base">
-              Help Me Find My Major
+              {t("hero_cta1")}
             </Link>
             <Link href="/how-to-apply" className="btn-ghost btn-liquid px-7 py-3.5 text-base">
-              I Need Help Applying
+              {t("hero_cta2")}
             </Link>
           </motion.div>
         </motion.div>

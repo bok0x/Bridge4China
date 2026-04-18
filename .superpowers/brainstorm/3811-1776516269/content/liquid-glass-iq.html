@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Test — Liquid Glass Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #060a08;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, 'Inter', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* === MOVING BACKGROUND === */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+  .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, #48C59C, transparent); top: -100px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #1a7a5a, transparent); bottom: -80px; right: -80px; }
+  .orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, #0d4a35, transparent); top: 40%; left: 60%; }
+
+  /* === CARD WRAPPER === */
+  .scene {
+    position: relative;
+    z-index: 10;
+    width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* === TOP BANNER === */
+  .top-banner {
+    background: rgba(72, 197, 156, 0.12);
+    border: 1px solid rgba(72, 197, 156, 0.35);
+    border-radius: 999px;
+    padding: 10px 24px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #48C59C;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .top-banner:hover { background: rgba(72, 197, 156, 0.2); transform: scale(1.01); }
+
+  /* === LIQUID GLASS CARD === */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    transition: box-shadow 0.1s ease;
+    /* Inner top highlight */
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.25),
+      inset 0 -1px 0 rgba(0,0,0,0.2),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 0 0.5px rgba(255,255,255,0.1);
+  }
+  /* Liquid glass shimmer layer */
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(72,197,156,0.05) 100%);
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  /* === PROGRESS === */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .progress-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #48C59C;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .progress-count {
+    font-size: 11px;
+    color: rgba(232,245,240,0.4);
+    font-weight: 500;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 33%;
+    background: linear-gradient(90deg, #48C59C, #5DD4AE);
+    border-radius: 99px;
+    box-shadow: 0 0 8px rgba(72,197,156,0.6);
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* === QUESTION === */
+  .question-type {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(232,245,240,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .question-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #E8F5F0;
+    line-height: 1.4;
+    margin-bottom: 24px;
+    letter-spacing: -0.2px;
+  }
+
+  /* === MATRIX PUZZLE === */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 52px);
+    grid-template-rows: repeat(3, 52px);
+    gap: 6px;
+    margin: 0 auto 24px;
+    width: fit-content;
+  }
+  .matrix-cell {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .matrix-cell.filled-1 { background: rgba(72,197,156,0.9); border-color: #48C59C; box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 12px rgba(72,197,156,0.4); }
+  .matrix-cell.filled-2 { background: rgba(72,197,156,0.45); border-color: rgba(72,197,156,0.6); }
+  .matrix-cell.filled-3 { background: rgba(72,197,156,0.15); border-color: rgba(72,197,156,0.25); }
+  .matrix-cell.question-mark {
+    border: 1.5px dashed rgba(72,197,156,0.6);
+    background: rgba(72,197,156,0.06);
+    font-size: 22px; color: rgba(72,197,156,0.8); font-weight: 700;
+    animation: pulse-q 2s ease-in-out infinite;
+  }
+  @keyframes pulse-q {
+    0%,100% { box-shadow: 0 0 0 0 rgba(72,197,156,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(72,197,156,0); }
+  }
+
+  /* === ANSWER OPTIONS === */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .option-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
+    pointer-events: none;
+  }
+  .option-btn:hover {
+    background: rgba(72,197,156,0.12);
+    border-color: rgba(72,197,156,0.4);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 20px rgba(72,197,156,0.15);
+  }
+  .option-btn.selected {
+    background: rgba(72,197,156,0.18);
+    border-color: #48C59C;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 24px rgba(72,197,156,0.25), 0 0 0 1px rgba(72,197,156,0.3);
+  }
+  .option-letter {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: rgba(232,245,240,0.6);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .option-btn.selected .option-letter {
+    background: #48C59C;
+    border-color: #48C59C;
+    color: #060a08;
+  }
+  /* Mini matrix inside option */
+  .opt-matrix {
+    display: grid;
+    grid-template-columns: repeat(3,10px);
+    gap: 2px;
+  }
+  .opt-cell {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+  }
+
+  /* === NEXT BUTTON === */
+  .next-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #48C59C, #1a7a5a);
+    color: #060a08;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 20px rgba(72,197,156,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+    letter-spacing: 0.3px;
+  }
+  .next-btn:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 32px rgba(72,197,156,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* === RESULT CARD (blurred/locked) === */
+  .result-teaser {
+    position: relative;
+    text-align: center;
+  }
+  .result-blur-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    filter: blur(6px);
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  .result-lock-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(6,10,8,0.5);
+    border-radius: 20px;
+    backdrop-filter: blur(2px);
+  }
+  .lock-icon { font-size: 28px; }
+  .lock-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #E8F5F0;
+  }
+  .lock-sub { font-size: 11px; color: rgba(232,245,240,0.5); }
+
+  /* === SOUND INDICATOR === */
+  .sound-badge {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 11px;
+    color: rgba(232,245,240,0.6);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sound-badge:hover { background: rgba(255,255,255,0.12); }
+  .sound-wave { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .sound-bar { width: 3px; background: #48C59C; border-radius: 2px; animation: wave 1s ease-in-out infinite; }
+  .sound-bar:nth-child(1) { height: 4px; animation-delay: 0s; }
+  .sound-bar:nth-child(2) { height: 10px; animation-delay: 0.1s; }
+  .sound-bar:nth-child(3) { height: 7px; animation-delay: 0.2s; }
+  .sound-bar:nth-child(4) { height: 12px; animation-delay: 0.3s; }
+  .sound-bar:nth-child(5) { height: 5px; animation-delay: 0.4s; }
+  @keyframes wave {
+    0%,100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.4); }
+  }
+
+  /* click ripple */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(72,197,156,0.25);
+    transform: scale(0);
+    animation: ripple-anim 0.5s linear;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* label */
+  .preview-label {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(232,245,240,0.3);
+    letter-spacing: 0.5px;
+    margin-top: -8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Moving background orbs -->
+<div class="bg-orbs">
+  <div class="orb orb-1" id="orb1"></div>
+  <div class="orb orb-2" id="orb2"></div>
+  <div class="orb orb-3" id="orb3"></div>
+</div>
+
+<!-- Sound indicator -->
+<div class="sound-badge" id="soundBadge" onclick="toggleSound()">
+  <div class="sound-wave">
+    <div class="sound-bar"></div>
+    <div class="sound-bar"></div>
+    <div class="sound-bar"></div>
+    <div class="sound-bar"></div>
+    <div class="sound-bar"></div>
+  </div>
+  <span id="soundLabel">Sound ON</span>
+</div>
+
+<div class="scene">
+
+  <!-- Banner -->
+  <div class="top-banner" onclick="playClick()">🧠 TEST YOUR IQ — Free 15-min cognitive assessment →</div>
+  <p class="preview-label">↑ This banner sits at the top of every page</p>
+
+  <!-- Main flashcard -->
+  <div class="glass-card" id="mainCard">
+    <!-- Progress -->
+    <div class="progress-row">
+      <span class="progress-label">Fluid Reasoning</span>
+      <span class="progress-count">5 / 15</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+    <div style="height:20px;"></div>
+
+    <!-- Question -->
+    <div class="question-type">Matrix Reasoning</div>
+    <div class="question-text">Which pattern completes the sequence?</div>
+
+    <!-- 3x3 Matrix -->
+    <div class="matrix-grid">
+      <div class="matrix-cell filled-1"></div>
+      <div class="matrix-cell filled-2"></div>
+      <div class="matrix-cell filled-3"></div>
+      <div class="matrix-cell filled-2"></div>
+      <div class="matrix-cell filled-3"></div>
+      <div class="matrix-cell filled-1"></div>
+      <div class="matrix-cell filled-3"></div>
+      <div class="matrix-cell filled-1"></div>
+      <div class="matrix-cell question-mark">?</div>
+    </div>
+
+    <!-- Options -->
+    <div class="options-grid">
+      <div class="option-btn" onclick="selectOption(this,'a')">
+        <div class="option-letter">A</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'b')">
+        <div class="option-letter">B</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'c')">
+        <div class="option-letter">C</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+        </div>
+      </div>
+      <div class="option-btn" onclick="selectOption(this,'d')">
+        <div class="option-letter">D</div>
+        <div class="opt-matrix">
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.45)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.15)"></div>
+          <div class="opt-cell" style="background:rgba(72,197,156,0.9)"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="next-btn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <!-- Locked result teaser -->
+  <div class="result-teaser">
+    <div class="result-blur-card">
+      <div style="font-size:32px;font-weight:900;color:#48C59C;">IQ 127</div>
+      <div style="font-size:14px;color:#E8F5F0;">98th Percentile · Superior Range</div>
+    </div>
+    <div class="result-lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Your results are ready</div>
+      <div class="lock-sub">Create a free account to unlock</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // === SOUND ENGINE ===
+  let soundEnabled = true;
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playTone(freq, type, duration, gain = 0.15, fadeOut = true) {
+    if (!soundEnabled) return;
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gainNode.gain.setValueAtTime(gain, ctx.currentTime);
+    if (fadeOut) gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  function playClick() {
+    playTone(880, 'sine', 0.08, 0.1);
+    setTimeout(() => playTone(1100, 'sine', 0.06, 0.08), 40);
+  }
+
+  function playHover() {
+    playTone(660, 'sine', 0.05, 0.05);
+  }
+
+  function playSelect() {
+    playTone(523, 'sine', 0.06, 0.12);
+    setTimeout(() => playTone(659, 'sine', 0.06, 0.1), 60);
+    setTimeout(() => playTone(784, 'sine', 0.12, 0.15), 120);
+  }
+
+  function playNext() {
+    playTone(400, 'triangle', 0.08, 0.1);
+    setTimeout(() => playTone(600, 'sine', 0.1, 0.12), 80);
+    setTimeout(() => playTone(800, 'sine', 0.08, 0.18), 160);
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundLabel').textContent = soundEnabled ? 'Sound ON' : 'Sound OFF';
+    const waves = document.querySelectorAll('.sound-bar');
+    waves.forEach(w => w.style.animationPlayState = soundEnabled ? 'running' : 'paused');
+  }
+
+  // === OPTION SELECTION ===
+  let currentQ = 5;
+  function selectOption(el, choice) {
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    playSelect();
+    // Ripple
+    const rect = el.getBoundingClientRect();
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    r.style.width = r.style.height = '60px';
+    r.style.left = '20px'; r.style.top = '10px';
+    el.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }
+
+  // === NEXT QUESTION ===
+  function nextQuestion() {
+    if (ctx.state === 'suspended') ctx.resume();
+    playNext();
+    if (currentQ < 15) {
+      currentQ++;
+      document.querySelector('.progress-count').textContent = currentQ + ' / 15';
+      document.getElementById('progressFill').style.width = (currentQ / 15 * 100) + '%';
+      document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+
+      // Flashcard flip animation
+      const card = document.getElementById('mainCard');
+      card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      card.style.transform = 'translateX(60px) rotateY(8deg)';
+      card.style.opacity = '0';
+      setTimeout(() => {
+        card.style.transition = 'none';
+        card.style.transform = 'translateX(-60px) rotateY(-8deg)';
+        setTimeout(() => {
+          card.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease';
+          card.style.transform = 'translateX(0) rotateY(0)';
+          card.style.opacity = '1';
+        }, 50);
+      }, 300);
+    }
+  }
+
+  // === CURSOR-TRACKED SHADOW ON CARD ===
+  const mainCard = document.getElementById('mainCard');
+  document.addEventListener('mousemove', (e) => {
+    const rect = mainCard.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / rect.width;
+    const dy = (e.clientY - cy) / rect.height;
+    const tiltX = dy * 8;
+    const tiltY = -dx * 8;
+    mainCard.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+
+    const shadowX = dx * 20;
+    const shadowY = dy * 20;
+    mainCard.style.boxShadow = `
+      inset 0 1px 0 rgba(255,255,255,0.25),
+      inset 0 -1px 0 rgba(0,0,0,0.2),
+      ${shadowX}px ${shadowY + 20}px 60px rgba(0,0,0,0.6),
+      0 0 0 0.5px rgba(255,255,255,0.1),
+      ${shadowX * 0.3}px ${shadowY * 0.3 + 5}px 30px rgba(72,197,156,0.1)
+    `;
+
+    // Move orbs gently
+    const ox = dx * 30;
+    const oy = dy * 30;
+    document.getElementById('orb1').style.transform = `translate(${ox}px, ${oy}px)`;
+    document.getElementById('orb2').style.transform = `translate(${-ox}px, ${-oy}px)`;
+    document.getElementById('orb3').style.transform = `translate(${ox * 0.5}px, ${oy * 0.5}px)`;
+  });
+
+  // Reset card tilt on mouse leave
+  mainCard.addEventListener('mouseleave', () => {
+    mainCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+  });
+
+  // Hover sounds on options
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => playHover());
+  });
+
+  // Resume audio context on any click
+  document.addEventListener('click', () => {
+    if (ctx.state === 'suspended') ctx.resume();
+  }, { once: true });
+</script>
+</body>
+</html>

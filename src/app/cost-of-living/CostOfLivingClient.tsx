@@ -9,30 +9,30 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 
 const CITIES = [
   // Tier 1
-  { name: "Beijing",    tier: 1, housing: { dorm: "80–150",  apartment: "500–1,200" }, food: { canteen: "100–150", restaurants: "200–350" }, transport: "25–40",  lifestyle: "100–250", monthly: "700–1,500" },
-  { name: "Shanghai",   tier: 1, housing: { dorm: "100–200", apartment: "600–1,500" }, food: { canteen: "100–160", restaurants: "220–380" }, transport: "30–45",  lifestyle: "120–300", monthly: "800–1,800" },
-  { name: "Guangzhou",  tier: 1, housing: { dorm: "80–160",  apartment: "450–1,100" }, food: { canteen: "90–140",  restaurants: "180–320" }, transport: "25–35",  lifestyle: "100–220", monthly: "650–1,400" },
+  { name: "Beijing",    tier: 1, housing: { dorm: "80–150",  apartment: "500–1,200" }, food: { canteen: "100–150", restaurants: "200–350" }, transport: "25–40",  vpn: "5–15", internet: "8–15", lifestyle: "100–250", monthly: "700–1,500" },
+  { name: "Shanghai",   tier: 1, housing: { dorm: "100–200", apartment: "600–1,500" }, food: { canteen: "100–160", restaurants: "220–380" }, transport: "30–45",  vpn: "5–15", internet: "8–15", lifestyle: "120–300", monthly: "800–1,800" },
+  { name: "Guangzhou",  tier: 1, housing: { dorm: "80–160",  apartment: "450–1,100" }, food: { canteen: "90–140",  restaurants: "180–320" }, transport: "25–35",  vpn: "5–15", internet: "8–15", lifestyle: "100–220", monthly: "650–1,400" },
 
   // Tier 2
-  { name: "Chengdu",    tier: 2, housing: { dorm: "60–120",  apartment: "300–700" },   food: { canteen: "70–110",  restaurants: "130–250" }, transport: "15–25",  lifestyle: "80–180",  monthly: "450–900" },
-  { name: "Wuhan",      tier: 2, housing: { dorm: "50–100",  apartment: "250–600" },   food: { canteen: "60–100",  restaurants: "120–220" }, transport: "15–25",  lifestyle: "70–160",  monthly: "400–850" },
-  { name: "Xi'an",      tier: 2, housing: { dorm: "50–100",  apartment: "250–580" },   food: { canteen: "60–100",  restaurants: "120–210" }, transport: "15–20",  lifestyle: "70–150",  monthly: "380–800" },
-  { name: "Nanjing",    tier: 2, housing: { dorm: "60–120",  apartment: "300–700" },   food: { canteen: "70–110",  restaurants: "130–240" }, transport: "15–25",  lifestyle: "80–180",  monthly: "450–900" },
-  { name: "Hangzhou",   tier: 2, housing: { dorm: "70–130",  apartment: "350–800" },   food: { canteen: "75–120",  restaurants: "140–260" }, transport: "20–30",  lifestyle: "90–200",  monthly: "500–1,000" },
-  { name: "Shenzhen",   tier: 2, housing: { dorm: "90–170",  apartment: "500–1,100" }, food: { canteen: "90–140",  restaurants: "180–320" }, transport: "25–35",  lifestyle: "110–240", monthly: "650–1,300" },
-  { name: "Tianjin",    tier: 2, housing: { dorm: "55–110",  apartment: "280–650" },   food: { canteen: "65–105",  restaurants: "120–230" }, transport: "15–25",  lifestyle: "75–170",  monthly: "420–880" },
-  { name: "Qingdao",    tier: 2, housing: { dorm: "50–100",  apartment: "260–600" },   food: { canteen: "60–95",   restaurants: "115–210" }, transport: "15–22",  lifestyle: "70–155",  monthly: "390–820" },
-  { name: "Dalian",     tier: 2, housing: { dorm: "50–100",  apartment: "260–580" },   food: { canteen: "60–95",   restaurants: "110–200" }, transport: "14–22",  lifestyle: "65–150",  monthly: "380–800" },
+  { name: "Chengdu",    tier: 2, housing: { dorm: "60–120",  apartment: "300–700" },   food: { canteen: "70–110",  restaurants: "130–250" }, transport: "15–25",  vpn: "5–15", internet: "8–15", lifestyle: "80–180",  monthly: "450–900" },
+  { name: "Wuhan",      tier: 2, housing: { dorm: "50–100",  apartment: "250–600" },   food: { canteen: "60–100",  restaurants: "120–220" }, transport: "15–25",  vpn: "5–15", internet: "8–15", lifestyle: "70–160",  monthly: "400–850" },
+  { name: "Xi'an",      tier: 2, housing: { dorm: "50–100",  apartment: "250–580" },   food: { canteen: "60–100",  restaurants: "120–210" }, transport: "15–20",  vpn: "5–15", internet: "8–15", lifestyle: "70–150",  monthly: "380–800" },
+  { name: "Nanjing",    tier: 2, housing: { dorm: "60–120",  apartment: "300–700" },   food: { canteen: "70–110",  restaurants: "130–240" }, transport: "15–25",  vpn: "5–15", internet: "8–15", lifestyle: "80–180",  monthly: "450–900" },
+  { name: "Hangzhou",   tier: 2, housing: { dorm: "70–130",  apartment: "350–800" },   food: { canteen: "75–120",  restaurants: "140–260" }, transport: "20–30",  vpn: "5–15", internet: "8–15", lifestyle: "90–200",  monthly: "500–1,000" },
+  { name: "Shenzhen",   tier: 2, housing: { dorm: "90–170",  apartment: "500–1,100" }, food: { canteen: "90–140",  restaurants: "180–320" }, transport: "25–35",  vpn: "5–15", internet: "8–15", lifestyle: "110–240", monthly: "650–1,300" },
+  { name: "Tianjin",    tier: 2, housing: { dorm: "55–110",  apartment: "280–650" },   food: { canteen: "65–105",  restaurants: "120–230" }, transport: "15–25",  vpn: "5–15", internet: "8–15", lifestyle: "75–170",  monthly: "420–880" },
+  { name: "Qingdao",    tier: 2, housing: { dorm: "50–100",  apartment: "260–600" },   food: { canteen: "60–95",   restaurants: "115–210" }, transport: "15–22",  vpn: "5–15", internet: "8–15", lifestyle: "70–155",  monthly: "390–820" },
+  { name: "Dalian",     tier: 2, housing: { dorm: "50–100",  apartment: "260–580" },   food: { canteen: "60–95",   restaurants: "110–200" }, transport: "14–22",  vpn: "5–15", internet: "8–15", lifestyle: "65–150",  monthly: "380–800" },
 
   // Tier 3
-  { name: "Changsha",   tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–170" },  transport: "10–20",  lifestyle: "50–120",  monthly: "280–600" },
-  { name: "Lanzhou",    tier: 3, housing: { dorm: "30–70",   apartment: "150–350" },   food: { canteen: "40–70",   restaurants: "80–150" },  transport: "10–15",  lifestyle: "40–100",  monthly: "220–500" },
-  { name: "Kunming",    tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–160" },  transport: "10–18",  lifestyle: "50–110",  monthly: "260–550" },
-  { name: "Hefei",      tier: 3, housing: { dorm: "35–70",   apartment: "170–380" },   food: { canteen: "45–75",   restaurants: "85–155" },  transport: "10–16",  lifestyle: "45–105",  monthly: "240–520" },
-  { name: "Nanchang",   tier: 3, housing: { dorm: "35–70",   apartment: "160–360" },   food: { canteen: "42–70",   restaurants: "80–148" },  transport: "10–15",  lifestyle: "42–98",   monthly: "230–500" },
-  { name: "Guiyang",    tier: 3, housing: { dorm: "30–65",   apartment: "150–340" },   food: { canteen: "40–68",   restaurants: "78–144" },  transport: "9–15",   lifestyle: "40–95",   monthly: "220–480" },
-  { name: "Urumqi",     tier: 3, housing: { dorm: "35–70",   apartment: "165–370" },   food: { canteen: "42–70",   restaurants: "82–148" },  transport: "10–16",  lifestyle: "43–100",  monthly: "230–500" },
-  { name: "Harbin",     tier: 3, housing: { dorm: "35–72",   apartment: "170–385" },   food: { canteen: "43–72",   restaurants: "83–150" },  transport: "10–16",  lifestyle: "44–102",  monthly: "235–510" },
+  { name: "Changsha",   tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–170" },  transport: "10–20",  vpn: "5–15", internet: "8–15", lifestyle: "50–120",  monthly: "280–600" },
+  { name: "Lanzhou",    tier: 3, housing: { dorm: "30–70",   apartment: "150–350" },   food: { canteen: "40–70",   restaurants: "80–150" },  transport: "10–15",  vpn: "5–15", internet: "8–15", lifestyle: "40–100",  monthly: "220–500" },
+  { name: "Kunming",    tier: 3, housing: { dorm: "40–80",   apartment: "180–400" },   food: { canteen: "50–80",   restaurants: "90–160" },  transport: "10–18",  vpn: "5–15", internet: "8–15", lifestyle: "50–110",  monthly: "260–550" },
+  { name: "Hefei",      tier: 3, housing: { dorm: "35–70",   apartment: "170–380" },   food: { canteen: "45–75",   restaurants: "85–155" },  transport: "10–16",  vpn: "5–15", internet: "8–15", lifestyle: "45–105",  monthly: "240–520" },
+  { name: "Nanchang",   tier: 3, housing: { dorm: "35–70",   apartment: "160–360" },   food: { canteen: "42–70",   restaurants: "80–148" },  transport: "10–15",  vpn: "5–15", internet: "8–15", lifestyle: "42–98",   monthly: "230–500" },
+  { name: "Guiyang",    tier: 3, housing: { dorm: "30–65",   apartment: "150–340" },   food: { canteen: "40–68",   restaurants: "78–144" },  transport: "9–15",   vpn: "5–15", internet: "8–15", lifestyle: "40–95",   monthly: "220–480" },
+  { name: "Urumqi",     tier: 3, housing: { dorm: "35–70",   apartment: "165–370" },   food: { canteen: "42–70",   restaurants: "82–148" },  transport: "10–16",  vpn: "5–15", internet: "8–15", lifestyle: "43–100",  monthly: "230–500" },
+  { name: "Harbin",     tier: 3, housing: { dorm: "35–72",   apartment: "170–385" },   food: { canteen: "43–72",   restaurants: "83–150" },  transport: "10–16",  vpn: "5–15", internet: "8–15", lifestyle: "44–102",  monthly: "235–510" },
 ];
 
 // ── FAQ data ─────────────────────────────────────────────────────────────────
@@ -88,6 +88,8 @@ function CityCard({ city, fmt }: { city: (typeof CITIES)[number]; fmt: (range: s
     { emoji: "🍜", label: "Food (Canteen)",        value: city.food.canteen },
     { emoji: "🍽️", label: "Food (Restaurants)",   value: city.food.restaurants },
     { emoji: "🚇", label: "Transport",             value: city.transport },
+    { emoji: "🔒", label: "VPN",                  value: city.vpn },
+    { emoji: "📶", label: "Internet",             value: city.internet },
     { emoji: "🎉", label: "Lifestyle",             value: city.lifestyle },
   ];
 
