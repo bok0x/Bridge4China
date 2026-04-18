@@ -1,3 +1,4 @@
+import { HeroPremium } from "@/components/home/HeroPremium";
 import { Hero } from "@/components/home/Hero";
 import { FeatureGrid } from "@/components/home/FeatureGrid";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <HeroPremium />
       <Hero />
       <UniversityGallery />
       <UniversityMarquee />
