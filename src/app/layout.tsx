@@ -3,6 +3,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
+import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
@@ -53,6 +54,7 @@ export default function RootLayout({
             <main>{children}</main>
             <Footer />
             <WhatsAppFloat />
+            <ExitIntentPopup />
           </ThemeProvider>
         </LanguageProvider>
       </body>
