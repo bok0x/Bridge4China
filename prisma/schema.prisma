@@ -186,6 +186,9 @@ model QuizLead {
   leadSource              String   @default("quiz")
   status                  String   @default("new")
   createdAt               DateTime @default(now())
+
+  @@index([status])
+  @@index([email])
 }
 
 model InterviewLead {
@@ -196,6 +199,9 @@ model InterviewLead {
   serviceType String
   status      String   @default("new")
   createdAt   DateTime @default(now())
+
+  @@index([status])
+  @@index([serviceType])
 }
 
 enum Degree {

@@ -22,14 +22,14 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    const lead = await prisma.quizLead.update({
+    const lead = await prisma.interviewLead.update({
       where: { id },
       data: { status },
     });
 
     return NextResponse.json(lead);
   } catch (error: unknown) {
-    console.error("[quiz-leads PATCH]", error);
+    console.error("[interview-leads PATCH]", error);
     // Prisma throws P2025 when record not found
     if (
       typeof error === "object" &&
@@ -37,7 +37,7 @@ export async function PATCH(
       "code" in error &&
       (error as { code: string }).code === "P2025"
     ) {
-      return NextResponse.json({ error: "QuizLead not found" }, { status: 404 });
+      return NextResponse.json({ error: "InterviewLead not found" }, { status: 404 });
     }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

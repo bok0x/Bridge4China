@@ -13,6 +13,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
     const lead = await prisma.interviewLead.create({
       data: {
         fullName,
@@ -29,7 +33,13 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const leads = await prisma.interviewLead.findMany({
       orderBy: { createdAt: "desc" },
