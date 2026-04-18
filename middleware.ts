@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-// Routes that require authentication
 const PROTECTED_ROUTES = ["/dashboard", "/apply/"];
+const ADMIN_ROUTES = ["/admin"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
+  const isAdmin = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
+  const isProtected = isAdmin || PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   if (!isProtected) return NextResponse.next();
 
   let response = NextResponse.next({ request });
@@ -37,9 +38,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (isAdmin) {
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim());
+    if (!adminEmails.includes(user.email ?? "")) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/apply/:path*"],
+  matcher: ["/dashboard/:path*", "/apply/:path*", "/admin/:path*"],
 };

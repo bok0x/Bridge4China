@@ -9,7 +9,28 @@
       "Bash(curl -s http://localhost:3000)",
       "Bash(npx kill-port:*)",
       "Read(//f/Claude Project/ChinaUniMatch/app/**)",
-      "Bash(xargs -I{} taskkill /PID {} /F)"
+      "Bash(xargs -I{} taskkill /PID {} /F)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep 1; Rename-Item -Path 'f:\\\\Claude Project\\\\ChinaUniMatch\\\\app' -NewName '_app_legacy' -Force; if \\(Test-Path 'f:\\\\Claude Project\\\\ChinaUniMatch\\\\_app_legacy'\\) { 'RENAMED OK' } else { 'FAILED' }\")",
+      "Bash(powershell -Command \"Remove-Item -Recurse -Force 'f:\\\\Claude Project\\\\ChinaUniMatch\\\\.next' -ErrorAction SilentlyContinue; 'Cache cleared'\")",
+      "Bash(python3 -c \"import requests, pydantic, dotenv; print\\('deps OK'\\)\")",
+      "Bash(python3 tools/scrape_scholarship_china.py --filter-unis 'Tsinghua,Peking University,Fudan,Tongji University,Zhejiang University,Wuhan University,Shanghai Jiao Tong,Sun Yat-sen,Renmin University' --output .tmp/raw_programs_detail.json --workers 6)",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('tools/scrape_scholarship_china.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "Bash(python3 tools/normalize_program_data.py --input .tmp/raw_programs_detail.json --output .tmp/normalized_programs.json)",
+      "Bash(python3 tools/export_to_data.py --input .tmp/normalized_programs.json --data-dir data/)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('scripts:', list\\(d.get\\('scripts',{}\\).keys\\(\\)\\)\\); print\\('name:', d.get\\('name'\\)\\)\")",
+      "Read(//c/Users/wokao/.claude/**)",
+      "Bash(node -e ' *)",
+      "Bash(xargs grep *)",
+      "Bash(find \"f:/Claude Project/ChinaUniMatch/src\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) -exec grep -l \"track\\\\|Track\\\\|gtag\\\\|analytics\" {} \\\\;)",
+      "Bash(find \"f:/Claude Project/ChinaUniMatch/src/app/api\" -type f -name \"route.ts\" -exec basename {} \\\\;)",
+      "Bash(PRISMA_FORCE_COLOR=0 npx prisma migrate dev --name add_quiz_lead_interview_lead --skip-generate)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('next:', p.dependencies.next, 'prisma:', p.dependencies['@prisma/client'] ?? p.devDependencies['@prisma/client']\\)\")"
+    ],
+    "additionalDirectories": [
+      "f:\\Claude Project\\ChinaUniMatch\\docs\\superpowers",
+      "F:\\Claude Project\\ChinaUniMatch\\src\\app\\api\\quiz-leads",
+      "F:\\Claude Project\\ChinaUniMatch\\src\\app\\api\\interview-leads"
     ]
   }
 }

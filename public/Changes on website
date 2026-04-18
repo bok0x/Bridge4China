@@ -1,0 +1,308 @@
+You are acting as a senior full-stack product designer + senior developer + conversion strategist for my live SaaS website called Bridge4China.
+
+IMPORTANT MASTER RULES:
+1. Do NOT start coding immediately.
+2. First audit the current website structure, pages, components, database, auth, tools, existing flows, styling system, SEO setup, and integrations.
+3. Then ask me only the most important missing questions needed to reach 95% understanding before touching anything.
+4. Preserve all existing sections, tools, login/signup, database, finder tools, current working systems, and pages unless I explicitly requested changes.
+5. If I did not mention a section, assume KEEP IT.
+6. Do not break production.
+7. Improve with clean scalable architecture.
+8. Prioritize conversion, trust, speed, mobile responsiveness, premium design.
+9. Build in phases and wait approval after each phase if needed.
+
+==================================================
+PROJECT GOAL
+Transform the existing website into a premium high-converting student platform for studying in China with wow effects, trust signals, lead capture systems, and SEO growth.
+
+==================================================
+PHASE 1 — FULL AUDIT FIRST (MANDATORY)
+Before editing anything:
+
+Please inspect and report:
+
+1. Current tech stack
+2. Existing routes/pages
+3. Existing components
+4. Existing auth/login/signup systems
+5. Existing database schema
+6. Existing tools already installed
+7. Existing animations / styling framework
+8. Existing SEO setup
+9. Existing forms / lead capture systems
+10. Risks of changing current structure
+
+Then give me:
+- What should stay untouched
+- What can be upgraded safely
+- Recommended execution order
+
+WAIT FOR MY APPROVAL.
+
+==================================================
+PHASE 2 — HERO SECTION + NAVIGATION IMPROVEMENT
+
+Keep the current hero section content unless redesign enhancement improves it without deleting core content.
+
+Improve top navigation menu professionally with links:
+
+- Home
+- How It Works
+- Before Coming to China
+- Cost of Living
+- Universities
+- Lifestyle
+
+Hero section must include:
+
+Premium modern background
+Subtle motion graphics
+Smooth scroll effects
+High trust premium style
+Fast loading
+
+Add 2 primary CTA buttons:
+
+1. Help Me Find My Major
+2. I Need Help Applying
+
+Button behavior:
+
+Button 1 → opens / routes to quiz funnel
+Button 2 → routes to consultation / application help lead form or WhatsApp CTA (choose best conversion option and explain first)
+
+==================================================
+PHASE 3 — QUIZ FUNNEL (MOST IMPORTANT)
+
+CTA “Help Me Find My Major”
+
+Build premium quiz experience.
+
+Requirements:
+
+1. 20 questions
+2. Questions should feel deep, intelligent, psychological, career/personality based
+3. You decide the best framework for matching majors/universities
+4. Dark premium design
+5. Green accents
+6. Space / futuristic visual mood
+7. Motion effects
+8. Smooth transitions
+9. Strong immersive UX
+10. Optional low relaxing background sound with volume control + mute button
+
+Quiz name:
+
+Quantum Matching Report
+
+After quiz completion:
+
+Show lead capture form:
+
+- Full Name
+- Email
+- WhatsApp Number
+
+Then automate:
+
+- Send report to email
+- Save lead in database
+- Push lead to CRM/admin dashboard
+- Optional n8n workflow integration
+
+Need recommended best stack before building.
+
+==================================================
+PHASE 4 — CRM / ADMIN LEAD DASHBOARD
+
+Create internal dashboard to manage leads from quiz and forms.
+
+Track:
+
+- Name
+- Email
+- WhatsApp
+- Country
+- Quiz answers
+- Recommended majors
+- Recommended universities
+- Lead source
+- Date
+- Status
+
+Need filters + clean UI.
+
+==================================================
+PHASE 5 — COST OF LIVING PAGE
+
+Upgrade / create premium page.
+
+Requirements:
+
+1. Filter by city tier
+   - Tier 1
+   - Tier 2
+   - Tier 3
+
+2. Include:
+- Housing
+- Food
+- Transport
+- Lifestyle
+- Monthly total
+
+3. Use realistic data from reliable public sources / community insights.
+
+4. Add images and premium design.
+
+==================================================
+PHASE 6 — BEFORE COMING TO CHINA PAGE
+
+Linked from navbar.
+
+Build informative conversion page.
+
+Include:
+
+1. Embedded YouTube video section
+2. Preparation checklist
+3. What to bring from home country
+4. What to prepare before arrival
+5. CSC preparation tips
+6. Free university interview preparation CTA
+7. Strong trust visuals
+8. Tables + clean sections
+
+Use best layout for engagement.
+
+==================================================
+PHASE 7 — GLOBAL CTA SYSTEMS
+
+Add sitewide:
+
+1. Sticky WhatsApp floating button
+2. Consultation CTA blocks
+3. Smart lead capture placements
+4. Exit intent popup:
+   “Get Your Free China Match Report”
+
+Must be elegant not spammy.
+
+==================================================
+PHASE 8 — FOOTER UPGRADE
+
+Professional footer on all pages:
+
+- Logo
+- Bridge4China
+- About company
+- WhatsApp
+- Contact
+- Privacy Policy
+- Terms
+- Services
+- Quick Links
+- Social links if available
+
+==================================================
+PHASE 9 — SEO GROWTH SYSTEM
+
+Create strategy + implement 20 SEO landing pages.
+
+Examples:
+- Study in China from Morocco
+- Cheapest Universities in China
+- CSC Scholarship 2026
+- Best Medical Universities in China
+- MBA in China for International Students
+
+You choose highest traffic / highest intent pages first.
+
+Need:
+- metadata
+- schema
+- internal linking
+- conversion CTA
+
+==================================================
+PHASE 10 — Q&A CONTENT BLOCKS
+
+On pages where relevant, especially before footer:
+
+Create expandable FAQ sections.
+
+Goal:
+100+ total questions across website.
+
+Examples:
+- Is China safe for students?
+- Can I study in English?
+- How much money needed?
+- CSC scholarship chances?
+- Agency process?
+- Visa timelines?
+
+You decide page placement and SEO optimization.
+
+==================================================
+DESIGN RULES
+
+Use:
+- smooth animations
+- premium scrolling effects
+- subtle motion graphics
+- modern trust-building layout
+- responsive mobile-first UX
+- high speed performance
+- clean readable typography
+
+Avoid:
+- cheap flashy effects
+- slow pages
+- clutter
+- breaking current features
+
+==================================================
+IMPORTANT PRESERVATION RULES
+
+Do NOT remove or damage:
+
+- Existing login/signup
+- Existing database systems
+- Existing finder tools
+- Existing pages not mentioned
+- Existing working integrations
+
+If touching any sensitive existing system:
+ASK ME FIRST.
+
+==================================================
+DELIVERY METHOD
+
+Work in this order:
+
+1. Audit report
+2. Questions for 95% understanding
+3. Final execution roadmap
+4. Start Phase 1 implementation only after my approval
+
+==================================================
+DECISION POWER
+
+Where I said “you decide”, choose what is best for:
+- conversions
+- trust
+- SEO
+- scalability
+- speed
+- user psychology
+
+Explain major decisions briefly before implementation.
+
+==================================================
+START NOW WITH:
+1. Full audit
+2. Missing questions
+3. Recommended roadmap
+
+Do not code yet.

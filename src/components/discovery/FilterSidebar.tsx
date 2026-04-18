@@ -42,6 +42,12 @@ export function FilterSidebar() {
         params.delete(key);
       } else {
         params.set(key, value);
+        // Fire-and-forget analytics event
+        fetch("/api/analytics/event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eventType: "filter_used", payload: { filter: key, value } }),
+        }).catch(() => {});
       }
       params.delete("page");
       router.push(`${pathname}?${params.toString()}`, { scroll: false });

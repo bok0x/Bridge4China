@@ -8,6 +8,7 @@ import { UniversityCard } from "@/components/discovery/UniversityCard";
 import { ProgramListTable } from "@/components/discovery/ProgramListTable";
 import { ViewToggle } from "@/components/discovery/ViewToggle";
 import type { Program } from "@/types";
+import { CITY_TO_PROVINCE } from "@/lib/constants";
 
 const LIMIT = 24;
 
@@ -141,6 +142,10 @@ export function DiscoverClient() {
     const hasCscaScore  = searchParams.get("hasCscaScore");
     const hasScholarship = searchParams.get("hasScholarship") === "true";
 
+    // Resolve city → province so programs without a city field still match
+    const cityKey = Object.keys(CITY_TO_PROVINCE).find(k => k.toLowerCase() === city);
+    const effectiveProvince = province || (city && cityKey ? CITY_TO_PROVINCE[cityKey].toLowerCase() : "");
+
     return allPrograms.filter((p) => {
       const uName = p.universityName.toLowerCase();
       const uCity = p.city.toLowerCase();
@@ -152,8 +157,9 @@ export function DiscoverClient() {
       if (degree && p.degree !== degree) return false;
       if (language && p.teachingLanguage !== language) return false;
       if (field && !p.field.toLowerCase().includes(field)) return false;
-      if (province && !uProv.includes(province)) return false;
-      if (city && !uCity.includes(city)) return false;
+      if (effectiveProvince && !uProv.includes(effectiveProvince)) return false;
+      // Only sub-filter by city when the program actually has city data
+      if (city && uCity.length > 0 && !uCity.includes(city)) return false;
       if (universityName && !uName.includes(universityName)) return false;
       if (intakeSeason && p.intakeSeason.toLowerCase() !== intakeSeason) return false;
       if (acceptsMinors === "true" && !p.acceptsMinors) return false;
@@ -240,7 +246,7 @@ export function DiscoverClient() {
             {indexLoading ? (
               <LoadingSkeleton view={view} />
             ) : paginated.length === 0 ? (
-              <EmptyState />
+              <EmptyState searchParams={searchParams} pathname={pathname} />
             ) : view === "list" ? (
               <>
                 <ProgramListTable programs={paginated} />
@@ -324,13 +330,47 @@ function PaginationBar({
   );
 }
 
-function EmptyState() {
+function EmptyState({
+  searchParams,
+  pathname,
+}: {
+  searchParams: ReturnType<typeof useSearchParams>;
+  pathname: string;
+}) {
+  const province = searchParams.get("province");
+  const city = searchParams.get("city");
+  const search = searchParams.get("search");
+
+  const clearLocationHref = (() => {
+    const p = new URLSearchParams(searchParams.toString());
+    p.delete("province");
+    p.delete("city");
+    p.delete("page");
+    return `${pathname}?${p.toString()}`;
+  })();
+
+  const clearAllHref = pathname;
+
   return (
     <div className="glass rounded-3xl p-16 text-center">
       <p className="font-heading font-bold text-lg mb-2">No programs match your filters</p>
-      <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-        Try adjusting your search or clearing some filters.
-      </p>
+      {city && province ? (
+        <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
+          No results for <strong>{city}</strong> in <strong>{province}</strong>.{" "}
+          <a href={clearLocationHref} className="underline" style={{ color: "var(--color-accent-green)" }}>
+            Browse all {province} programs
+          </a>
+        </p>
+      ) : search ? (
+        <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
+          No programs found for &ldquo;{search}&rdquo;. Try a different keyword or clear your filters.
+        </p>
+      ) : (
+        <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
+          Try adjusting your search or clearing some filters.
+        </p>
+      )}
+      <a href={clearAllHref} className="btn-ghost text-sm">Clear all filters</a>
     </div>
   );
 }

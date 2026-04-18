@@ -88,8 +88,10 @@ export const CHINESE_CITIES: { city: string; count: number }[] =
   CHINESE_LOCATIONS.flatMap((l) => l.cities);
 
 export const NAV_LINKS = [
-  { label: "Discover", href: "/discover" },
-  { label: "Compare", href: "/compare" },
-  { label: "Scholarships", href: "/scholarships" },
-  { label: "Apply", href: "/apply" },
+  { label: "Home",                   href: "/" },
+  { label: "How It Works",           href: "/#how-it-works" },
+  { label: "Before Coming to China", href: "/before-china" },
+  { label: "Cost of Living",         href: "/cost-of-living" },
+  { label: "Universities",           href: "/discover" },
+  { label: "Lifestyle",              href: "/lifestyle" },
 ];

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { LayoutDashboard, FileText, BookOpen } from "lucide-react";
+import { LayoutDashboard, FileText, BookOpen, User } from "lucide-react";
 
 const NAV = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/applications", label: "Applications", icon: FileText },
+  { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/compare", label: "Saved Compare", icon: BookOpen },
 ];
 
