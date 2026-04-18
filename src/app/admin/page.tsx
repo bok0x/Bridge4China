@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, TrendingUp, DollarSign, Filter, Award } from "lucide-react";
+import { FileText, TrendingUp, DollarSign, Filter, Award, LayoutDashboard, Users, MessageSquare } from "lucide-react";
+import QuizLeadsTab from "./QuizLeadsTab";
+import InterviewLeadsTab from "./InterviewLeadsTab";
 
 interface StatsData {
   applications: {
@@ -39,7 +41,16 @@ const STATUS_COLORS: Record<string, string> = {
   UNDER_REVIEW: "#8b5cf6",
 };
 
+type ActiveTab = "dashboard" | "quiz_leads" | "interview_leads";
+
+const TABS: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
+  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={15} /> },
+  { id: "quiz_leads", label: "Quiz Leads", icon: <Users size={15} /> },
+  { id: "interview_leads", label: "Interview Leads", icon: <MessageSquare size={15} /> },
+];
+
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingPayment, setUpdatingPayment] = useState<string | null>(null);
@@ -65,18 +76,64 @@ export default function AdminPage() {
     setUpdatingPayment(null);
   }
 
+  const TabNav = (
+    <div className="flex gap-1 p-1 rounded-xl mb-8" style={{ background: "var(--color-bg-secondary)", width: "fit-content" }}>
+      {TABS.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => setActiveTab(tab.id)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          style={
+            activeTab === tab.id
+              ? { background: "var(--color-accent)", color: "#fff" }
+              : { color: "var(--color-text-secondary)" }
+          }
+        >
+          {tab.icon}
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (activeTab === "quiz_leads") {
+    return (
+      <div className="space-y-6">
+        {TabNav}
+        <QuizLeadsTab />
+      </div>
+    );
+  }
+
+  if (activeTab === "interview_leads") {
+    return (
+      <div className="space-y-6">
+        {TabNav}
+        <InterviewLeadsTab />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 rounded-2xl animate-pulse" style={{ background: "var(--color-bg-secondary)" }} />
-        ))}
+      <div className="space-y-6">
+        {TabNav}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-28 rounded-2xl animate-pulse" style={{ background: "var(--color-bg-secondary)" }} />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!stats) {
-    return <p style={{ color: "var(--color-text-secondary)" }}>Failed to load stats.</p>;
+    return (
+      <div className="space-y-6">
+        {TabNav}
+        <p style={{ color: "var(--color-text-secondary)" }}>Failed to load stats.</p>
+      </div>
+    );
   }
 
   const accepted = stats.applications.byStatus.find((s) => s.status === "ACCEPTED")?.count ?? 0;
@@ -86,6 +143,7 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-8">
+      {TabNav}
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard
