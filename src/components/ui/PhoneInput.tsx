@@ -99,20 +99,25 @@ export function PhoneInput({ code, number, onCodeChange, onNumberChange, require
       <button
         type="button"
         onClick={() => { setOpen(!open); setSearch(""); }}
-        className="input-glass"
         style={{
-          minWidth: 106,
+          width: 118,
+          flexShrink: 0,
           display: "flex",
           alignItems: "center",
           gap: 6,
-          fontSize: 14,
-          fontWeight: 500,
+          fontSize: 13,
+          fontWeight: 600,
           cursor: "pointer",
-          flexShrink: 0,
           whiteSpace: "nowrap",
+          padding: "0 12px",
+          height: "42px",
+          borderRadius: "12px",
+          background: "var(--glass-bg)",
+          border: "1px solid var(--glass-border)",
+          color: "var(--color-text-primary)",
         }}
       >
-        <span style={{ fontSize: 18 }}>{selected.flag}</span>
+        <span style={{ fontSize: 16 }}>{selected.flag}</span>
         <span>{selected.code}</span>
         <span style={{ marginLeft: "auto", opacity: 0.4, fontSize: 9 }}>▼</span>
       </button>
@@ -175,8 +180,8 @@ export function PhoneInput({ code, number, onCodeChange, onNumberChange, require
         onChange={e => onNumberChange(e.target.value)}
         required={required}
         placeholder="6XX XXX XXX"
-        className="input-glass w-full"
-        style={{ flex: 1, fontSize: 14 }}
+        className="input-glass"
+        style={{ flex: 1, minWidth: 0, fontSize: 14 }}
       />
     </div>
   );
