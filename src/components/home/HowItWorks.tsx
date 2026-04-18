@@ -1,274 +1,211 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { Search, GitCompare, FileCheck } from "lucide-react";
+import { motion } from "framer-motion";
+import { Search, Zap, FileText, Award, Mail, Plane } from "lucide-react";
+import Link from "next/link";
 
-const steps = [
-  {
-    step: "01",
-    icon: Search,
-    title: "Discover",
-    description:
-      "Search 12,000+ programs from 1,300+ universities. Filter by field, language, city, and scholarship availability.",
-    color: "var(--color-accent)",
-  },
-  {
-    step: "02",
-    icon: GitCompare,
-    title: "Compare",
-    description:
-      "Add up to 3 programs side-by-side. Compare tuition, ranking, living costs, and documents required.",
-    color: "var(--color-accent)",
-  },
-  {
-    step: "03",
-    icon: FileCheck,
-    title: "Apply",
-    description:
-      "Get a personalised document checklist and step-by-step guidance — or talk to an advisor on WhatsApp.",
-    color: "var(--color-accent-deep)",
-  },
+const STEPS = [
+  { n: 1, icon: Search, title: "Discover Your Match", desc: "Browse 500+ programs across 100+ top Chinese universities. Filter by field, language, scholarship eligibility, and budget.", color: "#48C59C" },
+  { n: 2, icon: Zap, title: "Get Your Quantum Report", desc: "Take our 5-minute Quantum Matching Quiz and receive a personalized report with your top university matches — completely free.", color: "#5DD4AE" },
+  { n: 3, icon: FileText, title: "Prepare Your Application", desc: "Our advisors guide you through every document: transcripts, study plan, recommendation letters, and more — step by step.", color: "#48C59C" },
+  { n: 4, icon: Award, title: "Apply for CSC Scholarship", desc: "We help you apply for the Chinese Government Scholarship (CSC) — fully funded tuition, accommodation & monthly stipend up to $500.", color: "#F5C518" },
+  { n: 5, icon: Mail, title: "Receive Your Admission Letter", desc: "Get accepted at a top-100 Chinese university. We maintain partnerships with 100+ universities to maximize your success rate.", color: "#48C59C" },
+  { n: 6, icon: Plane, title: "Arrive & Thrive", desc: "We support you from visa application to your first day in China. Join our student community and hit the ground running.", color: "#5DD4AE" },
 ];
 
-/* ── Animated SVG wire between steps ───────────────────────────
-   The line draws from left to right using Framer's pathLength.
-   A glowing dot rides just ahead of the drawn portion.
-*/
-function AnimatedConnector({ progress }: { progress: MotionValue<number> }) {
-  /* Line draws from 0 → 1 (fully visible) during first 72% of section scroll */
-  const lineLength = useTransform(progress, [0.04, 0.72], [0, 1]);
-  const lineOpacity = useTransform(progress, [0, 0.08], [0, 1]);
+const TRUST = [
+  { icon: "✓", label: "500+ Students Placed" },
+  { icon: "✓", label: "98% Visa Success Rate" },
+  { icon: "✓", label: "100+ Partner Universities" },
+  { icon: "✓", label: "Free CSC Guidance" },
+];
 
-  /* Travelling glow dot — x goes 0% → 100% of connector width */
-  const dotX       = useTransform(progress, [0.04, 0.72], ["0%", "100%"]);
-  const dotOpacity = useTransform(progress, [0.04, 0.10, 0.68, 0.74], [0, 1, 1, 0]);
-
-  return (
-    <div
-      className="hidden md:block absolute top-14 left-[calc(33%+2rem)] right-[calc(33%+2rem)]"
-      style={{ height: "2px", overflow: "visible" }}
-    >
-      {/* SVG line with pathLength animation */}
-      <svg
-        width="100%"
-        height="2"
-        viewBox="0 0 100 2"
-        preserveAspectRatio="none"
-        style={{ overflow: "visible" }}
-      >
-        <defs>
-          <filter id="wire-glow" x="-20%" y="-400%" width="140%" height="900%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Faint track */}
-        <line
-          x1="0" y1="1" x2="100" y2="1"
-          stroke="var(--color-accent)"
-          strokeWidth="0.5"
-          opacity="0.18"
-          strokeDasharray="3 3"
-        />
-
-        {/* Animated glowing line */}
-        <motion.line
-          x1="0" y1="1" x2="100" y2="1"
-          stroke="var(--color-accent)"
-          strokeLinecap="round"
-          filter="url(#wire-glow)"
-          style={{
-            pathLength: lineLength,
-            opacity: lineOpacity,
-            strokeWidth: 1.5,
-          }}
-        />
-      </svg>
-
-      {/* Glowing travelling dot */}
-      <motion.div
-        style={{
-          left: dotX,
-          opacity: dotOpacity,
-          position: "absolute",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: "var(--color-accent)",
-          boxShadow: "0 0 10px 4px var(--color-accent)",
-          pointerEvents: "none",
-        }}
-      />
-    </div>
-  );
-}
-
-/* ── Step card with 3D entrance + glow pulse ───────────────────
-   • existing: icon block rotates from tilted-back to flat on its own scroll
-   • new: coloured halo behind the icon ignites when the wire reaches this step
-*/
-function StepCard({
-  s,
-  i,
-  glowProgress,
-}: {
-  s: (typeof steps)[number];
-  i: number;
-  glowProgress: MotionValue<number>;
-}) {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  /* ─ Existing 3D entrance driven by the card's own scroll position ─ */
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start 95%", "start 40%"],
-  });
-  const rotateX   = useTransform(scrollYProgress, [0, 1], [18, 0]);
-  const translateY = useTransform(scrollYProgress, [0, 1], [30, 0]);
-  const scale3d   = useTransform(scrollYProgress, [0, 1], [0.88, 1]);
-  const opacity3d = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
-
-  /* ─ Glow halo — driven by section-level scrollYProgress ─ */
-  const glowOpacity = useTransform(glowProgress, [0.75, 1], [0, 1]);
-  const glowScale   = useTransform(glowProgress, [0.75, 1], [0.4, 1]);
-
-  return (
-    <div ref={cardRef} className="relative flex flex-col items-center text-center">
-      {/* Perspective wrapper for 3-D tilt */}
-      <div style={{ perspective: "700px", perspectiveOrigin: "50% 80%" }}>
-        <motion.div
-          style={{ rotateX, y: translateY, scale: scale3d, opacity: opacity3d }}
-          className="w-28 h-28 rounded-3xl flex items-center justify-center mb-6 relative"
-        >
-          {/* Glow halo — ignites when wire reaches this step */}
-          <motion.div
-            aria-hidden
-            style={{
-              opacity: glowOpacity,
-              scale: glowScale,
-              position: "absolute",
-              inset: -8,
-              borderRadius: "1.5rem",
-              background: `${s.color}18`,
-              boxShadow: `0 0 48px 8px ${s.color}44`,
-              pointerEvents: "none",
-            }}
-          />
-
-          {/* Icon box */}
-          <div
-            className="absolute inset-0 rounded-3xl"
-            style={{
-              background: `${s.color}12`,
-              border: `1px solid ${s.color}30`,
-              boxShadow: `0 0 40px ${s.color}22, inset 0 1px 0 rgba(255,255,255,0.10)`,
-            }}
-          />
-          <s.icon size={36} style={{ color: s.color, position: "relative" }} />
-
-          {/* Step number badge */}
-          <span
-            className="absolute -top-3 -right-3 w-7 h-7 rounded-full flex items-center justify-center text-xs font-heading font-black text-white"
-            style={{ background: s.color }}
-          >
-            {i + 1}
-          </span>
-        </motion.div>
-      </div>
-
-      {/* Text — standard fade-in-up */}
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.55, delay: i * 0.12 + 0.1, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <h3 className="font-heading font-black text-xl mb-3">{s.title}</h3>
-        <p
-          className="text-sm leading-relaxed max-w-xs"
-          style={{ color: "var(--color-text-secondary)" }}
-        >
-          {s.description}
-        </p>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ── Section ─────────────────────────────────────────────────── */
 export function HowItWorks() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  /* Section-level scroll progress:
-     0 → section top enters at 85% of viewport height
-     1 → section top reaches 10% of viewport height            */
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start 85%", "start 10%"],
-  });
-
-  /* Each step's glow fires when the wire reaches it:
-     step 0 → [0.00, 0.20]
-     step 1 → [0.30, 0.52]
-     step 2 → [0.62, 0.84]                                     */
-  const glowProgress = [
-    useTransform(scrollYProgress, [0.00, 0.20], [0, 1]),
-    useTransform(scrollYProgress, [0.30, 0.52], [0, 1]),
-    useTransform(scrollYProgress, [0.62, 0.84], [0, 1]),
-  ];
-
-  /* Heading scroll-in */
-  const headingOpacity = useTransform(scrollYProgress, [0, 0.18], [0, 1]);
-  const headingY       = useTransform(scrollYProgress, [0, 0.18], [28, 0]);
-
   return (
-    <section ref={sectionRef} className="section container-app relative">
+    <section className="section container-app relative">
       {/* Atmospheric blob */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-3xl opacity-5 pointer-events-none"
+        className="absolute left-1/2 -translate-x-1/2 w-[700px] h-[350px] rounded-full blur-3xl opacity-5 pointer-events-none"
         style={{ background: "var(--color-accent)" }}
       />
 
       {/* Heading */}
       <motion.div
-        style={{ opacity: headingOpacity, y: headingY }}
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="text-center mb-14"
       >
         <div className="badge badge-accent inline-flex mb-4">How it works</div>
         <h2 className="text-4xl md:text-5xl font-heading font-black mb-4">
-          Three steps to your{" "}
-          <span className="text-gradient">dream program</span>
+          How{" "}
+          <span className="text-gradient">Bridge4China</span>{" "}
+          Works
         </h2>
+        {/* Accent underline */}
+        <div
+          className="mx-auto mb-5"
+          style={{
+            width: 64,
+            height: 4,
+            borderRadius: 9999,
+            background: "var(--color-accent)",
+          }}
+        />
         <p
           className="text-lg max-w-xl mx-auto"
           style={{ color: "var(--color-text-secondary)" }}
         >
-          No more hours lost on scattered university websites. ChinaUniMatch gets
-          you from search to application in minutes.
+          From dream to degree — we guide you every step of the way.
         </p>
       </motion.div>
 
-      {/* Steps grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-        {/* Animated wire connector */}
-        <AnimatedConnector progress={scrollYProgress} />
+      {/* Steps grid — 2 columns desktop, 1 column mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        {STEPS.map((step, i) => {
+          const Icon = step.icon;
+          return (
+            <motion.div
+              key={step.n}
+              className="liquid-card"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.55, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              style={{ position: "relative", padding: "28px 24px" }}
+            >
+              {/* Step number circle */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 20,
+                  left: 20,
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: step.color,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "Montserrat, sans-serif",
+                  fontWeight: 900,
+                  fontSize: 15,
+                  color: step.color === "#F5C518" ? "#000" : "#000",
+                  flexShrink: 0,
+                }}
+              >
+                {step.n}
+              </div>
 
-        {steps.map((s, i) => (
-          <StepCard
-            key={s.step}
-            s={s}
-            i={i}
-            glowProgress={glowProgress[i]}
-          />
-        ))}
+              {/* Icon — top right area */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 20,
+                  right: 20,
+                  width: 40,
+                  height: 40,
+                  borderRadius: "0.75rem",
+                  background: `${step.color}18`,
+                  border: `1px solid ${step.color}30`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon size={20} style={{ color: step.color }} />
+              </div>
+
+              {/* Content — push below the top row */}
+              <div style={{ marginTop: 52 }}>
+                <h3
+                  className="font-heading font-black text-lg mb-2"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  {step.desc}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
+
+      {/* Trust badges row */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-wrap justify-center gap-3 mb-14"
+      >
+        {TRUST.map((t) => (
+          <div
+            key={t.label}
+            className="glass"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 18px",
+              borderRadius: 9999,
+            }}
+          >
+            <span
+              style={{
+                color: "var(--color-accent)",
+                fontWeight: 900,
+                fontSize: 14,
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              {t.icon}
+            </span>
+            <span
+              style={{
+                color: "var(--color-text-primary)",
+                fontWeight: 600,
+                fontSize: 13,
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              {t.label}
+            </span>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* CTA section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        className="text-center"
+      >
+        <h3 className="text-2xl md:text-3xl font-heading font-black mb-6">
+          Ready to Start Your Journey?
+        </h3>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Link href="/quiz" className="btn-accent btn-liquid">
+            Take the Quiz →
+          </Link>
+          <a
+            href="https://wa.me/212628345297"
+            className="btn-ghost btn-liquid"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Talk to an Advisor
+          </a>
+        </div>
+      </motion.div>
     </section>
   );
 }

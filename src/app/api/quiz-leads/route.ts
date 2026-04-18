@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getResend } from "@/lib/resend";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +39,14 @@ export async function POST(req: NextRequest) {
         leadSource: leadSource ?? "quiz",
       },
     });
+
+    // Non-blocking email notification
+    getResend().emails.send({
+      from: 'Bridge4China <onboarding@resend.dev>',
+      to: 'Antoineformula@gmail.com',
+      subject: `New Quiz Lead — ${fullName}`,
+      html: `<h2>New Quiz Lead</h2><p><b>Name:</b> ${fullName}</p><p><b>Email:</b> ${email}</p><p><b>WhatsApp:</b> ${whatsapp}</p><p><b>Country:</b> ${country || 'N/A'}</p>`,
+    }).catch(console.error)
 
     return NextResponse.json(lead, { status: 201 });
   } catch (error) {

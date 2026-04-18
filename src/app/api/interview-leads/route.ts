@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getResend } from "@/lib/resend";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,6 +26,14 @@ export async function POST(req: NextRequest) {
         serviceType,
       },
     });
+
+    // Non-blocking email notification
+    getResend().emails.send({
+      from: 'Bridge4China <onboarding@resend.dev>',
+      to: 'Antoineformula@gmail.com',
+      subject: `New ${serviceType === 'interview_prep' ? 'Interview Prep' : 'CSCA'} Lead — ${fullName}`,
+      html: `<h2>New Service Lead</h2><p><b>Service:</b> ${serviceType}</p><p><b>Name:</b> ${fullName}</p><p><b>Email:</b> ${email}</p><p><b>WhatsApp:</b> ${whatsapp}</p>`,
+    }).catch(console.error)
 
     return NextResponse.json(lead, { status: 201 });
   } catch (error) {
