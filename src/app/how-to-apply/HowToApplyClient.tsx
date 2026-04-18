@@ -258,7 +258,7 @@ export function HowToApplyClient() {
             </p>
 
             <a
-              href="https://wa.me/message/TOBEADDED"
+              href="https://wa.me/212628345297"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-accent text-base px-8 py-4"

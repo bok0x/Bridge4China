@@ -11,7 +11,7 @@ export function ConsultationCTA({
   heading = "Need Help?",
   subtext = "Our advisors are ready to guide you through every step of studying in China.",
   ctaLabel = "Chat with an Advisor",
-  ctaHref = "https://wa.me/message/TOBEADDED",
+  ctaHref = "https://wa.me/212628345297",
 }: ConsultationCTAProps) {
   const isExternal =
     ctaHref.startsWith("http://") || ctaHref.startsWith("https://");
