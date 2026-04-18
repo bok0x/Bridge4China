@@ -204,6 +204,24 @@ model InterviewLead {
   @@index([serviceType])
 }
 
+model IqResult {
+  id          String   @id @default(cuid())
+  userId      String?
+  sessionId   String
+  iqScore     Int
+  friScore    Int
+  qriScore    Int
+  vciScore    Int
+  vsiScore    Int
+  wmiScore    Int
+  percentile  Int
+  answers     Json
+  completedAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+}
+
 enum Degree {
   NON_DEGREE
   ASSOCIATE
