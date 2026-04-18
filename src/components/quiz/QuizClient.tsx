@@ -58,6 +58,13 @@ export default function QuizClient() {
     }
   }, [isMuted]);
 
+  function handleBack() {
+    if (currentQuestion > 0) {
+      setCurrentQuestion((q) => q - 1);
+      setDirection(-1); // slide right (reverse animation)
+    }
+  }
+
   function handleAnswer(questionId: string, value: string) {
     const newAnswers = { ...answers, [questionId]: value };
     setAnswers(newAnswers);
@@ -161,6 +168,10 @@ export default function QuizClient() {
     <QuizShell
       currentQuestion={currentQuestion}
       totalQuestions={QUIZ_QUESTIONS.length}
+      onBack={handleBack}
+      canGoBack={currentQuestion > 0}
+      isMuted={isMuted}
+      onToggleMute={toggleMute}
     >
       <AnimatePresence mode="wait" custom={direction}>
         <QuizQuestion
