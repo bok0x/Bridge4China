@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -17,8 +16,6 @@ const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
 type Step = "details" | "otp";
 
 export default function SignupPage() {
-  const router = useRouter();
-
   // Step state
   const [step, setStep] = useState<Step>("details");
 
@@ -77,8 +74,7 @@ export default function SignupPage() {
       window.removeEventListener("message", onMessage);
       clearInterval(pollClosed);
       if (e.data === "oauth-success") {
-        router.push("/dashboard");
-        router.refresh();
+        window.location.href = "/dashboard";
       } else {
         setError("Sign-up was cancelled or failed.");
         setSocialLoading(null);
@@ -155,7 +151,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/dashboard");
+    window.location.href = "/dashboard";
   }
 
   async function handleResend() {

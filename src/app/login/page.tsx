@@ -47,8 +47,7 @@ function LoginForm() {
       window.removeEventListener("message", onMessage);
       clearInterval(pollClosed);
       if (e.data === "oauth-success") {
-        router.push(redirect);
-        router.refresh();
+        window.location.href = redirect;
       } else {
         setError("Sign-in was cancelled or failed.");
         setSocialLoading(null);
