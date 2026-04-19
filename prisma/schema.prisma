@@ -222,6 +222,18 @@ model IqResult {
   @@index([sessionId])
 }
 
+model QuizOtp {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  formData  Json
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
 enum Degree {
   NON_DEGREE
   ASSOCIATE

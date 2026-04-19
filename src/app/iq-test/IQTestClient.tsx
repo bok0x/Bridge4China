@@ -1,18 +1,16 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useSearchParams } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
 import {
-  buildSession, IQQuestion, SessionAnswer, IQScores
+  buildSession, scoreSession, IQQuestion, SessionAnswer, IQScores
 } from "./iqTestData";
 import { IQBackground } from "./IQBackground";
 import { IQTestShell } from "./IQTestShell";
 import { IQQuestion as IQQuestionComp } from "./IQQuestion";
-import { IQLockScreen } from "./IQLockScreen";
+import { IQLeadGate } from "./IQLeadGate";
 import { IQResults } from "./IQResults";
 
-type Phase = "test" | "lock" | "results";
+type Phase = "test" | "form" | "results";
 
 const CATEGORY_LABELS: Record<string, string> = {
   matrix: "Fluid Reasoning",
@@ -29,9 +27,6 @@ function getSessionId(): string {
 }
 
 export function IQTestClient() {
-  const searchParams = useSearchParams();
-  const unlockSession = searchParams.get("unlock");
-
   const [phase, setPhase] = useState<Phase>("test");
   const [questions] = useState<IQQuestion[]>(() => buildSession());
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -41,25 +36,6 @@ export function IQTestClient() {
   const [direction] = useState<1 | -1>(1);
   const questionStartRef = useRef<number>(Date.now());
   const sessionId = useRef(getSessionId());
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  useEffect(() => {
-    if (!unlockSession) return;
-    const saved = localStorage.getItem(`iq_answers_${unlockSession}`);
-    if (!saved) return;
-    const savedAnswers: SessionAnswer[] = JSON.parse(saved);
-    fetch("/api/iq-results", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId: unlockSession, answers: savedAnswers }),
-    })
-      .then(r => r.json())
-      .then(data => { setScores(data.scores); setPhase("results"); });
-  }, [unlockSession]);
 
   const playNext = () => {
     try {
@@ -93,33 +69,32 @@ export function IQTestClient() {
       questionStartRef.current = Date.now();
 
       if (currentIdx + 1 >= questions.length) {
-        localStorage.setItem(`iq_answers_${sessionId.current}`, JSON.stringify(newAnswers));
-        supabase.auth.getUser().then(({ data: { user } }) => {
-          if (user) {
-            fetch("/api/iq-results", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sessionId: sessionId.current, answers: newAnswers }),
-            })
-              .then(r => r.json())
-              .then(data => { setScores(data.scores); setPhase("results"); });
-          } else {
-            setPhase("lock");
-          }
-        });
+        const computed = scoreSession(newAnswers);
+        setScores(computed);
+        setPhase("form");
       } else {
         setCurrentIdx(i => i + 1);
       }
     }, 350);
-  }, [answers, currentIdx, questions, supabase]);
+  }, [answers, currentIdx, questions]);
 
   const currentQ = questions[currentIdx];
 
+  if (phase === "form" && scores) {
+    return (
+      <IQLeadGate
+        scores={scores}
+        sessionId={sessionId.current}
+        onUnlocked={() => setPhase("results")}
+      />
+    );
+  }
+
   return (
-    <div style={{ minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 0 40px",position:"relative" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0 40px", position: "relative" }}>
       <IQBackground />
 
-      <div style={{ position:"relative",zIndex:10,width:"100%",maxWidth:480,padding:"0 20px" }}>
+      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 480, padding: "0 20px" }}>
         {phase === "test" && currentQ && (
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -146,14 +121,8 @@ export function IQTestClient() {
           </AnimatePresence>
         )}
 
-        {phase === "lock" && (
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}>
-            <IQLockScreen sessionId={sessionId.current} />
-          </motion.div>
-        )}
-
         {phase === "results" && scores && (
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.6 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <IQResults scores={scores} />
           </motion.div>
         )}

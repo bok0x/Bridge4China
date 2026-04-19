@@ -8,9 +8,10 @@ import QuizShell from "./QuizShell";
 import QuizQuestion from "./QuizQuestion";
 import QuizLeadForm from "./QuizLeadForm";
 import QuizResult from "./QuizResult";
+import { QuizOTPStep } from "./QuizOTPStep";
 import { QUIZ_QUESTIONS, getRecommendations, Recommendation } from "./quizData";
 
-type Phase = "quiz" | "lead_form" | "result";
+type Phase = "quiz" | "lead_form" | "otp" | "result";
 
 export default function QuizClient() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -18,6 +19,7 @@ export default function QuizClient() {
   const [phase, setPhase] = useState<Phase>("quiz");
   const [direction, setDirection] = useState(1);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [pendingEmail, setPendingEmail] = useState("");
   const [isMuted, setIsMuted] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -83,14 +85,20 @@ export default function QuizClient() {
     }, 350);
   }
 
-  function handleLeadFormSuccess() {
+  function handleOTPSent(email: string) {
+    setPendingEmail(email);
+    setPhase("otp");
+  }
+
+  function handleOTPVerified() {
+    window.open("https://chat.whatsapp.com/CLglLgiCl0BCCv7qhquEW0", "_blank", "noopener,noreferrer");
     setPhase("result");
   }
 
   const question = QUIZ_QUESTIONS[currentQuestion];
 
   // Lead form phase — render without quiz shell chrome
-  if (phase === "lead_form" || phase === "result") {
+  if (phase === "lead_form" || phase === "otp" || phase === "result") {
     return (
       <div className="quiz-full-screen">
         {/* Starfield background */}
@@ -105,8 +113,10 @@ export default function QuizClient() {
             <QuizLeadForm
               quizAnswers={answers}
               recommendations={recommendations}
-              onSuccess={handleLeadFormSuccess}
+              onOTPSent={handleOTPSent}
             />
+          ) : phase === "otp" ? (
+            <QuizOTPStep email={pendingEmail} onVerified={handleOTPVerified} />
           ) : (
             <QuizResult recommendations={recommendations} />
           )}
