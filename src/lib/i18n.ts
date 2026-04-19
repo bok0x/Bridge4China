@@ -18,11 +18,17 @@ export const translations = {
   // ── English ──────────────────────────────────────────────────────────────
   en: {
     // Nav
-    nav_discover:     "Discover",
-    nav_compare:      "Compare",
-    nav_scholarships: "Scholarships",
-    nav_apply:        "Apply",
-    apply_now:        "Apply Now",
+    nav_discover:         "Discover",
+    nav_compare:          "Compare",
+    nav_scholarships:     "Scholarships",
+    nav_apply:            "Apply",
+    apply_now:            "Apply Now",
+    nav_cost_of_living:   "Cost of Living",
+    nav_universities:     "Universities",
+    nav_lifestyle:        "Lifestyle",
+    nav_dashboard:        "Dashboard",
+    nav_sign_out:         "Sign out",
+    nav_sign_in:          "Sign in",
 
     // Hero
     badge:            "AI-Powered University Matching",
@@ -96,11 +102,17 @@ export const translations = {
 
   // ── Arabic ────────────────────────────────────────────────────────────────
   ar: {
-    nav_discover:     "اكتشف",
-    nav_compare:      "قارن",
-    nav_scholarships: "المنح",
-    nav_apply:        "التقديم",
-    apply_now:        "قدّم الآن",
+    nav_discover:         "اكتشف",
+    nav_compare:          "قارن",
+    nav_scholarships:     "المنح",
+    nav_apply:            "التقديم",
+    apply_now:            "قدّم الآن",
+    nav_cost_of_living:   "تكلفة المعيشة",
+    nav_universities:     "الجامعات",
+    nav_lifestyle:        "نمط الحياة",
+    nav_dashboard:        "لوحة التحكم",
+    nav_sign_out:         "تسجيل الخروج",
+    nav_sign_in:          "تسجيل الدخول",
 
     badge:            "مطابقة الجامعات بالذكاء الاصطناعي",
     headline_1:       "ابحث عن جامعتك المثالية",
@@ -167,11 +179,17 @@ export const translations = {
 
   // ── French ────────────────────────────────────────────────────────────────
   fr: {
-    nav_discover:     "Découvrir",
-    nav_compare:      "Comparer",
-    nav_scholarships: "Bourses",
-    nav_apply:        "Postuler",
-    apply_now:        "Postuler",
+    nav_discover:         "Découvrir",
+    nav_compare:          "Comparer",
+    nav_scholarships:     "Bourses",
+    nav_apply:            "Postuler",
+    apply_now:            "Postuler",
+    nav_cost_of_living:   "Coût de la vie",
+    nav_universities:     "Universités",
+    nav_lifestyle:        "Mode de vie",
+    nav_dashboard:        "Tableau de bord",
+    nav_sign_out:         "Se déconnecter",
+    nav_sign_in:          "Se connecter",
 
     badge:            "Correspondance Universitaire par IA",
     headline_1:       "Trouvez Votre Université",
@@ -238,11 +256,17 @@ export const translations = {
 
   // ── Russian ───────────────────────────────────────────────────────────────
   ru: {
-    nav_discover:     "Обзор",
-    nav_compare:      "Сравнение",
-    nav_scholarships: "Стипендии",
-    nav_apply:        "Поступление",
-    apply_now:        "Подать заявку",
+    nav_discover:         "Обзор",
+    nav_compare:          "Сравнение",
+    nav_scholarships:     "Стипендии",
+    nav_apply:            "Поступление",
+    apply_now:            "Подать заявку",
+    nav_cost_of_living:   "Стоимость жизни",
+    nav_universities:     "Университеты",
+    nav_lifestyle:        "Образ жизни",
+    nav_dashboard:        "Панель управления",
+    nav_sign_out:         "Выйти",
+    nav_sign_in:          "Войти",
 
     badge:            "Подбор университетов с ИИ",
     headline_1:       "Найдите Идеальный",

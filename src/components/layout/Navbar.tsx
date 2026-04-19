@@ -11,12 +11,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useCurrency, Currency } from "@/contexts/CurrencyContext";
-
-const NAV_LINKS = [
-  { label: "Cost of Living",  href: "/cost-of-living" },
-  { label: "Universities",    href: "/discover" },
-  { label: "Lifestyle",       href: "/lifestyle" },
-] as const;
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CURRENCY_OPTIONS: Record<Currency, { flag: string; symbol: string; title: string; activeGradient: string; activeBorder: string }> = {
   USD: { flag: "🇺🇸", symbol: "$",    title: "US Dollar",        activeGradient: "linear-gradient(135deg,#1C3F8A 0%,#BF0A30 100%)", activeBorder: "#BF0A30" },
@@ -94,6 +89,13 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { programs: compared } = useComparisonStore();
+  const { t } = useLanguage();
+
+  const NAV_LINKS = [
+    { labelKey: "nav_cost_of_living" as const, href: "/cost-of-living" },
+    { labelKey: "nav_universities"   as const, href: "/discover" },
+    { labelKey: "nav_lifestyle"      as const, href: "/lifestyle" },
+  ];
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -162,7 +164,7 @@ export function Navbar() {
               className="px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              {link.label}
+              {t(link.labelKey)}
             </Link>
           ))}
         </nav>
@@ -190,21 +192,21 @@ export function Navbar() {
             <div className="hidden md:flex items-center gap-2">
               <Link href="/dashboard" className="btn-ghost text-sm py-2 flex items-center gap-1.5">
                 <LayoutDashboard size={14} />
-                Dashboard
+                {t("nav_dashboard")}
               </Link>
               <button onClick={handleSignOut} className="btn-ghost text-sm py-2 flex items-center gap-1.5">
                 <LogOut size={14} />
-                Sign out
+                {t("nav_sign_out")}
               </button>
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Link href="/login" className="btn-ghost text-sm py-2 flex items-center gap-1.5">
                 <LogIn size={14} />
-                Sign in
+                {t("nav_sign_in")}
               </Link>
               <Link href="/apply" className="btn-accent btn-liquid text-sm py-2">
-                Apply Now
+                {t("apply_now")}
               </Link>
             </div>
           )}
@@ -235,7 +237,7 @@ export function Navbar() {
                 className="px-4 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--color-accent-muted)] hover:text-[var(--color-accent)]"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
             {user ? (
@@ -245,13 +247,13 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="mt-2 btn-ghost text-center flex items-center justify-center gap-2"
                 >
-                  <LayoutDashboard size={14} /> Dashboard
+                  <LayoutDashboard size={14} /> {t("nav_dashboard")}
                 </Link>
                 <button
                   onClick={handleSignOut}
                   className="btn-ghost text-center flex items-center justify-center gap-2 w-full"
                 >
-                  <LogOut size={14} /> Sign out
+                  <LogOut size={14} /> {t("nav_sign_out")}
                 </button>
               </>
             ) : (
@@ -261,14 +263,14 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="mt-2 btn-ghost text-center"
                 >
-                  Sign in
+                  {t("nav_sign_in")}
                 </Link>
                 <Link
                   href="/apply"
                   onClick={() => setOpen(false)}
                   className="mt-1 btn-accent btn-liquid text-center"
                 >
-                  Apply Now
+                  {t("apply_now")}
                 </Link>
               </>
             )}

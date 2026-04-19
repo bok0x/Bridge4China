@@ -3,56 +3,47 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useFormState, useFormStatus } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SITE_NAME } from "@/lib/constants";
+import { signInAction } from "./actions";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className="btn-accent w-full justify-center">
+      {pending ? "Signing in…" : "Sign in"}
+    </button>
+  );
+}
 
 function LoginForm() {
-
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [socialError, setSocialError] = useState("");
+
+  const [state, formAction] = useFormState(signInAction, { error: "" });
 
   async function handleSocialLogin(provider: "google" | "facebook") {
     setSocialLoading(provider);
-    setError("");
+    setSocialError("");
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${redirect}` },
     });
     if (authError) {
-      setError(authError.message);
+      setSocialError(authError.message);
       setSocialLoading(null);
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (authError) {
-      const msg = authError.message.toLowerCase();
-      if (msg.includes("invalid login credentials") || msg.includes("invalid credentials")) {
-        setError("No account found or wrong password. Sign up instead.");
-      } else {
-        setError(authError.message);
-      }
-      setLoading(false);
-      return;
-    }
-
-    window.location.href = redirect;
-  }
+  const error = state.error || socialError;
 
   return (
     <div className="min-h-screen flex items-center justify-center pt-20 pb-16 px-4">
@@ -100,13 +91,15 @@ function LoginForm() {
             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form action={formAction} className="space-y-4">
+            <input type="hidden" name="redirect" value={redirect} />
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
                 Email
               </label>
               <input
                 type="email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -122,6 +115,7 @@ function LoginForm() {
               </label>
               <input
                 type="password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -139,13 +133,7 @@ function LoginForm() {
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-accent w-full justify-center"
-            >
-              {loading ? "Signing in…" : "Sign in"}
-            </button>
+            <SubmitButton />
           </form>
 
           <p className="text-center text-sm mt-5" style={{ color: "var(--color-text-secondary)" }}>
