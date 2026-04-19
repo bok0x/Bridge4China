@@ -41,7 +41,12 @@ function LoginForm() {
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
-      setError(authError.message);
+      const msg = authError.message.toLowerCase();
+      if (msg.includes("invalid login credentials") || msg.includes("invalid credentials")) {
+        setError("No account found or wrong password. Sign up instead.");
+      } else {
+        setError(authError.message);
+      }
       setLoading(false);
       return;
     }
@@ -128,7 +133,9 @@ function LoginForm() {
 
             {error && (
               <p className="text-sm rounded-xl px-4 py-3" style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}>
-                {error}
+                {error.includes("Sign up instead") ? (
+                  <>{error.replace(" Sign up instead.", "")} <Link href="/signup" style={{ color: "#f87171", fontWeight: 700, textDecoration: "underline" }}>Sign up instead →</Link></>
+                ) : error}
               </p>
             )}
 
