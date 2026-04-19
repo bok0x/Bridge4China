@@ -177,7 +177,7 @@ export function PhoneInput({ code, number, onCodeChange, onNumberChange, require
       <input
         type="tel"
         value={number}
-        onChange={e => onNumberChange(e.target.value)}
+        onChange={e => onNumberChange(e.target.value.replace(/\D/g, ""))}
         required={required}
         placeholder="6XX XXX XXX"
         className="input-glass"

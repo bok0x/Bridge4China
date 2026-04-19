@@ -30,9 +30,9 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
 
   if (isAdmin) {
     const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim());
-    if (!adminEmails.includes(user.email ?? "")) {
+    if (!adminEmails.includes(session.user.email ?? "")) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
