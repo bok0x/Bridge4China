@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       {
         cookies: {
           getAll: () => request.cookies.getAll(),
-          setAll: (cookiesToSet) => {
+          setAll: (cookiesToSet: { name: string; value: string; options?: object }[]) => {
             cookiesToSet.forEach(({ name, value, options }) =>
               redirectTo.cookies.set(name, value, (options ?? {}) as Parameters<typeof redirectTo.cookies.set>[2])
             );
