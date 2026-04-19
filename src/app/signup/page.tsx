@@ -154,13 +154,13 @@ export default function SignupPage() {
             </div>
             <h1 className="text-2xl font-heading font-black mb-2">Check your email</h1>
             <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              We sent a 6-digit code to <strong style={{ color: "var(--color-text-primary)" }}>{email}</strong>
+              We sent an 8-digit code to <strong style={{ color: "var(--color-text-primary)" }}>{email}</strong>
             </p>
           </div>
 
           <GlassCard>
             <div className="space-y-6">
-              <OTPInput onComplete={handleOTPComplete} disabled={otpLoading} />
+              <OTPInput length={8} onComplete={handleOTPComplete} disabled={otpLoading} />
 
               {otpError && (
                 <p className="text-sm rounded-xl px-4 py-3 text-center" style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}>
