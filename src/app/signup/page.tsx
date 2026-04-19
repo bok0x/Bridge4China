@@ -93,7 +93,12 @@ export default function SignupPage() {
     });
 
     if (authError) {
-      setError(authError.message);
+      const msg = authError.message.toLowerCase();
+      if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("email address is already")) {
+        setError("An account with this email already exists. Please sign in instead.");
+      } else {
+        setError(authError.message);
+      }
       setLoading(false);
       return;
     }
@@ -356,7 +361,9 @@ export default function SignupPage() {
 
             {error && (
               <p className="text-sm rounded-xl px-4 py-3" style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}>
-                {error}
+                {error.includes("sign in instead") ? (
+                  <>{error.replace(" Please sign in instead.", "")} <Link href="/login" style={{ color: "#f87171", fontWeight: 700, textDecoration: "underline" }}>Sign in instead →</Link></>
+                ) : error}
               </p>
             )}
 
