@@ -20,6 +20,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 function getSessionId(): string {
+  if (typeof window === "undefined") return "";
   const key = "iq_session_id";
   let id = sessionStorage.getItem(key);
   if (!id) { id = crypto.randomUUID(); sessionStorage.setItem(key, id); }
