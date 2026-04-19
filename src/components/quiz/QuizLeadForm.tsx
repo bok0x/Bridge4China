@@ -8,13 +8,13 @@ import { Recommendation } from "./quizData";
 interface QuizLeadFormProps {
   quizAnswers: Record<string, string>;
   recommendations: Recommendation[];
-  onOTPSent: (email: string) => void;
+  onSuccess: () => void;
 }
 
 export default function QuizLeadForm({
   quizAnswers,
   recommendations,
-  onOTPSent,
+  onSuccess,
 }: QuizLeadFormProps) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,7 +28,7 @@ export default function QuizLeadForm({
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/otp/send", {
+      const res = await fetch("/api/quiz-leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -36,7 +36,8 @@ export default function QuizLeadForm({
           email,
           whatsapp,
           quizAnswers,
-          recommendations,
+          recommendedMajors: recommendations.map(r => r.major),
+          recommendedUniversities: recommendations.map(r => r.university),
           leadSource: "quiz",
         }),
       });
@@ -46,7 +47,7 @@ export default function QuizLeadForm({
         throw new Error(data.error ?? "Something went wrong. Please try again.");
       }
 
-      onOTPSent(email);
+      onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
