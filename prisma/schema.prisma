@@ -234,6 +234,21 @@ model QuizOtp {
   @@index([email])
 }
 
+model IqTestResult {
+  id            String   @id @default(cuid())
+  fullName      String
+  email         String
+  whatsapp      String
+  iqScore       Int
+  percentile    Int
+  versionNumber Int
+  totalTimeMs   Int
+  createdAt     DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
+}
+
 enum Degree {
   NON_DEGREE
   ASSOCIATE
