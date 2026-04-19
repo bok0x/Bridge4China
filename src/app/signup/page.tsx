@@ -52,14 +52,47 @@ export default function SignupPage() {
     setSocialLoading(provider);
     setError("");
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithOAuth({
+
+    const { data, error: authError } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?popup=true`,
+        skipBrowserRedirect: true,
+      },
     });
-    if (authError) {
-      setError(authError.message);
+
+    if (authError || !data.url) {
+      setError(authError?.message ?? "Failed to connect");
       setSocialLoading(null);
+      return;
     }
+
+    const w = 500, h = 620;
+    const left = window.screenX + (window.outerWidth - w) / 2;
+    const top = window.screenY + (window.outerHeight - h) / 2;
+    const popup = window.open(data.url, "oauth", `width=${w},height=${h},left=${left},top=${top},scrollbars=yes`);
+
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      window.removeEventListener("message", onMessage);
+      clearInterval(pollClosed);
+      if (e.data === "oauth-success") {
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        setError("Sign-up was cancelled or failed.");
+        setSocialLoading(null);
+      }
+    };
+    window.addEventListener("message", onMessage);
+
+    const pollClosed = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(pollClosed);
+        window.removeEventListener("message", onMessage);
+        setSocialLoading(null);
+      }
+    }, 500);
   }
 
   function validateDetails(): string | null {
@@ -229,7 +262,7 @@ export default function SignupPage() {
               style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", color: "var(--color-text-primary)" }}
             >
               <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 33.4 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.4 35.5 26.8 36 24 36c-5.3 0-9.7-3.6-11.3-8.5l-6.5 5C9.6 39.5 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.5l6.2 5.2C41 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
-              {socialLoading === "google" ? "Redirecting…" : "Sign up with Google"}
+              {socialLoading === "google" ? "Opening…" : "Sign up with Google"}
             </button>
             <button
               type="button"
@@ -239,7 +272,7 @@ export default function SignupPage() {
               style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", color: "var(--color-text-primary)" }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.5h-2.79V24C19.62 23.1 24 18.1 24 12.07z"/></svg>
-              {socialLoading === "facebook" ? "Redirecting…" : "Sign up with Facebook"}
+              {socialLoading === "facebook" ? "Opening…" : "Sign up with Facebook"}
             </button>
           </div>
 
