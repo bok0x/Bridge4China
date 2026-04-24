@@ -2,43 +2,79 @@
 import { useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  buildSession, scoreSession, IQQuestion, SessionAnswer, IQScores
+  QUESTION_BANK,
+  getVersionQuestions,
+  getTimerSeconds,
+  scoreSession,
+  pickVersion,
+  IQQuestionData,
+  SessionAnswer,
+  IQScores,
 } from "./iqTestData";
 import { IQBackground } from "./IQBackground";
 import { IQTestShell } from "./IQTestShell";
 import { IQQuestion as IQQuestionComp } from "./IQQuestion";
+import { IQTimer } from "./IQTimer";
 import { IQLeadGate } from "./IQLeadGate";
 import { IQResults } from "./IQResults";
 
 type Phase = "test" | "form" | "results";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  matrix: "Fluid Reasoning",
-  number_series: "Quantitative Reasoning",
-  verbal: "Verbal Comprehension",
-  spatial: "Visual-Spatial",
+  matrix:        "Matrix Reasoning",
+  rotation:      "Shape Rotation",
+  symbol_grid:   "Symbol Grid",
+  sequence:      "Visual Sequence",
+  mirror:        "Mirror Reflection",
+  number_series: "Number Series",
+  word_problem:  "Word Problem",
+  visual_math:   "Visual Math",
 };
 
-function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  const key = "iq_session_id";
-  let id = sessionStorage.getItem(key);
-  if (!id) { id = crypto.randomUUID(); sessionStorage.setItem(key, id); }
-  return id;
-}
-
 export function IQTestClient() {
-  const [phase, setPhase] = useState<Phase>("test");
-  const [questions] = useState<IQQuestion[]>(() => buildSession());
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<SessionAnswer[]>([]);
+  const versionRef   = useRef<number>(pickVersion());
+  const [questions]  = useState<IQQuestionData[]>(() =>
+    getVersionQuestions(QUESTION_BANK, versionRef.current)
+  );
+  const [phase, setPhase]             = useState<Phase>("test");
+  const [currentIdx, setCurrentIdx]   = useState(0);
+  const [answers, setAnswers]         = useState<SessionAnswer[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [scores, setScores] = useState<IQScores | null>(null);
-  const [direction] = useState<1 | -1>(1);
-  const questionStartRef = useRef<number>(Date.now());
-  const sessionId = useRef(getSessionId());
+  const [scores, setScores]           = useState<IQScores | null>(null);
+  const testStartMs                   = useRef<number>(Date.now());
+  const questionStartMs               = useRef<number>(Date.now());
+  const [timerKey, setTimerKey]       = useState(0); // remounts IQTimer on question change
 
-  const playNext = () => {
+  const advance = useCallback((selectedIdx: number | null) => {
+    const timeMs = Date.now() - questionStartMs.current;
+    const q = questions[currentIdx];
+
+    const answer: SessionAnswer = {
+      questionId: q.id,
+      selectedIndex: selectedIdx ?? -1, // -1 = timed out
+      timeMs,
+    };
+
+    const newAnswers = [...answers, answer];
+    setAnswers(newAnswers);
+    setSelectedIndex(null);
+
+    const isLast = currentIdx + 1 >= questions.length;
+
+    if (isLast) {
+      const computed = scoreSession(questions, newAnswers);
+      setScores(computed);
+      setPhase("form");
+    } else {
+      setTimeout(() => {
+        setCurrentIdx(i => i + 1);
+        questionStartMs.current = Date.now();
+        setTimerKey(k => k + 1);
+      }, selectedIdx !== null ? 350 : 0);
+    }
+  }, [answers, currentIdx, questions]);
+
+  function playSelect() {
     try {
       const ac = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       [[400, 0, "triangle"], [600, 80, "sine"], [800, 160, "sine"]].forEach(([f, d, t]) => {
@@ -51,41 +87,30 @@ export function IQTestClient() {
           o.start(); o.stop(ac.currentTime + 0.18);
         }, d as number);
       });
-    } catch {}
-  };
+    } catch { /**/ }
+  }
 
   const handleSelect = useCallback((index: number) => {
+    if (selectedIndex !== null) return;
+    playSelect();
     setSelectedIndex(index);
-    const timeMs = Date.now() - questionStartRef.current;
-    const answer: SessionAnswer = {
-      questionId: questions[currentIdx].id,
-      selectedIndex: index,
-      timeMs,
-    };
+    setTimeout(() => advance(index), 350);
+  }, [selectedIndex, advance]);
 
-    setTimeout(() => {
-      const newAnswers = [...answers, answer];
-      setAnswers(newAnswers);
-      setSelectedIndex(null);
-      questionStartRef.current = Date.now();
-
-      if (currentIdx + 1 >= questions.length) {
-        const computed = scoreSession(newAnswers);
-        setScores(computed);
-        setPhase("form");
-      } else {
-        setCurrentIdx(i => i + 1);
-      }
-    }, 350);
-  }, [answers, currentIdx, questions]);
+  const handleTimeout = useCallback(() => {
+    advance(null);
+  }, [advance]);
 
   const currentQ = questions[currentIdx];
+  const timerSeconds = getTimerSeconds(currentIdx + 1);
+  const totalTimeMs = Date.now() - testStartMs.current;
 
   if (phase === "form" && scores) {
     return (
       <IQLeadGate
         scores={scores}
-        sessionId={sessionId.current}
+        versionNumber={versionRef.current}
+        totalTimeMs={totalTimeMs}
         onUnlocked={() => setPhase("results")}
       />
     );
@@ -95,22 +120,27 @@ export function IQTestClient() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0 40px", position: "relative" }}>
       <IQBackground />
 
-      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 480, padding: "0 20px" }}>
+      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 500, padding: "0 20px" }}>
         {phase === "test" && currentQ && (
-          <AnimatePresence mode="wait" custom={direction}>
+          <AnimatePresence mode="wait">
             <motion.div
               key={currentQ.id}
-              custom={direction}
-              initial={{ x: direction * 72, opacity: 0, rotateY: direction * -9 }}
+              initial={{ x: 60, opacity: 0, rotateY: -8 }}
               animate={{ x: 0, opacity: 1, rotateY: 0 }}
-              exit={{ x: direction * -72, opacity: 0, rotateY: direction * 9 }}
+              exit={{ x: -60, opacity: 0, rotateY: 8 }}
               transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              onAnimationStart={() => playNext()}
             >
               <IQTestShell
                 current={currentIdx + 1}
                 total={questions.length}
-                category={CATEGORY_LABELS[currentQ.type]}
+                category={CATEGORY_LABELS[currentQ.type] ?? currentQ.type}
+                timerSlot={
+                  <IQTimer
+                    key={timerKey}
+                    seconds={timerSeconds}
+                    onExpire={handleTimeout}
+                  />
+                }
               >
                 <IQQuestionComp
                   question={currentQ}
