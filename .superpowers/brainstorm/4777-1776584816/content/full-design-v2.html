@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Test Redesign — Full Design v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #020705; color: #E8F5F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px; min-height: 100vh; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; background: linear-gradient(135deg, #48C59C, #5DD4AE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { color: rgba(232,245,240,0.40); font-size: 13px; margin-bottom: 28px; }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #48C59C; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: #071410; }
+
+  /* ANIMATED BG BEHIND MOCKUP */
+  .mockup-wrapper {
+    position: relative;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.22;
+    animation: float 7s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .orb1 { width: 220px; height: 220px; background: #48C59C; top: -80px; left: -80px; animation-delay: 0s; }
+  .orb2 { width: 160px; height: 160px; background: #1a7a5a; bottom: -60px; right: -60px; animation-delay: 2.5s; }
+  .orb3 { width: 120px; height: 120px; background: #5DD4AE; top: 35%; left: 55%; animation-delay: 5s; }
+  @keyframes float {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(14px, -14px) scale(1.06); }
+  }
+
+  /* GLASS CARD — matches IQTestShell */
+  .quiz-mockup {
+    position: relative; z-index: 1;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(32px) saturate(210%) brightness(1.08);
+    border: 1px solid rgba(255,255,255,0.20);
+    border-top: 1px solid rgba(255,255,255,0.42);
+    border-radius: 28px;
+    padding: 24px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.38),
+      inset 0 -2px 10px rgba(0,0,0,.28),
+      0 30px 72px rgba(0,0,0,.55),
+      0 0 60px rgba(72,197,156,0.06);
+  }
+  /* shimmer overlay */
+  .quiz-mockup::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: 28px;
+    background: linear-gradient(148deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.04) 28%, transparent 52%, rgba(72,197,156,.04) 78%, rgba(0,0,0,.07) 100%);
+    pointer-events: none; z-index: 0;
+  }
+  .quiz-mockup::after {
+    content: '';
+    position: absolute; top:0; left:8%; right:8%; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.65) 35%, rgba(255,255,255,.95) 50%, rgba(255,255,255,.65) 65%, transparent);
+    pointer-events: none; z-index: 4;
+  }
+  .quiz-inner { position: relative; z-index: 5; }
+
+  /* HEADER ROW */
+  .timer-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .q-label { font-size: 11px; font-weight: 700; color: #48C59C; letter-spacing: 1px; text-transform: uppercase; }
+  .q-counter { font-size: 11px; color: rgba(232,245,240,0.40); font-weight: 500; }
+  .timer-badge {
+    background: rgba(72,197,156,0.12);
+    border: 1px solid rgba(72,197,156,0.35);
+    color: #48C59C;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(8px);
+    animation: pulse-timer 1s ease-in-out infinite;
+  }
+  .timer-badge.urgent {
+    background: rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.4);
+    color: #f87171;
+  }
+  @keyframes pulse-timer {
+    0%,100% { box-shadow: 0 0 0 0 rgba(72,197,156,0); }
+    50% { box-shadow: 0 0 14px 2px rgba(72,197,156,0.25); }
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #48C59C, #5DD4AE); border-radius: 99px; width: 23%; box-shadow: 0 0 10px rgba(72,197,156,0.7); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+  /* QUESTION CARD — inner glass pane */
+  .question-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    min-height: 190px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .matrix { display: grid; grid-template-columns: repeat(3, 58px); gap: 3px; }
+  .cell {
+    width: 58px; height: 58px;
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #E8F5F0;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+  }
+  .cell.missing {
+    border: 1.5px dashed rgba(72,197,156,0.6);
+    color: #48C59C;
+    background: rgba(72,197,156,0.05);
+  }
+
+  /* ANSWER OPTIONS */
+  .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .opt {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 11px 6px;
+    text-align: center;
+    font-size: 14px;
+    color: rgba(232,245,240,0.60);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .opt.selected {
+    background: rgba(72,197,156,0.12);
+    border-color: rgba(72,197,156,0.45);
+    color: #E8F5F0;
+    box-shadow: inset 0 1px 0 rgba(72,197,156,0.2);
+  }
+  .opt .ltr { font-size: 10px; color: rgba(232,245,240,0.35); font-weight: 600; }
+  .opt.selected .ltr { color: #48C59C; }
+
+  /* SECTIONS BELOW MOCKUP */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .info-card h4 { font-size: 12px; color: #48C59C; margin-bottom: 8px; font-weight: 600; }
+  .info-card p { font-size: 12px; color: rgba(232,245,240,0.40); line-height: 1.5; }
+  .tag { display: inline-block; background: rgba(72,197,156,0.10); border: 1px solid rgba(72,197,156,0.22); color: #48C59C; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin: 2px; }
+  .flow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+  .flow-step { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 10px; font-size: 11px; color: rgba(232,245,240,0.60); }
+  .flow-arrow { color: #48C59C; font-size: 12px; }
+  .timer-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .timer-table td { padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(232,245,240,0.50); }
+  .timer-table td:first-child { color: #48C59C; }
+  .db-field { display: flex; justify-content: space-between; font-size: 11px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .db-field span:first-child { color: #48C59C; }
+  .db-field span:last-child { color: rgba(232,245,240,0.40); }
+  .file-line { font-size: 11px; font-family: monospace; padding: 3px 0; line-height: 2; }
+  .file-line.rewrite { color: #f87171; }
+  .file-line.update { color: #fbbf24; }
+  .file-line.new { color: #48C59C; }
+</style>
+</head>
+<body>
+
+<h1>IQ Test — Full Design</h1>
+<p class="subtitle">10 versions × 30 questions = 300 exercises — Green & Black Glassmorphism</p>
+
+<!-- LIVE MOCKUP -->
+<div class="section">
+  <div class="section-title">Question Screen</div>
+  <div class="mockup-wrapper">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="quiz-mockup">
+      <div class="quiz-inner">
+        <div class="timer-row">
+          <div>
+            <span class="q-label">Matrix Reasoning</span>
+          </div>
+          <span class="q-counter">7 / 30</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="progress-bar" style="flex:1;margin-right:14px;margin-bottom:0"><div class="progress-fill"></div></div>
+          <div class="timer-badge">⏱ 23s</div>
+        </div>
+        <div class="question-card">
+          <div class="matrix">
+            <div class="cell">⊘</div><div class="cell">⊡</div><div class="cell">⊿</div>
+            <div class="cell">△</div><div class="cell">⊕</div><div class="cell">⊘</div>
+            <div class="cell">⊟</div><div class="cell">⊵</div><div class="cell missing">?</div>
+          </div>
+        </div>
+        <div class="options-grid">
+          <div class="opt"><span class="ltr">A</span> ⊕</div>
+          <div class="opt"><span class="ltr">B</span> △</div>
+          <div class="opt selected"><span class="ltr">C</span> ⊘</div>
+          <div class="opt"><span class="ltr">D</span> ⊡</div>
+          <div class="opt"><span class="ltr">E</span> ⊿</div>
+          <div class="opt"><span class="ltr">F</span> ⊵</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUESTION TYPES -->
+<div class="section">
+  <div class="section-title">Question Types — 300 Total</div>
+  <div class="grid2">
+    <div class="info-card">
+      <h4>Visual (20 per version)</h4>
+      <span class="tag">Matrix 3×3</span><span class="tag">Shape Rotation</span>
+      <span class="tag">Symbol Grid</span><span class="tag">Mirror Reflection</span>
+      <span class="tag">Sequence</span>
+      <p style="margin-top:8px">SVG rendered in code. Mirror/illusion questions use image assets.</p>
+    </div>
+    <div class="info-card">
+      <h4>Math (10 per version)</h4>
+      <span class="tag">Number Series</span><span class="tag">Tricky Word Problems</span>
+      <span class="tag">Visual Math</span>
+      <p style="margin-top:8px">Hard difficulty for 18+. Cognitive traps designed to mislead.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TIMER -->
+<div class="section">
+  <div class="section-title">Timer — Decreasing Pressure</div>
+  <div class="info-card">
+    <table class="timer-table">
+      <tr><td>Q 1–5</td><td>30 seconds</td></tr>
+      <tr><td>Q 6–10</td><td>26 seconds</td></tr>
+      <tr><td>Q 11–15</td><td>22 seconds</td></tr>
+      <tr><td>Q 16–20</td><td>18 seconds</td></tr>
+      <tr><td>Q 21–25</td><td>14 seconds</td></tr>
+      <tr><td>Q 26–30</td><td>10 seconds</td></tr>
+    </table>
+    <p style="margin-top:8px;font-size:11px">Timeout = auto-advance as wrong. Last 5s: timer turns red & pulses urgently.</p>
+  </div>
+</div>
+
+<!-- FLOW -->
+<div class="section">
+  <div class="section-title">User Flow</div>
+  <div class="info-card">
+    <div class="flow">
+      <div class="flow-step">Random version (1–10)</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">30 Questions (no back)</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">Lead Gate (name · email · WhatsApp)</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">Results revealed</div>
+    </div>
+  </div>
+</div>
+
+<!-- DB -->
+<div class="section">
+  <div class="section-title">Database — Supabase iq_test_results</div>
+  <div class="info-card">
+    <div class="db-field"><span>name</span><span>text</span></div>
+    <div class="db-field"><span>email</span><span>text</span></div>
+    <div class="db-field"><span>whatsapp</span><span>text</span></div>
+    <div class="db-field"><span>iq_score</span><span>integer (60–145)</span></div>
+    <div class="db-field"><span>version_number</span><span>integer (1–10)</span></div>
+    <div class="db-field"><span>total_time_ms</span><span>integer</span></div>
+    <div class="db-field"><span>created_at</span><span>timestamptz</span></div>
+  </div>
+</div>
+
+<!-- FILES -->
+<div class="section">
+  <div class="section-title">Files Changed</div>
+  <div class="info-card">
+    <div class="file-line rewrite">🔴 REWRITE — src/app/iq-test/iqTestData.ts</div>
+    <div class="file-line rewrite">🔴 REWRITE — src/app/iq-test/IQTestClient.tsx</div>
+    <div class="file-line rewrite">🔴 REWRITE — src/app/iq-test/IQQuestion.tsx</div>
+    <div class="file-line update">🟡 UPDATE — src/app/iq-test/IQResults.tsx</div>
+    <div class="file-line update">🟡 UPDATE — src/app/api/quiz-leads/route.ts</div>
+    <div class="file-line new">🟢 NEW — src/app/iq-test/IQTimer.tsx</div>
+    <div class="file-line new">🟢 NEW — public/iq-images/ (illusion assets)</div>
+    <div class="file-line new">🟢 NEW — supabase migration (iq_test_results table)</div>
+  </div>
+</div>
+
+</body>
+</html>

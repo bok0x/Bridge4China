@@ -1,0 +1,38 @@
+<h2>3 Approaches for the New IQ Test</h2>
+<p class="subtitle">Pick the one that feels right — I'll recommend one</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Full Replacement ⭐ Recommended</h3>
+      <p>Replace the existing IQ test entirely. New question bank (150+ questions across all types), new timer logic (30s→10s), new question renderer for SVG + images. Keep the lead gate and results structure that already works.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Clean, no legacy baggage</li><li>Purpose-built for your vision</li><li>Fastest path to done</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Replaces existing test completely</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>New Route Alongside Existing</h3>
+      <p>Create <code>/iq-test-v2/</code> as a separate page. Old test stays untouched at <code>/iq-test/</code>. You can A/B test both and migrate users when ready.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Zero risk to existing</li><li>Can compare performance</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Duplicate code to maintain</li><li>More files, more complexity</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Extend Existing Structure</h3>
+      <p>Keep existing IQ test architecture, add new question types on top. Expand from 15 to 30 questions, add new renderers, add countdown timer.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Reuses scoring logic</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Current structure wasn't designed for this</li><li>Heavy surgery, high bug risk</li><li>Carries all the "weak" parts you want to replace</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

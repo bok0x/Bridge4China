@@ -30,14 +30,21 @@
       "Bash(C:\\\\Users\\\\wokao\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.0.7\\\\skills\\\\brainstorming\\\\scripts\\\\start-server.sh --project-dir \"f:/Claude Project/ChinaUniMatch\")",
       "Bash(find \"f:/Claude Project/ChinaUniMatch/.superpowers\" -name \"server-info\" -exec cat {} \\\\;)",
       "Bash(bash \"/c/Users/wokao/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts/start-server.sh\" --project-dir \"/f/Claude Project/ChinaUniMatch\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:64497/quiz-ambient.mp3\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:64497/quiz-ambient.mp3\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/iq-test)",
+      "Bash(npm i *)",
+      "Bash(npm ls *)",
+      "Bash(bash \"/c/Users/wokao/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts/start-server.sh\" --project-dir \"f:/Claude Project/ChinaUniMatch\")",
+      "Bash(bash \"/c/Users/wokao/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts/start-server.sh\" --project-dir \"f:/Claude Project/ChinaUniMatch\" --host 127.0.0.1)"
     ],
     "additionalDirectories": [
       "f:\\Claude Project\\ChinaUniMatch\\docs\\superpowers",
       "F:\\Claude Project\\ChinaUniMatch\\src\\app\\api\\quiz-leads",
       "F:\\Claude Project\\ChinaUniMatch\\src\\app\\api\\interview-leads",
       "F:\\Claude Project\\ChinaUniMatch\\src\\app\\study-in-china",
-      "f:\\Claude Project\\ChinaUniMatch\\public\\sounds"
+      "f:\\Claude Project\\ChinaUniMatch\\public\\sounds",
+      "f:\\Claude Project\\ChinaUniMatch\\docs\\superpowers\\specs",
+      "f:\\Claude Project\\ChinaUniMatch\\docs\\superpowers\\plans"
     ]
   }
 }
