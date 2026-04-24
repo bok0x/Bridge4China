@@ -1,21 +1,18 @@
 "use client";
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-
-interface IQScores {
-  iq: number; percentile: number;
-  fri: number; qri: number; vci: number; vsi: number; wmi: number;
-}
+import { IQScores } from "./iqTestData";
 
 interface Props {
   scores: IQScores;
-  sessionId: string;
+  versionNumber: number;
+  totalTimeMs: number;
   onUnlocked: () => void;
 }
 
 const WHATSAPP_GROUP = "https://chat.whatsapp.com/CLglLgiCl0BCCv7qhquEW0";
 
-export function IQLeadGate({ scores, onUnlocked }: Props) {
+export function IQLeadGate({ scores, versionNumber, totalTimeMs, onUnlocked }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -27,17 +24,17 @@ export function IQLeadGate({ scores, onUnlocked }: Props) {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/quiz-leads", {
+    const res = await fetch("/api/iq-leads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         fullName: name,
         email,
         whatsapp,
-        quizAnswers: scores,
-        recommendedMajors: [],
-        recommendedUniversities: [],
-        leadSource: "iq-test",
+        iqScore: scores.iq,
+        percentile: scores.percentile,
+        versionNumber,
+        totalTimeMs,
       }),
     });
 
