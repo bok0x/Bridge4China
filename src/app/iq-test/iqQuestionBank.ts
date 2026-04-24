@@ -1553,7 +1553,7 @@ export const QUESTION_BANK: IQQuestionData[] = [
     matrixData:{ cells:["star","pentagon","diamond","pentagon","diamond","star","diamond","star","?"], options:["star","diamond","pentagon","circle_slash","pentagon","diamond"] } },
   { id:"v10_q04", version:10, position:4, type:"matrix", category:"visual", difficulty:3,
     prompt:"Complex multi-symbol anti-diagonal rule. Which is missing?", correctIndex:5,
-    matrixData:{ cells:["circle_cross","square_cross","triangle_right","triangle_right","circle_cross","square_cross","square_cross",null,"triangle_right"], options:["triangle_right","square_cross","circle_cross","rect_line","diamond_empty","circle_cross"] } },
+    matrixData:{ cells:["circle_cross","square_cross","triangle_right","triangle_right","circle_cross","square_cross","square_cross","circle_cross","triangle_right"], options:["triangle_right","square_cross","circle_cross","rect_line","diamond_empty","circle_cross"] } },
 
   { id:"v10_q05", version:10, position:5, type:"rotation", category:"visual", difficulty:1,
     prompt:"Which option shows the shape rotated 180°?", correctIndex:0,
