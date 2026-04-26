@@ -122,8 +122,7 @@ export function Navbar() {
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch { /* ignore */ }
-    setUser(null);
-    setOpen(false);
+    window.location.href = "/";
   }
 
   return (
