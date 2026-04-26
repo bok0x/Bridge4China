@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useFormState, useFormStatus } from "react-dom";
@@ -37,7 +37,15 @@ function LoginForm() {
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [socialError, setSocialError] = useState("");
 
-  const [state, formAction] = useFormState(signInAction, { error: "" });
+  const [state, formAction] = useFormState(signInAction, { error: "", redirectTo: undefined });
+
+  // Navigate client-side after sign-in so cookies from the server action
+  // response are stored in the browser before the next request fires.
+  useEffect(() => {
+    if (state.redirectTo) {
+      window.location.href = state.redirectTo;
+    }
+  }, [state.redirectTo]);
 
   async function handleSocialLogin(provider: "google" | "facebook") {
     setSocialLoading(provider);

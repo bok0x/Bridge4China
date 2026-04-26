@@ -1,10 +1,13 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 
-export async function signInAction(prevState: { error: string }, formData: FormData) {
+export async function signInAction(
+  prevState: { error: string; redirectTo?: string },
+  formData: FormData
+): Promise<{ error: string; redirectTo?: string }> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const redirect = (formData.get("redirect") as string) || "/dashboard";
 
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -21,8 +24,10 @@ export async function signInAction(prevState: { error: string }, formData: FormD
   }
 
   if (!data.session) {
-    return { error: "Login succeeded but session was not created. Please try again." };
+    return { error: "Login succeeded but no session was created. Please try again." };
   }
 
-  redirect("/dashboard");
+  // Return the redirect URL to the client — the client navigates after
+  // cookies from Set-Cookie headers are stored in the browser.
+  return { error: "", redirectTo: redirect };
 }
