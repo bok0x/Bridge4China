@@ -122,7 +122,7 @@ export function Navbar() {
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch { /* ignore */ }
-    window.location.href = "/";
+    window.location.replace("/");
   }
 
   return (

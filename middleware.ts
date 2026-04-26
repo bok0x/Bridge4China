@@ -45,6 +45,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Prevent browser from caching protected pages so the session check
+  // always runs on every visit (fixes stale dashboard after sign-out).
+  response.headers.set("Cache-Control", "no-store");
   return response;
 }
 
