@@ -9,6 +9,7 @@ import { ProgramListTable } from "@/components/discovery/ProgramListTable";
 import { ViewToggle } from "@/components/discovery/ViewToggle";
 import type { Program } from "@/types";
 import { CITY_TO_PROVINCE } from "@/lib/constants";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LIMIT = 24;
 
@@ -76,6 +77,7 @@ function toProgram(p: IndexProgram): Program {
 }
 
 export function DiscoverClient() {
+  const { t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -200,19 +202,19 @@ export function DiscoverClient() {
   void updateFilter; // used by FilterSidebar via URL, not directly
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-36 pb-16">
       <div className="container-app">
         {/* Header */}
         <div className="mb-8">
-          <div className="badge badge-accent mb-3">Discover</div>
+          <div className="badge badge-accent mb-3">{t("discover_badge")}</div>
           <h1 className="text-4xl md:text-5xl font-heading font-black mb-3">
-            Find Your Program
+            {t("discover_title")}
           </h1>
           <p style={{ color: "var(--color-text-secondary)" }}>
             {indexLoading
-              ? "Loading programs…"
+              ? t("discover_loading")
               : indexError
-              ? "Could not load program data."
+              ? t("discover_error")
               : `${total.toLocaleString()} of ${allPrograms.length.toLocaleString()} programs`}
           </p>
         </div>
@@ -229,7 +231,7 @@ export function DiscoverClient() {
               type="text"
               value={searchInput}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search programs, universities, cities…"
+              placeholder={t("discover_search")}
               className="input-glass pl-10"
             />
           </div>

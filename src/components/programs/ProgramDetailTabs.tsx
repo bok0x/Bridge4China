@@ -8,7 +8,8 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { WHATSAPP_URL } from "@/lib/constants";
-import { formatCNY, DEGREE_LABELS, LANGUAGE_LABELS, SCHOLARSHIP_TYPE_LABELS } from "@/lib/utils";
+import { DEGREE_LABELS, LANGUAGE_LABELS, SCHOLARSHIP_TYPE_LABELS } from "@/lib/utils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useCartStore } from "@/stores/cartStore";
 import type { Program } from "@/types";
 
@@ -20,18 +21,20 @@ const TABS = ["Program Details", "Promotion Materials", "Application Requirement
 type Tab = typeof TABS[number];
 
 const DOCUMENTS = [
-  { key: "requiresPassportPhoto", label: "Passport Photo" },
-  { key: "requiresPassportId", label: "Passport ID Page" },
-  { key: "requiresTranscripts", label: "Academic Transcripts" },
-  { key: "requiresHighestDegree", label: "Highest Degree Certificate" },
-  { key: "requiresPhysicalExam", label: "Physical Exam Form" },
-  { key: "requiresNonCriminalRecord", label: "Non-criminal Record" },
-  { key: "requiresEnglishCert", label: "Language Certificate" },
-  { key: "requiresStudyPlan", label: "Study Plan" },
-  { key: "requiresRecommendations", label: "Recommendation Letters" },
+  { key: "requiresPassportPhoto",     label: "Passport Photo",              fallback: true  },
+  { key: "requiresPassportId",        label: "Passport ID Page",            fallback: true  },
+  { key: "requiresTranscripts",       label: "Academic Transcripts",        fallback: true  },
+  { key: "requiresHighestDegree",     label: "Highest Degree Certificate",  fallback: true  },
+  { key: "requiresApplicationForm",   label: "Application Form",            fallback: true  },
+  { key: "requiresStudyPlan",         label: "Study Plan",                  fallback: true  },
+  { key: "requiresPhysicalExam",      label: "Physical Exam Form",          fallback: false },
+  { key: "requiresNonCriminalRecord", label: "Non-criminal Record",         fallback: false },
+  { key: "requiresEnglishCert",       label: "Language Certificate",        fallback: false },
+  { key: "requiresRecommendations",   label: "Recommendation Letters",      fallback: false },
 ] as const;
 
 export function ProgramDetailTabs({ program }: ProgramDetailTabsProps) {
+  const { convert } = useCurrency();
   const [activeTab, setActiveTab] = useState<Tab>("Program Details");
   const { add, remove, has } = useCartStore();
   const inCart = has(program.id);
@@ -159,7 +162,7 @@ export function ProgramDetailTabs({ program }: ProgramDetailTabsProps) {
                       <InfoRow label="Duration" value={s.duration || "—"} />
                       <InfoRow label="Covers Tuition" value={s.coversTuition ? "Yes" : "No"} />
                       {s.livingAllowance && (
-                        <InfoRow label="Monthly Stipend" value={formatCNY(s.livingAllowance) + "/mo"} />
+                        <InfoRow label="Monthly Stipend" value={convert(s.livingAllowance) + "/mo"} />
                       )}
                     </div>
                     {s.policyDetails && (
@@ -186,6 +189,7 @@ export function ProgramDetailTabs({ program }: ProgramDetailTabsProps) {
                 original={program.originalTuition}
                 discounted={program.tuitionAfterScholarship}
                 discountLabel="After Scholarship"
+                fmt={convert}
               />
               {(program.accommodationFee != null || program.accommodationSingleFee != null || program.accommodationDoubleFee != null) && (
                 <div className="pt-3" style={{ borderTop: "1px solid var(--glass-border-subtle)" }}>
@@ -193,19 +197,19 @@ export function ProgramDetailTabs({ program }: ProgramDetailTabsProps) {
                     Accommodation
                   </p>
                   {program.accommodationSingleFee != null && (
-                    <FeeRow label="Single Room" original={program.accommodationSingleFee} />
+                    <FeeRow label="Single Room" original={program.accommodationSingleFee} fmt={convert} />
                   )}
                   {program.accommodationDoubleFee != null && (
-                    <FeeRow label="Double Room" original={program.accommodationDoubleFee} />
+                    <FeeRow label="Double Room" original={program.accommodationDoubleFee} fmt={convert} />
                   )}
                   {program.accommodationFee != null && !program.accommodationSingleFee && !program.accommodationDoubleFee && (
-                    <FeeRow label="Accommodation" original={program.accommodationFee} />
+                    <FeeRow label="Accommodation" original={program.accommodationFee} fmt={convert} />
                   )}
                 </div>
               )}
               {program.registrationFee != null && (
                 <div className="pt-3" style={{ borderTop: "1px solid var(--glass-border-subtle)" }}>
-                  <FeeRow label="University Registration Fee" original={program.registrationFee} />
+                  <FeeRow label="University Registration Fee" original={program.registrationFee} fmt={convert} />
                 </div>
               )}
             </div>
@@ -215,12 +219,12 @@ export function ProgramDetailTabs({ program }: ProgramDetailTabsProps) {
             <h3 className="font-heading font-bold text-base mb-4">Platform Service Fees</h3>
             <div className="space-y-3">
               {program.applicationFee != null ? (
-                <FeeRow label="Platform Application Fee" original={program.applicationFee} />
+                <FeeRow label="Platform Application Fee" original={program.applicationFee} fmt={convert} />
               ) : (
                 <p className="text-sm" style={{ color: "var(--color-text-tertiary)" }}>No application fee</p>
               )}
               {program.serviceFee != null && (
-                <FeeRow label="Platform Service Fee" original={program.serviceFee} />
+                <FeeRow label="Platform Service Fee" original={program.serviceFee} fmt={convert} />
               )}
             </div>
           </GlassCard>
@@ -267,8 +271,9 @@ export function ProgramDetailTabs({ program }: ProgramDetailTabsProps) {
           <GlassCard>
             <h3 className="font-heading font-bold text-base mb-4">Document Checklist</h3>
             <div className="space-y-2">
-              {DOCUMENTS.map(({ key, label }) => {
-                const required = (program as unknown as Record<string, boolean>)[key];
+              {DOCUMENTS.map(({ key, label, fallback }) => {
+                const raw = (program as unknown as Record<string, boolean | null | undefined>)[key];
+                const required = raw ?? fallback;
                 return (
                   <div
                     key={key}
@@ -326,11 +331,13 @@ function FeeRow({
   original,
   discounted,
   discountLabel,
+  fmt,
 }: {
   label: string;
   original: number;
   discounted?: number | null;
   discountLabel?: string;
+  fmt: (n: number) => string;
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -340,11 +347,11 @@ function FeeRow({
           className="font-heading font-bold text-sm"
           style={{ textDecoration: discounted != null ? "line-through" : "none", color: discounted != null ? "var(--color-text-tertiary)" : "var(--color-text-primary)" }}
         >
-          {formatCNY(original)}
+          {fmt(original)}
         </p>
         {discounted != null && (
           <p className="text-sm font-bold" style={{ color: "var(--color-accent)" }}>
-            {formatCNY(discounted)}
+            {fmt(discounted)}
             {discountLabel && <span className="text-xs font-normal ml-1">({discountLabel})</span>}
           </p>
         )}

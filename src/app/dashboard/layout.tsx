@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { LayoutDashboard, FileText, BookOpen, User } from "lucide-react";
+import { LayoutDashboard, FileText, User } from "lucide-react";
 
 const NAV = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/applications", label: "Applications", icon: FileText },
   { href: "/dashboard/profile", label: "Profile", icon: User },
-  { href: "/compare", label: "Saved Compare", icon: BookOpen },
 ];
 
 export default async function DashboardLayout({
@@ -20,7 +19,7 @@ export default async function DashboardLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-36 pb-16">
       <div className="container-app">
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
           {/* Sidebar */}

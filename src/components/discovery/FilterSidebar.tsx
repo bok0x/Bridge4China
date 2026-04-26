@@ -6,6 +6,7 @@ import { X, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { FIELDS_OF_STUDY } from "@/lib/constants";
 import { LocationPicker, type LocationValue } from "@/components/ui/LocationPicker";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const DEGREES = [
   { value: "NON_DEGREE", label: "Non-degree" },
@@ -30,6 +31,7 @@ const INTAKE_YEARS = ["2025", "2026"];
 const INTAKE_SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
 
 export function FilterSidebar() {
+  const { t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -83,7 +85,7 @@ export function FilterSidebar() {
       >
         <div className="flex items-center gap-2 font-heading font-bold text-sm">
           <SlidersHorizontal size={15} />
-          Filters
+          {t("filter_filters")}
           {hasFilters && (
             <span
               className="w-2 h-2 rounded-full"
@@ -99,7 +101,7 @@ export function FilterSidebar() {
               style={{ color: "var(--color-text-tertiary)" }}
             >
               <X size={12} />
-              Clear
+              {t("filter_clear")}
             </button>
           )}
           <ChevronDown
@@ -115,7 +117,7 @@ export function FilterSidebar() {
         {/* Scholarship toggle */}
         <div>
           <label className="flex items-center justify-between gap-3 px-2 py-2 rounded-xl cursor-pointer transition-colors hover:bg-[var(--color-accent-muted)]">
-            <span className="text-sm font-medium">Scholarship only</span>
+            <span className="text-sm font-medium">{t("filter_scholarship_only")}</span>
             <div
               onClick={() => updateFilter("hasScholarship", hasScholarship ? null : "true")}
               className="relative w-10 h-5 rounded-full transition-colors cursor-pointer"
@@ -132,7 +134,7 @@ export function FilterSidebar() {
         </div>
 
         {/* Degree */}
-        <FilterGroup label="Academic Level">
+        <FilterGroup label={t("filter_academic_level")}>
           {DEGREES.map((d) => (
             <FilterChip
               key={d.value}
@@ -144,7 +146,7 @@ export function FilterSidebar() {
         </FilterGroup>
 
         {/* Language */}
-        <FilterGroup label="Teaching Language">
+        <FilterGroup label={t("filter_teaching_lang")}>
           {LANGUAGES.map((l) => (
             <FilterChip
               key={l.value}
@@ -156,7 +158,7 @@ export function FilterSidebar() {
         </FilterGroup>
 
         {/* Intake Year */}
-        <FilterGroup label="Intake Year">
+        <FilterGroup label={t("filter_intake_year")}>
           {INTAKE_YEARS.map((y) => (
             <FilterChip
               key={y}
@@ -168,7 +170,7 @@ export function FilterSidebar() {
         </FilterGroup>
 
         {/* Intake Season */}
-        <FilterGroup label="Intake Season">
+        <FilterGroup label={t("filter_intake_season")}>
           {INTAKE_SEASONS.map((s) => (
             <FilterChip
               key={s}
@@ -180,38 +182,38 @@ export function FilterSidebar() {
         </FilterGroup>
 
         {/* Accept Minors */}
-        <FilterGroup label="Accepts Minors">
+        <FilterGroup label={t("filter_accepts_minors")}>
           <FilterChip
-            label="Yes"
+            label={t("filter_yes")}
             active={currentAcceptsMinors === "true"}
             onClick={() => updateFilter("acceptsMinors", currentAcceptsMinors === "true" ? null : "true")}
           />
           <FilterChip
-            label="No"
+            label={t("filter_no")}
             active={currentAcceptsMinors === "false"}
             onClick={() => updateFilter("acceptsMinors", currentAcceptsMinors === "false" ? null : "false")}
           />
         </FilterGroup>
 
         {/* CSCA Score */}
-        <FilterGroup label="CSCA Score">
+        <FilterGroup label={t("filter_csca_score")}>
           <FilterChip
-            label="Yes"
+            label={t("filter_yes")}
             active={currentHasCscaScore === "true"}
             onClick={() => updateFilter("hasCscaScore", currentHasCscaScore === "true" ? null : "true")}
           />
           <FilterChip
-            label="No"
+            label={t("filter_no")}
             active={currentHasCscaScore === "false"}
             onClick={() => updateFilter("hasCscaScore", currentHasCscaScore === "false" ? null : "false")}
           />
         </FilterGroup>
 
         {/* University */}
-        <FilterGroup label="University">
+        <FilterGroup label={t("filter_university_name")}>
           <input
             type="text"
-            placeholder="Search university..."
+            placeholder={t("filter_university_name")}
             value={currentUniversity}
             onChange={(e) => updateFilter("universityName", e.target.value || null)}
             className="input-glass text-xs py-2 w-full"
@@ -219,7 +221,7 @@ export function FilterSidebar() {
         </FilterGroup>
 
         {/* Location — replaces separate City + Province dropdowns */}
-        <FilterGroup label="Location">
+        <FilterGroup label={t("filter_location")}>
           <LocationPicker
             value={
               currentProvince
@@ -240,7 +242,7 @@ export function FilterSidebar() {
         </FilterGroup>
 
         {/* Field of Study */}
-        <FilterGroup label="Field of Study">
+        <FilterGroup label={t("filter_field_study")}>
           <select
             value={currentField ?? ""}
             onChange={(e) => updateFilter("field", e.target.value || null)}

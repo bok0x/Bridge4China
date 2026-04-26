@@ -452,6 +452,12 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes iqDrift2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-38px,-22px)} 66%{transform:translate(28px,-45px)} }
 @keyframes iqDrift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-32px,38px)} }
 @keyframes iqDrift4 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-25px)} }
+/* ── Quiz active: hide footer, floats, sidebars ─────────────── */
+body.quiz-active footer,
+body.quiz-active .whatsapp-float,
+body.quiz-active [data-sidebar],
+body.quiz-active .exit-intent { display: none !important; }
+
 @keyframes iqBall1  { 0%{top:10%;left:75%} 18%{top:48%;left:55%} 35%{top:72%;left:20%} 55%{top:35%;left:8%}  75%{top:8%;left:40%}  100%{top:10%;left:75%} }
 @keyframes iqBall2  { 0%{top:75%;left:15%} 22%{top:42%;left:50%} 45%{top:15%;left:72%} 68%{top:55%;left:88%} 100%{top:75%;left:15%} }
 @keyframes iqBall3  { 0%{top:28%;left:2%}  28%{top:8%;left:65%}  55%{top:55%;left:80%} 80%{top:78%;left:35%} 100%{top:28%;left:2%} }

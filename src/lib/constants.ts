@@ -1,7 +1,7 @@
-export const SITE_NAME = "ChinaUniMatch";
-export const SITE_TAGLINE = "Your gateway to Chinese universities";
+export const SITE_NAME = "Bridge4China";
+export const SITE_TAGLINE = "Your bridge to studying in China";
 export const SITE_DESCRIPTION =
-  "Discover, compare, and apply to top Chinese universities. Find scholarships, compare tuition costs, and get step-by-step application guidance.";
+  "Discover and apply to top Chinese universities. Find scholarships, check tuition costs, and get step-by-step application guidance.";
 export const WHATSAPP_NUMBER = "+212628345297";
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`;
 

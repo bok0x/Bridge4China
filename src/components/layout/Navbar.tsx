@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, BookOpen, LogIn, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogIn, LogOut, LayoutDashboard } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { SITE_NAME } from "@/lib/constants";
-import { useComparisonStore } from "@/stores/comparisonStore";
+
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -88,7 +88,6 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const { programs: compared } = useComparisonStore();
   const { t } = useLanguage();
 
   const NAV_LINKS = [
@@ -133,7 +132,7 @@ export function Navbar() {
         "fixed top-[37px] left-0 right-0 z-40 transition-all duration-300",
         scrolled ? "glass py-3" : "py-5 bg-transparent"
       )}
-      style={scrolled ? { borderRadius: 0, borderLeft: "none", borderRight: "none", borderTop: "none" } : {}}
+      style={scrolled ? { borderRadius: 0, borderLeft: "none", borderRight: "none", borderTop: "none", borderBottom: "none" } : {}}
     >
       <div className="container-app flex items-center justify-between gap-4">
         {/* Logo */}
@@ -171,17 +170,6 @@ export function Navbar() {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
-          {/* Compare badge */}
-          {compared.length > 0 && (
-            <Link
-              href="/compare"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold font-heading badge-accent"
-            >
-              <BookOpen size={13} />
-              Compare ({compared.length}/3)
-            </Link>
-          )}
-
           {/* Currency Picker */}
           <CurrencyPicker />
 

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { formatCNY, computeYouNeedToPay, DEGREE_LABELS, LANGUAGE_LABELS } from "@/lib/utils";
+import { computeYouNeedToPay, DEGREE_LABELS, LANGUAGE_LABELS } from "@/lib/utils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import type { Program } from "@/types";
 
 interface ProgramListTableProps {
@@ -7,6 +10,7 @@ interface ProgramListTableProps {
 }
 
 export function ProgramListTable({ programs }: ProgramListTableProps) {
+  const { convert } = useCurrency();
   return (
     <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--glass-border-subtle)" }}>
       <table className="w-full text-sm border-collapse">
@@ -78,7 +82,7 @@ export function ProgramListTable({ programs }: ProgramListTableProps) {
                 </Td>
                 <Td>
                   <div className="font-heading font-bold" style={{ color: "var(--color-accent)" }}>
-                    {totalCost > 0 ? formatCNY(totalCost) : "—"}
+                    {totalCost > 0 ? convert(totalCost) : "—"}
                   </div>
                   {program.tuitionAfterScholarship != null && (
                     <div className="text-xs" style={{ color: "var(--color-text-tertiary)" }}>

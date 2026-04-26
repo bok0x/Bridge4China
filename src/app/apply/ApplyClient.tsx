@@ -10,10 +10,14 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { WHATSAPP_NUMBER, WHATSAPP_URL } from "@/lib/constants";
-import { formatCNY, DEGREE_LABELS } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { DEGREE_LABELS } from "@/lib/utils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import type { Program } from "@/types";
 
 export function ApplyClient() {
+  const { t } = useLanguage();
+  const { convert } = useCurrency();
   const searchParams = useSearchParams();
   const programId = searchParams.get("program");
 
@@ -36,12 +40,12 @@ export function ApplyClient() {
   // Pre-filled WhatsApp message
   const waMessage = program
     ? `Hi! I'd like to apply for ${program.programName} (${DEGREE_LABELS[program.degree] ?? program.degree}) at ${uni?.name ?? "the university"}. Can you guide me through the application process?`
-    : `Hi! I found ChinaUniMatch and I'd like to get help applying to a Chinese university. Can you guide me?`;
+    : `Hi! I found Bridge4China and I'd like to get help applying to a Chinese university. Can you guide me?`;
 
   const waUrl = `${WHATSAPP_URL}?text=${encodeURIComponent(waMessage)}`;
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-36 pb-16">
       <div className="container-app max-w-3xl">
 
         {/* Back link */}
@@ -51,17 +55,17 @@ export function ApplyClient() {
           style={{ color: "var(--color-text-tertiary)" }}
         >
           <ArrowLeft size={15} />
-          {program ? "Back to program" : "Back to Discover"}
+          {program ? t("apply_back_program") : t("apply_back_discover")}
         </Link>
 
         {/* Page header */}
         <div className="mb-8">
-          <div className="badge badge-accent mb-3">Apply</div>
+          <div className="badge badge-accent mb-3">{t("apply_badge")}</div>
           <h1 className="text-4xl md:text-5xl font-heading font-black mb-3">
-            Start Your Application
+            {t("apply_title")}
           </h1>
           <p style={{ color: "var(--color-text-secondary)" }}>
-            Our advisors will guide you through every step — from eligibility to acceptance.
+            {t("apply_subtitle")}
           </p>
         </div>
 
@@ -94,7 +98,7 @@ export function ApplyClient() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <Fact icon={<GraduationCap size={13} />} label="Degree" value={DEGREE_LABELS[program.degree] ?? program.degree} />
               <Fact icon={<Calendar size={13} />} label="Intake" value={[program.intakeSeason, program.intakeYear].filter(Boolean).join(" ") || "Sep 2025"} />
-              <Fact label="Tuition / yr" value={formatCNY(program.originalTuition)} accent={false} />
+              <Fact label="Tuition / yr" value={convert(program.originalTuition)} accent={false} />
               {program.applicationDeadline && (
                 <Fact
                   icon={<Clock size={13} />}
@@ -123,7 +127,7 @@ export function ApplyClient() {
           className="text-xs font-heading font-bold tracking-widest uppercase mb-5"
           style={{ color: "var(--color-text-tertiary)" }}
         >
-          How would you like to apply?
+          {t("apply_how_apply")}
         </p>
 
         {/* WhatsApp — PRIMARY */}
@@ -145,7 +149,7 @@ export function ApplyClient() {
               className="absolute top-4 right-4 text-xs font-heading font-bold px-3 py-1 rounded-full"
               style={{ background: "rgba(255,255,255,0.25)", color: "#fff" }}
             >
-              RECOMMENDED
+              {t("apply_recommended")}
             </span>
 
             <div className="flex items-start gap-4">
@@ -157,7 +161,7 @@ export function ApplyClient() {
               </div>
               <div className="flex-1">
                 <h3 className="font-heading font-black text-xl text-white mb-1">
-                  Apply via WhatsApp
+                  {t("apply_via_whatsapp")}
                 </h3>
                 <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.80)" }}>
                   Chat directly with our advisors. Get instant answers, a personalised document
@@ -187,13 +191,13 @@ export function ApplyClient() {
               style={{ background: "rgba(255,255,255,0.15)" }}
             >
               <div>
-                <p className="font-heading font-bold text-white text-sm">Chat with an advisor now</p>
+                <p className="font-heading font-bold text-white text-sm">{t("apply_chat_now")}</p>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.70)" }}>{WHATSAPP_NUMBER}</p>
               </div>
               <div
                 className="flex items-center gap-2 text-sm font-heading font-bold text-white group-hover:gap-3 transition-all"
               >
-                Open WhatsApp <ExternalLink size={15} />
+                {t("apply_open_whatsapp")} <ExternalLink size={15} />
               </div>
             </div>
           </div>

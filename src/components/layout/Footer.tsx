@@ -7,7 +7,7 @@ const QUICK_LINKS = [
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Universities", href: "/discover" },
   { label: "Scholarships", href: "/scholarships" },
-  { label: "Compare",      href: "/compare" },
+
 ];
 
 const RESOURCE_LINKS = [

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { Search, GitCompare, FileText, Award } from "lucide-react";
+import { Search, FileText, Award } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 
 const features = [
@@ -12,14 +12,6 @@ const features = [
     description:
       "Filter by field, language, location, and tuition. Find your perfect match from 200+ programs.",
     href: "/discover",
-    color: "var(--color-accent)",
-  },
-  {
-    icon: GitCompare,
-    title: "Side-by-Side Compare",
-    description:
-      "Compare tuition, living costs, rankings, and scholarship availability across up to 3 programs.",
-    href: "/compare",
     color: "var(--color-accent)",
   },
   {

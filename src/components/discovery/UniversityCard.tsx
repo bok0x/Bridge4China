@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, GraduationCap, Plus, Check } from "lucide-react";
-import { useComparisonStore } from "@/stores/comparisonStore";
-import { formatCNY, DEGREE_LABELS, SCHOLARSHIP_TYPE_LABELS } from "@/lib/utils";
+import { useState } from "react";
+import { MapPin, GraduationCap } from "lucide-react";
+import { DEGREE_LABELS, SCHOLARSHIP_TYPE_LABELS } from "@/lib/utils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import type { Program } from "@/types";
 
 interface UniversityCardProps {
@@ -12,21 +13,12 @@ interface UniversityCardProps {
 }
 
 export function UniversityCard({ program }: UniversityCardProps) {
-  const { add, remove, has } = useComparisonStore();
-  const isCompared = has(program.id);
+  const { convert } = useCurrency();
+  const [coverError, setCoverError] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const hasScholarship = (program.scholarships?.length ?? 0) > 0;
   const primaryScholarship = program.scholarships?.[0];
   const uni = program.university;
-
-  const handleCompare = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (isCompared) {
-      remove(program.id);
-    } else {
-      const added = add(program);
-      if (!added) alert("Maximum 3 programs can be compared. Remove one first.");
-    }
-  };
 
   const rawCover = uni?.coverUrl;
   const isPlaceholder = !rawCover || rawCover.includes("school_rank.png");
@@ -44,7 +36,7 @@ export function UniversityCard({ program }: UniversityCardProps) {
     >
       {/* ── Cover image (links to program detail) ──────────────────────── */}
       <Link href={`/programs/${program.id}`} className="block relative w-full aspect-[16/9] overflow-hidden bg-[var(--color-bg-tertiary)]">
-        {coverSrc ? (
+        {coverSrc && !coverError ? (
           <Image
             src={coverSrc}
             alt={`${uni?.name ?? "University"} campus`}
@@ -52,6 +44,7 @@ export function UniversityCard({ program }: UniversityCardProps) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             unoptimized
+            onError={() => setCoverError(true)}
           />
         ) : (
           <div
@@ -72,7 +65,7 @@ export function UniversityCard({ program }: UniversityCardProps) {
         />
 
         {/* Logo pill */}
-        {uni?.logoUrl && (
+        {uni?.logoUrl && !logoError && (
           <div
             className="absolute bottom-3 left-3 w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
             style={{
@@ -87,6 +80,7 @@ export function UniversityCard({ program }: UniversityCardProps) {
               sizes="40px"
               className="object-contain p-1"
               unoptimized
+              onError={() => setLogoError(true)}
             />
           </div>
         )}
@@ -167,10 +161,10 @@ export function UniversityCard({ program }: UniversityCardProps) {
             <p className="text-xs mb-0.5" style={{ color: "var(--color-text-tertiary)" }}>
               Tuition / year
             </p>
-            <p className="font-heading font-bold text-lg">{formatCNY(program.originalTuition)}</p>
+            <p className="font-heading font-bold text-lg">{convert(program.originalTuition)}</p>
             {program.tuitionAfterScholarship != null && (
               <p className="text-xs" style={{ color: "var(--color-accent)" }}>
-                After scholarship: {formatCNY(program.tuitionAfterScholarship)}
+                After scholarship: {convert(program.tuitionAfterScholarship)}
               </p>
             )}
           </div>
@@ -190,21 +184,6 @@ export function UniversityCard({ program }: UniversityCardProps) {
         </div>
       </div>
 
-      {/* ── Compare button ────────────────────────────────────────────────── */}
-      <button
-        onClick={handleCompare}
-        className="mx-4 mb-4 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold font-heading transition-all"
-        style={{
-          background: isCompared ? "var(--color-accent-muted)" : "var(--color-bg-tertiary)",
-          color: isCompared ? "var(--color-accent)" : "var(--color-text-secondary)",
-          border: isCompared
-            ? "1px solid var(--color-accent)"
-            : "1px solid var(--glass-border-subtle)",
-        }}
-      >
-        {isCompared ? <Check size={13} /> : <Plus size={13} />}
-        {isCompared ? "Added to Compare" : "Add to Compare"}
-      </button>
     </article>
   );
 }

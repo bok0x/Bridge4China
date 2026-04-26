@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Award, DollarSign, Clock, CheckCircle, ArrowRight } from "lucide-react";
-import { formatCNY, SCHOLARSHIP_TYPE_LABELS } from "@/lib/utils";
+import { SCHOLARSHIP_TYPE_LABELS } from "@/lib/utils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import type { Scholarship } from "@/types";
 
 interface ScholarshipCardProps {
@@ -21,6 +24,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
+  const { convert } = useCurrency();
   const color = TYPE_COLORS[scholarship.type] ?? "var(--color-accent)";
   const href = `/discover?hasScholarship=true${scholarship.programField ? `&field=${encodeURIComponent(scholarship.programField)}` : ""}`;
 
@@ -74,7 +78,7 @@ export function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
             <DollarSign size={13} style={{ color: "var(--color-accent)" }} />
             <span>
               Living allowance:{" "}
-              <strong>{formatCNY(scholarship.livingAllowance)}/month</strong>
+              <strong>{convert(scholarship.livingAllowance)}/month</strong>
             </span>
           </div>
         )}

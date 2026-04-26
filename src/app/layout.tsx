@@ -15,7 +15,7 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chinaunimatch.com"),
+  metadataBase: new URL("https://bridge4china.com"),
   title: {
     default: SITE_NAME,
     template: `%s | ${SITE_NAME}`,

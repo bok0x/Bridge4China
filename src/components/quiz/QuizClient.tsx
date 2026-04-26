@@ -22,6 +22,12 @@ export default function QuizClient() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Hide footer/floats while quiz is active
+  useEffect(() => {
+    document.body.classList.add("quiz-active");
+    return () => document.body.classList.remove("quiz-active");
+  }, []);
+
   // Initialize ambient audio
   useEffect(() => {
     try {

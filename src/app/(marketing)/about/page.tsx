@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "About" };
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-36 pb-16">
       <div className="container-app max-w-3xl">
         <div className="badge badge-accent mb-4">About</div>
         <h1 className="text-4xl md:text-5xl font-heading font-black mb-4">{SITE_NAME}</h1>
@@ -19,9 +19,9 @@ export default function AboutPage() {
           <GlassCard>
             <h2 className="font-heading font-bold text-xl mb-3">Our Mission</h2>
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-              ChinaUniMatch makes it easy for international students from any country to discover,
-              compare, and apply to Chinese universities — all in one place. We cut through the
-              complexity of navigating dozens of university websites and scholarship portals.
+              Bridge4China makes it easy for international students from any country to discover
+              and apply to Chinese universities — all in one place. We cut through the complexity
+              of navigating dozens of university websites and scholarship portals.
             </p>
           </GlassCard>
 
@@ -31,7 +31,6 @@ export default function AboutPage() {
               {[
                 "200+ programs across top Chinese universities",
                 "CSC, provincial, and university scholarship matching",
-                "Side-by-side cost and requirements comparison",
                 "Step-by-step application guidance with document checklists",
                 "Direct advisor support via WhatsApp",
               ].map((item) => (

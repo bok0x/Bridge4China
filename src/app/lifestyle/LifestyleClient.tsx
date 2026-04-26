@@ -163,7 +163,7 @@ export function LifestyleClient() {
     >
       {/* ── Hero ──────────────────────────────────────────────── */}
       <motion.section
-        className="container-app pt-28 pb-16 text-center"
+        className="container-app pt-36 pb-16 text-center"
         style={{ y: heroY }}
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6 glass">

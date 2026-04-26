@@ -125,7 +125,7 @@ export function BeforeChinaClient() {
       {/* ── Hero ────────────────────────────────────────────────────── */}
       <section
         className="section"
-        style={{ paddingTop: "6rem", paddingBottom: "4rem" }}
+        style={{ paddingTop: "9rem", paddingBottom: "4rem" }}
       >
         <div className="container-app" style={{ textAlign: "center" }}>
           <div

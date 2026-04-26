@@ -122,7 +122,7 @@ export function HowToApplyClient() {
     >
       {/* ── Section 1: Hero ─────────────────────────────────────────────────── */}
       <section
-        className="pt-28 pb-16"
+        className="pt-36 pb-16"
         style={{ background: "var(--color-bg-secondary)" }}
       >
         <div className="container-app max-w-3xl text-center">
