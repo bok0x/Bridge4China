@@ -25,9 +25,10 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
   const urlError = searchParams.get("error");
+  const from = searchParams.get("from");
 
   const URL_ERROR_MESSAGES: Record<string, string> = {
-    auth_callback_failed: "Sign-in failed. Please try again.",
+    auth_callback_failed: from === "signup" ? "Sign-up failed. Please try again." : "Sign-in failed. Please try again.",
     provider_not_enabled: "This sign-in method is not enabled.",
   };
 

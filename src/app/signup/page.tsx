@@ -53,7 +53,7 @@ export default function SignupPage() {
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/dashboard&from=signup` },
     });
     if (authError) {
       setError(authError.message);

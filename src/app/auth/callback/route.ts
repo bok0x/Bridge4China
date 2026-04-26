@@ -36,16 +36,24 @@ export async function GET(request: NextRequest) {
   // Path 2: OAuth code exchange (?code=)
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error && data.user) {
-      await prisma.user.upsert({
-        where: { supabaseId: data.user.id },
-        update: {},
-        create: {
-          supabaseId: data.user.id,
-          email: data.user.email!,
-          name: data.user.user_metadata?.full_name ?? data.user.user_metadata?.name ?? null,
-        },
-      });
+    if (!error) {
+      // Best-effort: sync Prisma User record. Never block auth if this fails.
+      const authUser = data.session?.user ?? data.user;
+      if (authUser?.email) {
+        try {
+          await prisma.user.upsert({
+            where: { supabaseId: authUser.id },
+            update: {},
+            create: {
+              supabaseId: authUser.id,
+              email: authUser.email,
+              name: authUser.user_metadata?.full_name ?? authUser.user_metadata?.name ?? null,
+            },
+          });
+        } catch {
+          // DB sync failed — user is still authenticated, let them through
+        }
+      }
       return redirectTo;
     }
   }
