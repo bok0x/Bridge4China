@@ -4,9 +4,28 @@ import { cookies } from "next/headers";
 
 export async function GET(request: NextRequest) {
   const allCookies = request.cookies.getAll();
-  const authCookies = allCookies.filter((c) => c.name.startsWith("sb-"));
+  const authCookie = allCookies.find((c) => c.name === "sb-gofjasbvyhtbhyxxcrzd-auth-token");
 
-  // Test with server client (same as middleware)
+  let rawFirst100 = "";
+  let parsedDirectly = false;
+  let parsedAfterDecode = false;
+  let decodedFirst100 = "";
+
+  if (authCookie) {
+    rawFirst100 = authCookie.value.slice(0, 100);
+    try {
+      JSON.parse(authCookie.value);
+      parsedDirectly = true;
+    } catch {}
+    try {
+      const decoded = decodeURIComponent(authCookie.value);
+      decodedFirst100 = decoded.slice(0, 100);
+      JSON.parse(decoded);
+      parsedAfterDecode = true;
+    } catch {}
+  }
+
+  // Test server client with cookies() (Route Handler pattern)
   const cookieStore = cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,20 +42,15 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const { data: sessionData } = await supabase.auth.getSession();
 
   return NextResponse.json({
-    cookiesReceivedByServer: authCookies.map((c) => ({ name: c.name, length: c.value.length })),
-    getSession: {
-      hasSession: !!sessionData.session,
-      userEmail: sessionData.session?.user?.email ?? null,
-      error: sessionError?.message ?? null,
-    },
-    getUser: {
-      hasUser: !!userData.user,
-      userEmail: userData.user?.email ?? null,
-      error: userError?.message ?? null,
-    },
+    cookieExists: !!authCookie,
+    cookieLength: authCookie?.value.length,
+    rawFirst100,
+    decodedFirst100,
+    parsedDirectly,
+    parsedAfterDecode,
+    getSessionResult: !!sessionData.session,
   });
 }
