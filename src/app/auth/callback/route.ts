@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -34,8 +35,19 @@ export async function GET(request: NextRequest) {
 
   // Path 2: OAuth code exchange (?code=)
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return redirectTo;
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data.user) {
+      await prisma.user.upsert({
+        where: { supabaseId: data.user.id },
+        update: {},
+        create: {
+          supabaseId: data.user.id,
+          email: data.user.email!,
+          name: data.user.user_metadata?.full_name ?? data.user.user_metadata?.name ?? null,
+        },
+      });
+      return redirectTo;
+    }
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
